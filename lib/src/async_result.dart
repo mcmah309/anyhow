@@ -30,21 +30,21 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
     return then((result) => result.unwrapOrNull());
   }
 
-  Future<F> err(){
-    return then((result) => result.err());
+  Future<F> unwrapErr(){
+    return then((result) => result.unwrapErr());
   }
 
-  Future<F> errOr(F defaultValue){
-    return then((result) => result.errOr(defaultValue));
+  Future<F> unwrapErrOr(F defaultValue){
+    return then((result) => result.unwrapErrOr(defaultValue));
   }
 
-  Future<F> errOrElse(F Function(S ok) onOk){
-    return then((result) => result.errOrElse(onOk));
+  Future<F> unwrapErrOrElse(F Function(S ok) onOk){
+    return then((result) => result.unwrapErrOrElse(onOk));
   }
 
   /// Returns the future value of [F] if any.
-  Future<F?> errOrNull() {
-    return then((result) => result.errOrNull());
+  Future<F?> unwrapErrOrNull() {
+    return then((result) => result.unwrapErrOrNull());
   }
 
   //************************************************************************//
@@ -121,11 +121,26 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
     return then((result) => result.match(Ok.new, fn));
   }
 
+  /// If [Ok], Calls the provided closure with the ok value, else does nothing.
+  AsyncResult<S,F> inspect(void Function(S ok) fn){
+    return then((result) => inspect(fn));
+  }
+
+  /// If [Err], Calls the provided closure with the err value, else does nothing.
+  AsyncResult<S,F> inspectErr(void Function(F error) fn){
+    return then((result) => inspectErr(fn));
+  }
+
   //************************************************************************//
 
   /// Swap the values contained inside the [Ok] and [Err]
   /// of this [AsyncResult].
   AsyncResult<F, S> swap() {
     return then((result) => result.swap());
+  }
+
+  /// Performs a shallow copy of this result.
+  AsyncResult<S, F> copy() {
+    return then((result) => result.copy());
   }
 }

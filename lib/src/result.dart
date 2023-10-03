@@ -41,26 +41,26 @@ abstract class Result<S, F> {
 
   /// Returns the err value if [Result] is [Err].
   /// Throws a [Panic] if the [Result] is [Ok].
-  F err();
+  F unwrapErr();
 
   /// Returns the encapsulated value if this instance represents
   /// [Err] or the [defaultValue] if it is [Ok].
   /// Note: This should not be used to determine is [Ok] or is [Err], since when the failure type is nullable, a
   /// default value of null can be provided, which is ambiguous in meaning.
-  F errOr(F defaultValue);
+  F unwrapErrOr(F defaultValue);
 
   /// Returns the encapsulated value if this instance represents [Err]
   /// or the result of [onError] function for
   /// the encapsulated a [Err] value.
   /// Note: This should not be used to determine is [Ok] or is [Err], since when the failure type is nullable,
   /// the value returned can be null, which is ambiguous in meaning.
-  F errOrElse(F Function(S ok) onOk);
+  F unwrapErrOrElse(F Function(S ok) onOk);
 
   /// Returns the err value if [Result] is [Err].
   /// returns null if the [Result] is [Ok].
   /// Note: This should not be used to determine is [Ok] or is [Err], since when the failure type is nullable, a
   /// null is ambiguous in meaning.
-  F? errOrNull();
+  F? unwrapErrOrNull();
 
   /// Returns the ok value if [Result] is [Ok].
   /// Throws a [Panic] if the [Result] is [Err], with the provided [message].
@@ -96,13 +96,19 @@ abstract class Result<S, F> {
   /// using the given transformation.
   Result<S, W> mapError<W>(W Function(F error) fn);
 
-  /// Returns a new [Result], mapping any [Ok] value
-  /// using the given transformation and unwrapping the produced [Result].
+  /// If [Ok], Returns a new [Result] mapping the [Ok] value with
+  /// the given transformation and unwrapping the produced [Result].
   Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn);
 
-  /// Returns a new [Result], mapping any [Err] value
-  /// using the given transformation and unwrapping the produced [Result].
+  /// If [Err], Returns a new [Result] mapping the [Err] value with
+  /// the given transformation and unwrapping the produced [Result].
   Result<S, W> flatMapError<W>(Result<S, W> Function(F error) fn);
+
+  /// If [Ok], Calls the provided closure with the ok value, else does nothing.
+  Result<S,F> inspect(void Function(S ok) fn);
+
+  /// If [Err], Calls the provided closure with the err value, else does nothing.
+  Result<S,F> inspectErr(void Function(F error) fn);
 
   //************************************************************************//
 
@@ -112,6 +118,9 @@ abstract class Result<S, F> {
   /// Swap the values contained inside the [Ok] and [Err]
   /// of this [Result].
   Result<F, S> swap();
+
+  /// Performs a shallow copy of this result.
+  Result<S,F> copy();
 }
 
 /// Ok Result.
@@ -155,22 +164,22 @@ class Ok<S, F> implements Result<S, F> {
 
 
   @override
-  F err() {
+  F unwrapErr() {
     throw Panic(this, "called `err`");
   }
 
   @override
-  F errOr(F defaultValue) {
+  F unwrapErrOr(F defaultValue) {
     return defaultValue;
   }
 
   @override
-  F errOrElse(F Function(S ok) onOk) {
+  F unwrapErrOrElse(F Function(S ok) onOk) {
     return onOk(_ok);
   }
 
   @override
-  F? errOrNull() => null;
+  F? unwrapErrOrNull() => null;
 
   @override
   S expect(String message) {
@@ -223,6 +232,15 @@ class Ok<S, F> implements Result<S, F> {
     return Ok<S, W>(_ok);
   }
 
+  Result<S,F> inspect(void Function(S ok) fn){
+    fn(_ok);
+    return this;
+  }
+
+  Result<S,F> inspectErr(void Function(F error) fn){
+    return this;
+  }
+
   //************************************************************************//
 
   @override
@@ -231,6 +249,10 @@ class Ok<S, F> implements Result<S, F> {
   @override
   Result<F, S> swap() {
     return Err(_ok);
+  }
+
+  Result<S,F> copy() {
+    return Ok(_ok);
   }
 
   //************************************************************************//
@@ -282,22 +304,22 @@ class Err<S, F> implements Result<S, F> {
   S? unwrapOrNull() => null;
 
   @override
-  F err() {
+  F unwrapErr() {
     return _error;
   }
 
   @override
-  F errOr(F defaultValue) {
+  F unwrapErrOr(F defaultValue) {
     return _error;
   }
 
   @override
-  F errOrElse(F Function(S ok) onOk) {
+  F unwrapErrOrElse(F Function(S ok) onOk) {
     return _error;
   }
 
   @override
-  F errOrNull() => _error;
+  F unwrapErrOrNull() => _error;
 
   @override
   S expect(String message) {
@@ -350,12 +372,27 @@ class Err<S, F> implements Result<S, F> {
     return fn(_error);
   }
 
+  Result<S,F> inspect(void Function(S ok) fn){
+    return this;
+  }
+
+  Result<S,F> inspectErr(void Function(F error) fn){
+    fn(_error);
+    return this;
+  }
+
+  //************************************************************************//
+
   @override
   AsyncResult<S, F> toAsyncResult() async => this;
 
   @override
   Result<F, S> swap() {
     return Ok(_error);
+  }
+
+  Result<S,F> copy() {
+    return Err(_error);
   }
 
   //************************************************************************//
