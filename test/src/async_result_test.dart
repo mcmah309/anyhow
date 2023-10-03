@@ -21,14 +21,14 @@ void main() {
 
   group('flatMapError', () {
     test('async ', () async {
-      final result = await const Err(1) //
+      final result = await Err(1) //
           .toAsyncResult()
           .flatMapError((error) async => Err(error * 2));
       expect(result.unwrapErrOrNull(), 2);
     });
 
     test('sink', () async {
-      final result = await const Err(1) //
+      final result = await Err(1) //
           .toAsyncResult()
           .flatMapError((error) => Err(error * 2));
       expect(result.unwrapErrOrNull(), 2);
@@ -41,31 +41,15 @@ void main() {
         .map((ok) => ok * 2);
 
     expect(result.unwrapOrNull(), 2);
-    expect(const Err(2).toAsyncResult().map((x) => x), completes);
+    expect(Err(2).toAsyncResult().map((x) => x), completes);
   });
 
   test('mapError', () async {
-    final result = await const Err(1) //
+    final result = await Err(1) //
         .toAsyncResult()
         .mapError((error) => error * 2);
     expect(result.unwrapErrOrNull(), 2);
     expect(const Ok(2).toAsyncResult().mapError((x) => x), completes);
-  });
-
-  group('swap', () {
-    test('Ok to Error', () async {
-      final result = const Ok<int, String>(0).toAsyncResult();
-      final swap = await result.swap();
-
-      expect(swap.unwrapErrOrNull(), 0);
-    });
-
-    test('Error to Ok', () async {
-      final result = const Err<String, int>(0).toAsyncResult();
-      final swap = await result.swap();
-
-      expect(swap.unwrapOrNull(), 0);
-    });
   });
 
   group('match', () {
@@ -76,7 +60,7 @@ void main() {
     });
 
     test('Error', () async {
-      final result = const Err<String, int>(0).toAsyncResult();
+      final result = Err<String, int>(0).toAsyncResult();
       final futureValue = result.match((x) => x, (e) => e);
       expect(futureValue, completion(0));
     });
@@ -91,7 +75,7 @@ void main() {
     });
 
     test('Error', () async {
-      final result = const Err<String, int>(0).toAsyncResult();
+      final result = Err<String, int>(0).toAsyncResult();
 
       expect(result.isErr(), completion(true));
       expect(result.unwrapErrOrNull(), completion(0));
@@ -105,7 +89,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = const Err<String, int>(0).toAsyncResult();
+      final result = Err<String, int>(0).toAsyncResult();
       expect(result.unwrap, throwsA(isA<Panic>()));
     });
   });
@@ -118,7 +102,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = const Err<int, int>(0).toAsyncResult();
+      final result = Err<int, int>(0).toAsyncResult();
       final value = result.unwrapOrElse((f) => 2);
       expect(value, completion(2));
     });
@@ -132,7 +116,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = const Err<int, int>(0).toAsyncResult();
+      final result = Err<int, int>(0).toAsyncResult();
       final value = result.unwrapOr(2);
       expect(value, completion(2));
     });
@@ -153,7 +137,7 @@ void main() {
     });
 
     test('Error', () {
-      const Err<int, String>('error') //
+      Err<int, String>('error') //
           .toAsyncResult()
           .inspect((ok) {})
           .inspectErr(

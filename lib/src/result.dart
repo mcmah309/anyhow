@@ -4,11 +4,14 @@ import '../anyhow.dart';
 import 'async_result.dart';
 import 'unit.dart' as type_unit;
 
+/// When a function will return a [Result] and the [Err] value may be the union of any number of [Object]s use [Anyhow].
+typedef Anyhow<S> = Result<S,Object>;
+
 /// [Result] class representing the type union between [Ok] and [Err].
 ///
 /// [S] is the ok type (aka success) and [F] is an error (aka failure).
 @sealed
-abstract class Result<S, F> {
+abstract class Result<S, F extends Object> {
   /// Build a [Result] that returns a [Err].
   factory Result.ok(S s) => Ok(s);
 
@@ -85,7 +88,7 @@ abstract class Result<S, F> {
   /// for the encapsulated value if it is [Err].
   W match<W>(
     W Function(S ok) onOk,
-    W Function(F error) onError,
+    W Function(F err) onError,
   );
 
   /// Returns a new [Result], mapping any [Ok] value
@@ -94,7 +97,7 @@ abstract class Result<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  Result<S, W> mapError<W>(W Function(F error) fn);
+  Result<S, W> mapError<W extends Object>(W Function(F error) fn);
 
   /// If [Ok], Returns a new [Result] mapping the [Ok] value with
   /// the given transformation and unwrapping the produced [Result].
@@ -102,7 +105,7 @@ abstract class Result<S, F> {
 
   /// If [Err], Returns a new [Result] mapping the [Err] value with
   /// the given transformation and unwrapping the produced [Result].
-  Result<S, W> flatMapError<W>(Result<S, W> Function(F error) fn);
+  Result<S, W> flatMapError<W extends Object>(Result<S, W> Function(F error) fn);
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
   Result<S,F> inspect(void Function(S ok) fn);
@@ -115,19 +118,24 @@ abstract class Result<S, F> {
   /// Return a [AsyncResult].
   AsyncResult<S, F> toAsyncResult();
 
-  /// Swap the values contained inside the [Ok] and [Err]
-  /// of this [Result].
-  Result<F, S> swap();
+  /// Up casts this [Result] to [Anyhow].
+  Anyhow<S> upCast();
 
   /// Performs a shallow copy of this result.
   Result<S,F> copy();
+
+  //************************************************************************//
+
+  Result<S,F> context(String context);
+
+  Result<S,F> withContext(String Function() fn);
 }
 
 /// Ok Result.
 ///
 /// Returned when the result is an expected value
 @immutable
-class Ok<S, F> implements Result<S, F> {
+class Ok<S, F extends Object> implements Result<S, F> {
   /// Receives the [S] param as
   /// the ok result.
   const Ok(
@@ -138,7 +146,7 @@ class Ok<S, F> implements Result<S, F> {
   /// ```dart
   /// Ok.unit() == Ok(unit)
   /// ```
-  static Ok<type_unit.Unit, F> unit<F>() {
+  static Ok<type_unit.Unit, F> unit<F extends Object>() {
     return Ok<type_unit.Unit, F>(type_unit.unit);
   }
 
@@ -216,7 +224,7 @@ class Ok<S, F> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> mapError<W>(W Function(F error) fn) {
+  Result<S, W> mapError<W extends Object>(W Function(F error) fn) {
     return Ok<S, W>(_ok);
   }
 
@@ -226,7 +234,7 @@ class Ok<S, F> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> flatMapError<W>(
+  Result<S, W> flatMapError<W extends Object>(
       Result<S, W> Function(F error) fn,
       ) {
     return Ok<S, W>(_ok);
@@ -246,13 +254,22 @@ class Ok<S, F> implements Result<S, F> {
   @override
   AsyncResult<S, F> toAsyncResult() async => this;
 
-  @override
-  Result<F, S> swap() {
-    return Err(_ok);
+  Anyhow<S> upCast(){
+    return this;
   }
 
   Result<S,F> copy() {
     return Ok(_ok);
+  }
+
+  //************************************************************************//
+
+  Result<S,F> context(String context){
+    return this;
+  }
+
+  Result<S,F> withContext(String Function() fn){
+    return this;
   }
 
   //************************************************************************//
@@ -270,10 +287,10 @@ class Ok<S, F> implements Result<S, F> {
 ///
 /// Returned when the result is an unexpected value
 @immutable
-class Err<S, F> implements Result<S, F> {
+class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toString? Exception
   /// Receives the [F] param as
   /// the error result.
-  const Err(this._error);
+  Err(this._error);
 
   /// Build a [Err] with [Unit] value.
   /// ```dart
@@ -284,6 +301,7 @@ class Err<S, F> implements Result<S, F> {
   }
 
   final F _error;
+  final List<String> _context = []; //todo change to nullable at start?
 
   //************************************************************************//
 
@@ -355,7 +373,7 @@ class Err<S, F> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> mapError<W>(W Function(F error) fn) {
+  Result<S, W> mapError<W extends Object>(W Function(F error) fn) {
     final newError = fn(_error);
     return Err(newError);
   }
@@ -366,7 +384,7 @@ class Err<S, F> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> flatMapError<W>(
+  Result<S, W> flatMapError<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
     return fn(_error);
@@ -386,13 +404,23 @@ class Err<S, F> implements Result<S, F> {
   @override
   AsyncResult<S, F> toAsyncResult() async => this;
 
-  @override
-  Result<F, S> swap() {
-    return Ok(_error);
+  Anyhow<S> upCast(){
+    return this;
   }
 
   Result<S,F> copy() {
     return Err(_error);
+  }
+
+  //************************************************************************//
+
+  Result<S,F> context(String context){
+    _context.add(context);
+    return this;
+  }
+
+  Result<S,F> withContext(String Function() fn){
+    return context(fn());
   }
 
   //************************************************************************//

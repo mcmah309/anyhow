@@ -3,9 +3,9 @@ import 'dart:async';
 import '../anyhow.dart';
 
 /// [AsyncResult] represents an asynchronous computation.
-typedef AsyncResult<S, F> = Future<Result<S, F>>;
+typedef AsyncResult<S, F extends Object> = Future<Result<S, F>>;
 
-extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
+extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
 
   /// Returns the ok value as a throwing expression.
   Future<S> unwrap() {
@@ -90,7 +90,7 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  AsyncResult<S, W> mapError<W>(
+  AsyncResult<S, W> mapError<W extends Object>(
       FutureOr<W> Function(F error) fn,
       ) {
     return then(
@@ -115,7 +115,7 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation and unwrapping the produced [Result].
-  AsyncResult<S, W> flatMapError<W>(
+  AsyncResult<S, W> flatMapError<W extends Object>(
       FutureOr<Result<S, W>> Function(F error) fn,
       ) {
     return then((result) => result.match(Ok.new, fn));
@@ -132,12 +132,6 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
   }
 
   //************************************************************************//
-
-  /// Swap the values contained inside the [Ok] and [Err]
-  /// of this [AsyncResult].
-  AsyncResult<F, S> swap() {
-    return then((result) => result.swap());
-  }
 
   /// Performs a shallow copy of this result.
   AsyncResult<S, F> copy() {

@@ -56,7 +56,7 @@ void main() {
   });
 
   test("Result.err", () {
-    Result result = Result.err(0);
+    Result<dynamic,int> result = Result.err(0);
     late int err;
     if (result.isErr()) {
       err = result.unwrapErr();
@@ -70,8 +70,8 @@ void main() {
     expect(const Ok(1) == const Ok(1), isTrue);
     expect(const Ok(1).hashCode == const Ok(1).hashCode, isTrue);
 
-    expect(const Err(1) == const Err(1), isTrue);
-    expect(const Err(1).hashCode == const Err(1).hashCode, isTrue);
+    expect(Err(1) == Err(1), isTrue);
+    expect(Err(1).hashCode == Err(1).hashCode, isTrue);
   });
 
   group('Map', () {
@@ -101,7 +101,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<String, int>(4);
+      final result = Err<String, int>(4);
       final result2 = result.mapError((error) => 'change');
 
       expect(result2.unwrapOrNull(), isNull);
@@ -118,7 +118,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<String, int>(4);
+      final result = Err<String, int>(4);
       final result2 = result.flatMap(Ok.new);
 
       expect(result2.unwrapOrNull(), isNull);
@@ -128,7 +128,7 @@ void main() {
 
   group('flatMapError', () {
     test('Error', () {
-      const result = Err<int, int>(4);
+      final result = Err<int, int>(4);
       final result2 = result.flatMapError((error) => Err('=' * error));
 
       expect(result2.unwrapErrOrNull(), '====');
@@ -149,22 +149,6 @@ void main() {
     expect(result.toAsyncResult(), isA<AsyncResult>());
   });
 
-  group('swap', () {
-    test('Ok to Error', () {
-      const result = Ok<int, String>(0);
-      final swap = result.swap();
-
-      expect(swap.unwrapErrOrNull(), 0);
-    });
-
-    test('Error to Ok', () {
-      const result = Err<String, int>(0);
-      final swap = result.swap();
-
-      expect(swap.unwrapOrNull(), 0);
-    });
-  });
-
   group('match', () {
     test('Ok', () {
       const result = Ok<int, String>(0);
@@ -173,7 +157,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<String, int>(0);
+      final result = Err<String, int>(0);
       final futureValue = result.match((ok) => -1, (x) => x);
       expect(futureValue, 0);
     });
@@ -186,7 +170,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<String, int>(0);
+      final result = Err<String, int>(0);
       expect(result.unwrap, throwsA(isA<Panic>()));
     });
   });
@@ -199,7 +183,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapOr(2);
       expect(value, 2);
     });
@@ -207,13 +191,13 @@ void main() {
 
   group('unwrapOrElse', () {
     test('Ok', () {
-      const result = Ok<int, String>(0);
+      final result = Ok<int, String>(0);
       final value = result.unwrapOrElse((f) => -1);
       expect(value, 0);
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapOrElse((f) => 2);
       expect(value, 2);
     });
@@ -227,7 +211,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapOrNull();
       expect(value, null);
     });
@@ -240,20 +224,20 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<String, int>(0);
+      final result = Err<String, int>(0);
       expect(result.unwrapErr(), 0);
     });
   });
 
   group('unwrapErrOr', () {
     test('Ok', () {
-      const result = Ok<int, String>(0);
+      final result = Ok<int, String>(0);
       final value = result.unwrapErrOr("");
       expect(value, "");
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapErrOr(2);
       expect(value, 0);
     });
@@ -267,7 +251,7 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapErrOrElse((f) => 2);
       expect(value, 0);
     });
@@ -281,9 +265,25 @@ void main() {
     });
 
     test('Error', () {
-      const result = Err<int, int>(0);
+      final result = Err<int, int>(0);
       final value = result.unwrapErrOrNull();
       expect(value, 0);
     });
   });
+
+  test('implicit up cast', () {
+    Result<int,double> y(){
+      return Ok(0);
+    }
+    Result<int,Object> x(){
+      return y().upCast();
+    }
+    // Not valid
+    // Result<int,String> x(){
+    //   return y().upCast();
+    // }
+    x();
+  });
+
+
 }
