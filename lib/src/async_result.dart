@@ -123,12 +123,12 @@ extension AsyncResultExtension<S, F> on AsyncResult<S, F> {
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
   AsyncResult<S,F> inspect(void Function(S ok) fn){
-    return then((result) => inspect(fn));
+    return then((result) => result.inspect(fn));
   }
 
   /// If [Err], Calls the provided closure with the err value, else does nothing.
   AsyncResult<S,F> inspectErr(void Function(F error) fn){
-    return then((result) => inspectErr(fn));
+    return then((result) => result.inspectErr(fn));
   }
 
   //************************************************************************//
