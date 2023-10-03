@@ -1,0 +1,13 @@
+name: anyhow
+description: Result monad for dart. Based on Rust's anyhow crate.
+version: 0.1.0
+repository: https://github.com/mcmah309/anyhow
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+
+
+dev_dependencies:
+  test: any
