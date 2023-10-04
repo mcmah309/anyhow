@@ -118,9 +118,6 @@ abstract class Result<S, F extends Object> {
   /// Return a [FutureResult].
   FutureResult<S, F> toAsyncResult();
 
-  /// Up casts this [Result] to [Anyhow].
-  Anyhow<S> upCast();
-
   /// Performs a shallow copy of this result.
   Result<S, F> copy();
 
@@ -255,10 +252,6 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   FutureResult<S, F> toAsyncResult() async => this;
-
-  Anyhow<S> upCast() {
-    return this;
-  }
 
   Result<S, F> copy() {
     return Ok(_ok);
@@ -413,10 +406,6 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
 
   @override
   FutureResult<S, F> toAsyncResult() async => this;
-
-  Anyhow<S> upCast() {
-    return this;
-  }
 
   Result<S, F> copy() {
     return Err(_contexts.first as F);

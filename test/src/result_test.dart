@@ -271,19 +271,28 @@ void main() {
   });
 
   test('implicit up cast', () {
-    Result<int, double> y() {
+    Result<int, double> y1() {
       return Ok(0);
     }
 
-    Result<int, Object> x() {
-      return y().upCast();
+    Result<int, Object> x1() {
+      return y1();
     }
 
     // Not valid
     // Result<int,String> x(){
-    //   return y().upCast();
+    //   return y();
     // }
-    x();
+    x1();
+
+    Result<int, double> y2() {
+      return Err(0);
+    }
+
+    Result<int, Object> x2() {
+      return y2();
+    }
+    x2();
   });
 
   test('context', () {
