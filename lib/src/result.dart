@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../anyhow.dart';
-import 'async_result.dart';
+import 'future_result.dart';
 import 'unit.dart' as type_unit;
 
 /// When a function will return a [Result] and the [Err] value may be the union of any number of [Object]s use [Anyhow].
@@ -115,8 +115,8 @@ abstract class Result<S, F extends Object> {
 
   //************************************************************************//
 
-  /// Return a [AsyncResult].
-  AsyncResult<S, F> toAsyncResult();
+  /// Return a [FutureResult].
+  FutureResult<S, F> toAsyncResult();
 
   /// Up casts this [Result] to [Anyhow].
   Anyhow<S> upCast();
@@ -254,7 +254,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  AsyncResult<S, F> toAsyncResult() async => this;
+  FutureResult<S, F> toAsyncResult() async => this;
 
   Anyhow<S> upCast() {
     return this;
@@ -412,7 +412,7 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
   //************************************************************************//
 
   @override
-  AsyncResult<S, F> toAsyncResult() async => this;
+  FutureResult<S, F> toAsyncResult() async => this;
 
   Anyhow<S> upCast() {
     return this;

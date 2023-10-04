@@ -145,7 +145,7 @@ void main() {
   test('toAsyncResult', () {
     const result = Ok(0);
 
-    expect(result.toAsyncResult(), isA<AsyncResult>());
+    expect(result.toAsyncResult(), isA<FutureResult>());
   });
 
   group('match', () {

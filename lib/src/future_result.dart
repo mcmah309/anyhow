@@ -2,10 +2,10 @@ import 'dart:async';
 
 import '../anyhow.dart';
 
-/// [AsyncResult] represents an asynchronous computation.
-typedef AsyncResult<S, F extends Object> = Future<Result<S, F>>;
+/// [FutureResult] represents an asynchronous computation.
+typedef FutureResult<S, F extends Object> = Future<Result<S, F>>;
 
-extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
+extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
 
   /// Returns the ok value as a throwing expression.
   Future<S> unwrap() {
@@ -71,9 +71,9 @@ extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
     return then<W>((result) => result.match(onOk, onError));
   }
 
-  /// Returns a new [AsyncResult], mapping any [Ok] value
+  /// Returns a new [FutureResult], mapping any [Ok] value
   /// using the given transformation.
-  AsyncResult<W, F> map<W>(
+  FutureResult<W, F> map<W>(
       FutureOr<W> Function(S ok) fn,
       ) {
     return then(
@@ -90,7 +90,7 @@ extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  AsyncResult<S, W> mapError<W extends Object>(
+  FutureResult<S, W> mapError<W extends Object>(
       FutureOr<W> Function(F error) fn,
       ) {
     return then(
@@ -107,7 +107,7 @@ extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
 
   /// Returns a new [Result], mapping any [Ok] value
   /// using the given transformation and unwrapping the produced [Result].
-  AsyncResult<W, F> flatMap<W>(
+  FutureResult<W, F> flatMap<W>(
       FutureOr<Result<W, F>> Function(S ok) fn,
       ) {
     return then((result) => result.match(fn, Err.new));
@@ -115,26 +115,26 @@ extension AsyncResultExtension<S, F extends Object> on AsyncResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation and unwrapping the produced [Result].
-  AsyncResult<S, W> flatMapError<W extends Object>(
+  FutureResult<S, W> flatMapError<W extends Object>(
       FutureOr<Result<S, W>> Function(F error) fn,
       ) {
     return then((result) => result.match(Ok.new, fn));
   }
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
-  AsyncResult<S,F> inspect(void Function(S ok) fn){
+  FutureResult<S,F> inspect(void Function(S ok) fn){
     return then((result) => result.inspect(fn));
   }
 
   /// If [Err], Calls the provided closure with the err value, else does nothing.
-  AsyncResult<S,F> inspectErr(void Function(F error) fn){
+  FutureResult<S,F> inspectErr(void Function(F error) fn){
     return then((result) => result.inspectErr(fn));
   }
 
   //************************************************************************//
 
   /// Performs a shallow copy of this result.
-  AsyncResult<S, F> copy() {
+  FutureResult<S, F> copy() {
     return then((result) => result.copy());
   }
 }
