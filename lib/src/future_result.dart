@@ -2,10 +2,12 @@ import 'dart:async';
 
 import '../anyhow.dart';
 
-/// [FutureResult] represents an asynchronous computation.
-typedef FutureResult<S, F extends Object> = Future<Result<S, F>>;
+typedef FutureAnyhow<S> = Future<Result<S, AnyhowError>>;
 
-extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
+/// [FutureResult] represents an asynchronous computation.
+typedef FutureResult<S, F extends AnyhowError> = Future<Result<S, F>>;
+
+extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> {
 
   /// Returns the ok value as a throwing expression.
   Future<S> unwrap() {
@@ -90,16 +92,16 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  FutureResult<S, W> mapError<W extends Object>(
+  FutureResult<S, W> mapErr<W extends AnyhowError>(
       FutureOr<W> Function(F error) fn,
       ) {
     return then(
-          (result) => result.mapError(fn).match(
+          (result) => result.match(
             (ok) {
           return Ok(ok);
         },
             (error) async {
-          return Err(await error);
+          return Err(await fn(error));
         },
       ),
     );
@@ -115,7 +117,7 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation and unwrapping the produced [Result].
-  FutureResult<S, W> flatMapError<W extends Object>(
+  FutureResult<S, W> flatMapErr<W extends AnyhowError>(
       FutureOr<Result<S, W>> Function(F error) fn,
       ) {
     return then((result) => result.match(Ok.new, fn));

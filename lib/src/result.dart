@@ -1,17 +1,18 @@
 import 'package:meta/meta.dart';
 
 import '../anyhow.dart';
-import 'future_result.dart';
 import 'unit.dart' as type_unit;
 
+part 'anyhow_error.dart';
+
 /// When a function will return a [Result] and the [Err] value may be the union of any number of [Object]s use [Anyhow].
-typedef Anyhow<S> = Result<S, Object>;
+typedef Anyhow<S> = Result<S, AnyhowError>;
 
 /// [Result] class representing the type union between [Ok] and [Err].
 ///
 /// [S] is the ok type (aka success) and [F] is an error (aka failure).
 @sealed
-abstract class Result<S, F extends Object> {
+abstract class Result<S, F extends AnyhowError> {
   /// Build a [Result] that returns a [Err].
   factory Result.ok(S s) => Ok(s);
 
@@ -97,7 +98,7 @@ abstract class Result<S, F extends Object> {
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  Result<S, W> mapError<W extends Object>(W Function(F error) fn);
+  Result<S, W> mapErr<W extends AnyhowError>(W Function(F error) fn);
 
   /// If [Ok], Returns a new [Result] mapping the [Ok] value with
   /// the given transformation and unwrapping the produced [Result].
@@ -105,7 +106,7 @@ abstract class Result<S, F extends Object> {
 
   /// If [Err], Returns a new [Result] mapping the [Err] value with
   /// the given transformation and unwrapping the produced [Result].
-  Result<S, W> flatMapError<W extends Object>(Result<S, W> Function(F error) fn);
+  Result<S, W> flatMapErr<W extends AnyhowError>(Result<S, W> Function(F error) fn);
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
   Result<S, F> inspect(void Function(S ok) fn);
@@ -116,15 +117,19 @@ abstract class Result<S, F extends Object> {
   //************************************************************************//
 
   /// Return a [FutureResult].
-  FutureResult<S, F> toAsyncResult();
+  FutureResult<S, F> toFutureResult();
 
   /// Performs a shallow copy of this result.
   Result<S, F> copy();
 
   //************************************************************************//
 
+  /// Adds the object as additional context to the [AnyhowError]. The context should not be an instance of
+  /// [AnyhowError].
   Result<S, F> context(Object context);
 
+  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
+  /// [AnyhowError]. The context should not be an instance of [AnyhowError].
   Result<S, F> withContext(Object Function() fn);
 
   @mustBeOverridden
@@ -135,7 +140,7 @@ abstract class Result<S, F extends Object> {
 ///
 /// Returned when the result is an expected value
 @immutable
-class Ok<S, F extends Object> implements Result<S, F> {
+class Ok<S, F extends AnyhowError> implements Result<S, F> {
   /// Receives the [S] param as
   /// the ok result.
   const Ok(
@@ -146,7 +151,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   /// ```dart
   /// Ok.unit() == Ok(unit)
   /// ```
-  static Ok<type_unit.Unit, F> unit<F extends Object>() {
+  static Ok<type_unit.Unit, F> unit<F extends AnyhowError>() {
     return Ok<type_unit.Unit, F>(type_unit.unit);
   }
 
@@ -223,7 +228,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> mapError<W extends Object>(W Function(F error) fn) {
+  Result<S, W> mapErr<W extends AnyhowError>(W Function(F error) fn) {
     return Ok<S, W>(_ok);
   }
 
@@ -233,7 +238,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> flatMapError<W extends Object>(
+  Result<S, W> flatMapErr<W extends AnyhowError>(
     Result<S, W> Function(F error) fn,
   ) {
     return Ok<S, W>(_ok);
@@ -251,7 +256,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  FutureResult<S, F> toAsyncResult() async => this;
+  FutureResult<S, F> toFutureResult() async => this;
 
   Result<S, F> copy() {
     return Ok(_ok);
@@ -279,7 +284,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   String toString() {
-    return "Ok( $_ok )";
+    return "$_ok";
   }
 }
 
@@ -287,24 +292,15 @@ class Ok<S, F extends Object> implements Result<S, F> {
 ///
 /// Returned when the result is an unexpected value
 @immutable
-class Err<S, F extends Object> implements Result<S, F>, Exception {
+class Err<S, F extends AnyhowError> implements Result<S, F> {
   /// Receives the [F] param as
   /// the error result.
-  Err(F _error) {
-    _contexts.add(_error);
-  }
+  const Err(this._error);
 
-  /// Build a [Err] with [Unit] value.
-  /// ```dart
-  /// Error.unit() == Error(unit)
-  /// ```
-  static Err<S, type_unit.Unit> unit<S>() {
-    return Err<S, type_unit.Unit>(type_unit.unit);
-  }
+  /// Shorthand for creating an anyhow error. See also [anyhow] in functions.dart for an evens shorter style.
+  static Err<S,AnyhowError> anyhow<S>(Object error) => Err<S,AnyhowError>(AnyhowError(error));
 
-  static ErrDisplayFormat displayFormat = ErrDisplayFormat.contextBased;
-
-  final List<Object> _contexts = [];
+  final F _error;
 
   //************************************************************************//
 
@@ -318,7 +314,7 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
 
   @override
   S unwrapOrElse(S Function(F error) onError) {
-    return onError(_contexts.first as F);
+    return onError(_error);
   }
 
   @override
@@ -326,21 +322,21 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
 
   @override
   F unwrapErr() {
-    return _contexts.first as F;
+    return _error;
   }
 
   @override
   F unwrapErrOr(F defaultValue) {
-    return _contexts.first as F;
+    return _error;
   }
 
   @override
   F unwrapErrOrElse(F Function(S ok) onOk) {
-    return _contexts.first as F;
+    return _error;
   }
 
   @override
-  F unwrapErrOrNull() => _contexts.first as F;
+  F unwrapErrOrNull() => _error;
 
   @override
   S expect(String message) {
@@ -349,7 +345,7 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
 
   @override
   F expectErr(String message) {
-    return _contexts.first as F;
+    return _error;
   }
 
   //************************************************************************//
@@ -367,30 +363,30 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
     W Function(S succcess) onOk,
     W Function(F error) onError,
   ) {
-    return onError(_contexts.first as F);
+    return onError(_error);
   }
 
   @override
   Result<W, F> map<W>(W Function(S ok) fn) {
-    return Err<W, F>(_contexts.first as F);
+    return Err<W, F>(_error);
   }
 
   @override
-  Result<S, W> mapError<W extends Object>(W Function(F error) fn) {
-    final newError = fn(_contexts.first as F);
+  Result<S, W> mapErr<W extends AnyhowError>(W Function(F error) fn) {
+    final newError = fn(_error);
     return Err(newError);
   }
 
   @override
   Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn) {
-    return Err<W, F>(_contexts.first as F);
+    return Err<W, F>(_error);
   }
 
   @override
-  Result<S, W> flatMapError<W extends Object>(
+  Result<S, W> flatMapErr<W extends AnyhowError>(
     Result<S, W> Function(F error) fn,
   ) {
-    return fn(_contexts.first as F);
+    return fn(_error);
   }
 
   Result<S, F> inspect(void Function(S ok) fn) {
@@ -398,23 +394,26 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
   }
 
   Result<S, F> inspectErr(void Function(F error) fn) {
-    fn(_contexts.first as F);
+    fn(_error);
     return this;
   }
 
   //************************************************************************//
 
   @override
-  FutureResult<S, F> toAsyncResult() async => this;
+  FutureResult<S, F> toFutureResult() async => this;
 
   Result<S, F> copy() {
-    return Err(_contexts.first as F);
+    return Err(_error);
   }
 
   //************************************************************************//
 
   Result<S, F> context(Object context) {
-    _contexts.add(context);
+    assert(context is! AnyhowError, "The context should not already be an instance of AnyhowError. If it is, you are "
+        "likely using the api wrong. If you need to combine AnyhowErrors see \"and\" and \"andThen\" methods. If this"
+        " is a valid use case please submit a PR.");
+    _error.latest()._additionalContext = AnyhowError(context);
     return this;
   }
 
@@ -425,46 +424,15 @@ class Err<S, F extends Object> implements Result<S, F>, Exception {
   //************************************************************************//
 
   @override
-  int get hashCode => (_contexts.first as F).hashCode;
+  int get hashCode => _error.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Err && other._contexts.first == _contexts.first;
+  bool operator ==(Object other) => other is Err && other._error == _error;
 
   @override
-  String toString() {
-    final StringBuffer stringBuf = StringBuffer();
-    switch (displayFormat) {
-      case ErrDisplayFormat.traditionalAnyhow:
-        final reversed = _contexts.reversed.iterator;
-        reversed.moveNext();
-        stringBuf.write("Error: ${reversed.current}\n");
-        int length = _contexts.length;
-        if (length > 1) {
-          stringBuf.write("\nCaused by:\n");
-          int index = 0;
-          while (reversed.moveNext()) {
-            stringBuf.write("\t${index}: ${reversed.current}\n");
-            index++;
-          }
-        }
-        break;
-      case ErrDisplayFormat.contextBased:
-        final iter = _contexts.iterator;
-        iter.moveNext();
-        stringBuf.write("Root Cause: ${_contexts.first}\n");
-        int length = _contexts.length;
-        if (length > 1) {
-          stringBuf.write("\nAdditional Context:\n");
-          int index = 0;
-          while (iter.moveNext()) {
-            stringBuf.write("\t${index}: ${iter.current}\n");
-            index++;
-          }
-        }
-        break;
-    }
-    return stringBuf.toString();
+  String toString(){
+    return "$_error";
   }
 }
 
-enum ErrDisplayFormat { traditionalAnyhow, contextBased }
+
