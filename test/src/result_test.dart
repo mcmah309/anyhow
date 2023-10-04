@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   group('factories', () {
     test('Ok.unit', () {
       final result = Ok.unit();
@@ -56,7 +55,7 @@ void main() {
   });
 
   test("Result.err", () {
-    Result<dynamic,int> result = Result.err(0);
+    Result<dynamic, int> result = Result.err(0);
     late int err;
     if (result.isErr()) {
       err = result.unwrapErr();
@@ -272,12 +271,14 @@ void main() {
   });
 
   test('implicit up cast', () {
-    Result<int,double> y(){
+    Result<int, double> y() {
       return Ok(0);
     }
-    Result<int,Object> x(){
+
+    Result<int, Object> x() {
       return y().upCast();
     }
+
     // Not valid
     // Result<int,String> x(){
     //   return y().upCast();
@@ -285,5 +286,44 @@ void main() {
     x();
   });
 
+  test('context', () {
+    Result error = Err(Exception("Root cause"));
+    Err.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    expect(error.toString(), 'Error: Exception: Root cause\n');
+    Err.displayFormat = ErrDisplayFormat.contextBased;
+    expect(error.toString(), 'Root Cause: Exception: Root cause\n');
+    error = order();
+    Err.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    //print(error.toString());
+    expect(error.toString(), """
+Error: Bob ordered.
 
+Caused by:
+	0: order was pizza.
+	1: Hmm something went wrong making the hamburger.
+""");
+    Err.displayFormat = ErrDisplayFormat.contextBased;
+    // print(error.toString());
+    expect(error.toString(), """
+Root Cause: Hmm something went wrong making the hamburger.
+
+Additional Context:
+	0: order was pizza.
+	1: Bob ordered.
+""");
+  });
+}
+
+Result order() {
+  final user = "Bob";
+  final food = "pizza";
+  return makeFood(food).context("$user ordered.");
+}
+
+Result makeFood(String order) {
+  return makeHamburger().context("order was $order.");
+}
+
+Result makeHamburger() {
+  return Err("Hmm something went wrong making the hamburger.");
 }

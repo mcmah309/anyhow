@@ -5,7 +5,7 @@ import 'async_result.dart';
 import 'unit.dart' as type_unit;
 
 /// When a function will return a [Result] and the [Err] value may be the union of any number of [Object]s use [Anyhow].
-typedef Anyhow<S> = Result<S,Object>;
+typedef Anyhow<S> = Result<S, Object>;
 
 /// [Result] class representing the type union between [Ok] and [Err].
 ///
@@ -108,10 +108,10 @@ abstract class Result<S, F extends Object> {
   Result<S, W> flatMapError<W extends Object>(Result<S, W> Function(F error) fn);
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
-  Result<S,F> inspect(void Function(S ok) fn);
+  Result<S, F> inspect(void Function(S ok) fn);
 
   /// If [Err], Calls the provided closure with the err value, else does nothing.
-  Result<S,F> inspectErr(void Function(F error) fn);
+  Result<S, F> inspectErr(void Function(F error) fn);
 
   //************************************************************************//
 
@@ -122,13 +122,16 @@ abstract class Result<S, F extends Object> {
   Anyhow<S> upCast();
 
   /// Performs a shallow copy of this result.
-  Result<S,F> copy();
+  Result<S, F> copy();
 
   //************************************************************************//
 
-  Result<S,F> context(String context);
+  Result<S, F> context(Object context);
 
-  Result<S,F> withContext(String Function() fn);
+  Result<S, F> withContext(Object Function() fn);
+
+  @mustBeOverridden
+  String toString();
 }
 
 /// Ok Result.
@@ -170,7 +173,6 @@ class Ok<S, F extends Object> implements Result<S, F> {
   @override
   S unwrapOrNull() => _ok;
 
-
   @override
   F unwrapErr() {
     throw Panic(this, "called `err`");
@@ -211,9 +213,9 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   W match<W>(
-      W Function(S ok) onOk,
-      W Function(F error) onError,
-      ) {
+    W Function(S ok) onOk,
+    W Function(F error) onError,
+  ) {
     return onOk(_ok);
   }
 
@@ -235,17 +237,17 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   Result<S, W> flatMapError<W extends Object>(
-      Result<S, W> Function(F error) fn,
-      ) {
+    Result<S, W> Function(F error) fn,
+  ) {
     return Ok<S, W>(_ok);
   }
 
-  Result<S,F> inspect(void Function(S ok) fn){
+  Result<S, F> inspect(void Function(S ok) fn) {
     fn(_ok);
     return this;
   }
 
-  Result<S,F> inspectErr(void Function(F error) fn){
+  Result<S, F> inspectErr(void Function(F error) fn) {
     return this;
   }
 
@@ -254,21 +256,21 @@ class Ok<S, F extends Object> implements Result<S, F> {
   @override
   AsyncResult<S, F> toAsyncResult() async => this;
 
-  Anyhow<S> upCast(){
+  Anyhow<S> upCast() {
     return this;
   }
 
-  Result<S,F> copy() {
+  Result<S, F> copy() {
     return Ok(_ok);
   }
 
   //************************************************************************//
 
-  Result<S,F> context(String context){
+  Result<S, F> context(Object context) {
     return this;
   }
 
-  Result<S,F> withContext(String Function() fn){
+  Result<S, F> withContext(Object Function() fn) {
     return this;
   }
 
@@ -281,16 +283,23 @@ class Ok<S, F extends Object> implements Result<S, F> {
   bool operator ==(Object other) {
     return other is Ok && other._ok == _ok;
   }
+
+  @override
+  String toString() {
+    return "Ok( $_ok )";
+  }
 }
 
 /// Error Result.
 ///
 /// Returned when the result is an unexpected value
 @immutable
-class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toString? Exception
+class Err<S, F extends Object> implements Result<S, F>, Exception {
   /// Receives the [F] param as
   /// the error result.
-  Err(this._error);
+  Err(F _error) {
+    _contexts.add(_error);
+  }
 
   /// Build a [Err] with [Unit] value.
   /// ```dart
@@ -300,8 +309,9 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
     return Err<S, type_unit.Unit>(type_unit.unit);
   }
 
-  final F _error;
-  final List<String> _context = []; //todo change to nullable at start?
+  static ErrDisplayFormat displayFormat = ErrDisplayFormat.contextBased;
+
+  final List<Object> _contexts = [];
 
   //************************************************************************//
 
@@ -315,7 +325,7 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
 
   @override
   S unwrapOrElse(S Function(F error) onError) {
-    return onError(_error);
+    return onError(_contexts.first as F);
   }
 
   @override
@@ -323,21 +333,21 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
 
   @override
   F unwrapErr() {
-    return _error;
+    return _contexts.first as F;
   }
 
   @override
   F unwrapErrOr(F defaultValue) {
-    return _error;
+    return _contexts.first as F;
   }
 
   @override
   F unwrapErrOrElse(F Function(S ok) onOk) {
-    return _error;
+    return _contexts.first as F;
   }
 
   @override
-  F unwrapErrOrNull() => _error;
+  F unwrapErrOrNull() => _contexts.first as F;
 
   @override
   S expect(String message) {
@@ -346,7 +356,7 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
 
   @override
   F expectErr(String message) {
-    return _error;
+    return _contexts.first as F;
   }
 
   //************************************************************************//
@@ -364,38 +374,38 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
     W Function(S succcess) onOk,
     W Function(F error) onError,
   ) {
-    return onError(_error);
+    return onError(_contexts.first as F);
   }
 
   @override
   Result<W, F> map<W>(W Function(S ok) fn) {
-    return Err<W, F>(_error);
+    return Err<W, F>(_contexts.first as F);
   }
 
   @override
   Result<S, W> mapError<W extends Object>(W Function(F error) fn) {
-    final newError = fn(_error);
+    final newError = fn(_contexts.first as F);
     return Err(newError);
   }
 
   @override
   Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn) {
-    return Err<W, F>(_error);
+    return Err<W, F>(_contexts.first as F);
   }
 
   @override
   Result<S, W> flatMapError<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
-    return fn(_error);
+    return fn(_contexts.first as F);
   }
 
-  Result<S,F> inspect(void Function(S ok) fn){
+  Result<S, F> inspect(void Function(S ok) fn) {
     return this;
   }
 
-  Result<S,F> inspectErr(void Function(F error) fn){
-    fn(_error);
+  Result<S, F> inspectErr(void Function(F error) fn) {
+    fn(_contexts.first as F);
     return this;
   }
 
@@ -404,30 +414,68 @@ class Err<S, F extends Object> implements Result<S, F>, Exception { //todo toStr
   @override
   AsyncResult<S, F> toAsyncResult() async => this;
 
-  Anyhow<S> upCast(){
+  Anyhow<S> upCast() {
     return this;
   }
 
-  Result<S,F> copy() {
-    return Err(_error);
+  Result<S, F> copy() {
+    return Err(_contexts.first as F);
   }
 
   //************************************************************************//
 
-  Result<S,F> context(String context){
-    _context.add(context);
+  Result<S, F> context(Object context) {
+    _contexts.add(context);
     return this;
   }
 
-  Result<S,F> withContext(String Function() fn){
+  Result<S, F> withContext(Object Function() fn) {
     return context(fn());
   }
 
   //************************************************************************//
 
   @override
-  int get hashCode => _error.hashCode;
+  int get hashCode => (_contexts.first as F).hashCode;
 
   @override
-  bool operator ==(Object other) => other is Err && other._error == _error;
+  bool operator ==(Object other) => other is Err && other._contexts.first == _contexts.first;
+
+  @override
+  String toString() {
+    final StringBuffer stringBuf = StringBuffer();
+    switch (displayFormat) {
+      case ErrDisplayFormat.traditionalAnyhow:
+        final reversed = _contexts.reversed.iterator;
+        reversed.moveNext();
+        stringBuf.write("Error: ${reversed.current}\n");
+        int length = _contexts.length;
+        if (length > 1) {
+          stringBuf.write("\nCaused by:\n");
+          int index = 0;
+          while (reversed.moveNext()) {
+            stringBuf.write("\t${index}: ${reversed.current}\n");
+            index++;
+          }
+        }
+        break;
+      case ErrDisplayFormat.contextBased:
+        final iter = _contexts.iterator;
+        iter.moveNext();
+        stringBuf.write("Root Cause: ${_contexts.first}\n");
+        int length = _contexts.length;
+        if (length > 1) {
+          stringBuf.write("\nAdditional Context:\n");
+          int index = 0;
+          while (iter.moveNext()) {
+            stringBuf.write("\t${index}: ${iter.current}\n");
+            index++;
+          }
+        }
+        break;
+    }
+    return stringBuf.toString();
+  }
 }
+
+enum ErrDisplayFormat { traditionalAnyhow, contextBased }
