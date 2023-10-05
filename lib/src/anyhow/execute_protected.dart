@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import '../anyhow.dart';
+import '../../anyhow.dart';
 
 /// Executes the function in a protected context. [func] is called inside a try catch block. If the result is not
 /// catch, then return value [func] returned inside an [Ok]. If [func] throws, then the thrown value is returned
 /// inside an [Err].
 Result<S> executeProtected<S>(S Function() func) {
-  // You want [executeProtectedResult] if this is true. Otherwise errors could be ignored.
-  assert(S is! Result);
+  assert(S is! Result, "Use executeProtectedResult instead");
   try {
     return Ok(func());
   } catch (e) {
@@ -25,7 +24,7 @@ Result<S> executeProtectedResult<S>(Result<S> Function() func) {
 }
 
 /// Async version of [executeProtected]
-FutureResult<S, dynamic> executeProtectedAsync<S>(Future<S> Function() func) async {
+FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) async {
   try {
     return Ok(await func());
   } catch (e) {
@@ -34,7 +33,7 @@ FutureResult<S, dynamic> executeProtectedAsync<S>(Future<S> Function() func) asy
 }
 
 /// Async version of [executeProtectedResult]
-FutureResult<S, dynamic> executeProtectedAsyncResult<S>(Future<Result<S>> Function() func) async {
+FutureResult<S> executeProtectedAsyncResult<S>(Future<Result<S>> Function() func) async {
   try {
     return await func();
   } catch (e) {

@@ -1,18 +1,17 @@
 import 'package:anyhow/anyhow.dart';
-import 'package:anyhow/src/result_extensions.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('flatten', () {
-    AResult<AResult<int,x>,y> w = Ok(Ok(0));
-    expect(w.flatten(), isA<AResult<int,x>>());
-    AResult<AResult<int,y>,x> v = Ok(Ok(0));
-    expect(v.flatten(), isA<AResult<int,y>>());
+    Result<Result<int>> w = Ok(Ok(0));
+    expect(w.flatten(), isA<Result<int>>());
+    Result<Result<int>> v = Ok(Err(Error(1)));
+    expect(v.flatten(), isA<Result<int>>());
   });
 
   test('transpose', () {
-    AResult<int?,Error> result = Ok(0);
-    AResult<int,Error>? transposed = result.transpose();
+    Result<int?> result = Ok(0);
+    Result<int>? transposed = result.transpose();
     expect(transposed!.unwrap(), 0);
     result = Ok(null);
     transposed = result.transpose();
@@ -26,21 +25,21 @@ void main() {
     test('without result type', () {
       final result = 'error'.toErr();
 
-      expect(result, isA<AResult<dynamic, Error>>());
+      expect(result, isA<Result<dynamic>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
       expect(result.unwrapErr().downcast<String>().unwrap(), 'error');
     });
 
     test('with result type', () {
-      final AResult<int, Error> result = 'error'.toErr();
+      final Result<int> result = 'error'.toErr();
 
-      expect(result, isA<AResult<int, Error>>());
+      expect(result, isA<Result<int>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
-      expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
+      expect(result.err()!.downcast<String>().unwrap(), 'error');
     });
 
     test('throw AssertException if is a Result object', () {
-      final AResult<int, Error> result = 'error'.toErr();
+      final Result<int> result = 'error'.toErr();
       expect(result.toErr, throwsA(isA<AssertionError>()));
     });
 
@@ -53,14 +52,14 @@ void main() {
     test('without result type', () {
       final result = 'ok'.toOk();
 
-      expect(result, isA<AResult<String, dynamic>>());
+      expect(result, isA<Result<String>>());
       expect(result.unwrapOrNull(), 'ok');
     });
 
     test('with result type', () {
-      final AResult<String, Error> result = 'ok'.toOk();
+      final Result<String> result = 'ok'.toOk();
 
-      expect(result, isA<AResult<String, Error>>());
+      expect(result, isA<Result<String>>());
       expect(result.unwrapOrNull(), 'ok');
     });
 

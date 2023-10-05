@@ -1,11 +1,13 @@
-part of 'result.dart';
+import 'package:meta/meta.dart';
 
-/// Type alias for error if "Error" interferes with Dart Core's "Error"
-typedef AError = Error;
+import '../../anyhow.dart';
+
+
+part 'anyhow_result.dart';
 
 /// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
-/// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [AResult] and to be
+/// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [Result] and to be
 /// consistent with Rust/ the anyhow crate.
 ///```html
 ///<h1>Exception Mapping</h1>
@@ -61,17 +63,6 @@ class Error implements Exception {
   /// The latest context that was added to this error
   Error latest() => _errors().lastOrNull!;
 
-  /// An iterator of [Error]s that were added as additional context to this error. Starting at the root cause
-  /// (this [Error]).
-  Iterable<Error> _errors() sync* {
-    Error link = this;
-    while (link._additionalContext != null) {
-      yield link;
-      link = link._additionalContext!;
-    }
-    yield link;
-  }
-
   /// An iterator of the chain of source errors contained by this Error. Starting at the root cause (this [Error]).
   Iterable<Object> chain() sync* {
     Error link = this;
@@ -90,6 +81,22 @@ class Error implements Exception {
 
   /// Implemented to override the "toErr" extension applied to all objects
   Err toErr() => Err(this);
+
+  /// An iterator of [Error]s that were added as additional context to this error. Starting at the root cause
+  /// (this [Error]).
+  Iterable<Error> _errors() sync* {
+    Error link = this;
+    while (link._additionalContext != null) {
+      yield link;
+      link = link._additionalContext!;
+    }
+    yield link;
+  }
+
+  @internal
+  void add(Error error){
+    latest()._additionalContext = error;
+  }
 
   /// Creates a deep copy of this
   Error clone<E extends Object>({E? cause, Error? additionalContext}) {

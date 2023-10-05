@@ -9,7 +9,7 @@ void main() {
     });
 
     test('Ok.unit Result', () {
-      AResult<Unit, Error> fn() {
+      Result<Unit> fn() {
         return Ok.unit();
       }
 
@@ -19,7 +19,7 @@ void main() {
   });
 
   test('Result.ok', () {
-    final result = AResult.ok(0);
+    final result = Ok(0);
     expect(result.unwrap(), 0);
   });
 
@@ -29,7 +29,7 @@ void main() {
   });
 
   test("Result.isOk", () {
-    AResult result = AResult.ok(0);
+    Result result = Ok(0);
     late int ok;
     if (result.isOk()) {
       ok = result.unwrap();
@@ -50,6 +50,42 @@ void main() {
     expect(result.isOk(), isFalse);
   });
 
+  test("and",(){
+    Result<int> x = Ok(2);
+    Result<String> y = bail("late error");
+    expect(x.and(y), bail("late error"));
+
+    x = bail("early error");
+    y = Ok("foo");
+    expect(x.and(y), bail("early error"));
+
+    x = bail("not a 2");
+    y = bail("late error");
+    expect(x.and(y), bail("not a 2"));
+
+    x = Ok(2);
+    y = bail("different result type");
+    expect(x.and(y), bail("different result type"));
+  });
+
+  test("or",(){
+    Result<int> x = Ok(2);
+    Result<int> y = bail("late error");
+    expect(x.or(y), Ok(2));
+
+    x = bail("early error");
+    y = Ok(2);
+    expect(x.or(y), Ok(2));
+
+    x = bail("not a 2");
+    y = bail("late error");
+    expect(x.or(y), bail("late error"));
+
+    x = Ok(2);
+    y = Ok(100);
+    expect(x.or(y), Ok(2));
+  });
+
   test('equatable', () {
     expect(const Ok(1) == const Ok(1), isTrue);
     expect(const Ok(1).hashCode == const Ok(1).hashCode, isTrue);
@@ -67,21 +103,21 @@ void main() {
     });
 
     test('Error', () {
-      final result = Err<String, Error>(Error(4));
+      final result = Err<String>(Error(4));
       final result2 = result.map((ok) => 'change');
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.unwrapErrOrNull()?.downcast<int>().unwrap(), 4);
+      expect(result2.err()?.downcast<int>().unwrap(), 4);
     });
   });
 
   group('MapError', () {
     test('Ok', () {
-      const result = Ok<int, Error>(4);
+      const result = Ok<int>(4);
       final result2 = result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
 
       expect(result2.unwrapOrNull(), 4);
-      expect(result2.unwrapErrOrNull(), isNull);
+      expect(result2.err(), isNull);
     });
 
     test('Error', () {
@@ -89,7 +125,7 @@ void main() {
       final result2 = result.mapErr((error) => Error('change'));
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.unwrapErrOrNull(), Error('change'));
+      expect(result2.err(), Error('change'));
     });
   });
 
@@ -106,7 +142,7 @@ void main() {
       final result2 = result.flatMap(Ok.new);
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.unwrapErrOrNull(), Error(4));
+      expect(result2.err(), Error(4));
     });
   });
 
@@ -115,7 +151,7 @@ void main() {
       final result = 4.toErr();
       final result2 = result.flatMapErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
 
-      expect(result2.unwrapErrOrNull(), Error('===='));
+      expect(result2.err(), Error('===='));
     });
 
     test('Ok', () {
@@ -123,7 +159,7 @@ void main() {
       final result2 = result.flatMapErr(Err.new);
 
       expect(result2.unwrapOrNull(), 4);
-      expect(result2.unwrapErrOrNull(), isNull);
+      expect(result2.err(), isNull);
     });
   });
 
@@ -189,7 +225,7 @@ void main() {
 
   group('unwrapOrNull', () {
     test('Ok', () {
-      const result = Ok<int, Error>(0);
+      const result = Ok<int>(0);
       final value = result.unwrapOrNull();
       expect(value, 0);
     });
@@ -270,19 +306,19 @@ void main() {
   group('unwrapErrOrNull', () {
     test('Ok', () {
       const result = Ok(0);
-      final value = result.unwrapErrOrNull();
+      final value = result.err();
       expect(value, null);
     });
 
     test('Error', () {
-      final result = Err<int, Error>(Error(0));
-      final value = result.unwrapErrOrNull();
+      final result = Err<int>(Error(0));
+      final value = result.err();
       expect(value, Error(0));
     });
   });
 
   test('printing error', () {
-    AResult error = bail(Exception("Root cause"));
+    Result error = bail(Exception("Root cause"));
     Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
     expect(error.toString(), 'Error: Exception: Root cause\n');
     Error.displayFormat = ErrDisplayFormat.stackTrace;
@@ -311,7 +347,7 @@ Additional Context:
   test('printing error with stacktrace', () {
     Error.hasStackTrace = true;
     Error.stackTraceDisplayFormat = StackTraceDisplayFormat.none;
-    AResult error = bail(Exception("Root cause"));
+    Result error = bail(Exception("Root cause"));
     Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
     expect(error.toString(), 'Error: Exception: Root cause\n');
     Error.displayFormat = ErrDisplayFormat.stackTrace;
@@ -420,16 +456,16 @@ Main StackTrace:
 });
 }
 
-AResult order() {
+Result order() {
   final user = "Bob";
   final food = "pizza";
   return makeFood(food).context("$user ordered.");
 }
 
-AResult makeFood(String order) {
+Result makeFood(String order) {
   return makeHamburger().context("order was $order.");
 }
 
-AResult makeHamburger() {
+Result makeHamburger() {
   return bail("Hmm something went wrong making the hamburger.");
 }

@@ -1,4 +1,4 @@
-import '../anyhow.dart';
+import '../../base.dart';
 import 'dart:core' as Core;
 
 /// As with [Error], [Panic] represents a state that should never happen and thus should never be caught.
