@@ -1,6 +1,8 @@
 name: anyhow
-description: Result monad for dart. Based on Rust's anyhow crate.
-version: 0.2.2
+description: Idiomatic error handling in Dart. Anyhow attempts to be a full implementation of Rust's Anyhow crate and 
+  more. This package contains a Result monad, functions for wrapping code that may throw into result, exception 
+  chaining, panics, various extensions, and more.
+version: 0.3.0
 repository: https://github.com/mcmah309/anyhow
 
 environment:

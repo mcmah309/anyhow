@@ -1,24 +1,24 @@
 import '../anyhow.dart';
 
-extension FlattenExtension1<S,F extends AnyhowError, F2 extends F> on Result<Result<S,F>,F2> {
-  /// Converts a [Result] of a [Result] into a single [Result]
-  Result<S,F> flatten() {
-    if(isOk()){
-      return unwrap();
-    }
-    return Err(unwrapErr());
-  }
-}
-
-extension FlattenExtension2<S,F extends F2, F2 extends AnyhowError> on Result<Result<S,F>,F2> {
-  /// Converts a [Result] of a [Result] into a single [Result]
-  Result<S,F2> flatten() {
-    if(isOk()){
-      return unwrap();
-    }
-    return Err(unwrapErr());
-  }
-}
+// extension FlattenExtension1<S,F extends AnyhowError, F2 extends F> on Result<Result<S,F>,F2> {
+//   /// Converts a [Result] of a [Result] into a single [Result]
+//   Result<S,F> flatten() {
+//     if(isOk()){
+//       return unwrap();
+//     }
+//     return Err(unwrapErr());
+//   }
+// }
+//
+// extension FlattenExtension2<S,F extends F2, F2 extends AnyhowError> on Result<Result<S,F>,F2> {
+//   /// Converts a [Result] of a [Result] into a single [Result]
+//   Result<S,F2> flatten() {
+//     if(isOk()){
+//       return unwrap();
+//     }
+//     return Err(unwrapErr());
+//   }
+// }
 
 extension FlattenExtension3<S,F extends AnyhowError, F2 extends AnyhowError> on Result<Result<S,F>,F2> {
   /// Converts a [Result] of a [Result] into a single [Result]

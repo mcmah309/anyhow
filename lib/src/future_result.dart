@@ -139,4 +139,16 @@ extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> 
   FutureResult<S, F> copy() {
     return then((result) => result.copy());
   }
+
+  /// Adds the object as additional context to the [AnyhowError]. The context should not be an instance of
+  /// [AnyhowError].
+  FutureResult<S, F> context(Object context){
+    return then((result) => result.context(context));
+  }
+
+  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
+  /// [AnyhowError]. The context should not be an instance of [AnyhowError].
+  FutureResult<S, F> withContext(Object Function() fn){
+    return then((result) => result.withContext(fn));
+  }
 }
