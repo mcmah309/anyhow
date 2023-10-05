@@ -21,16 +21,16 @@ void main() {
 
   group('flatMapError', () {
     test('async ', () async {
-      final result = await anyhow(1) //
+      final result = await bail(1) //
           .toFutureResult()
-          .flatMapErr((error) async => anyhow(error.downcast<int>().unwrap() * 2));
+          .flatMapErr((error) async => bail(error.downcast<int>().unwrap() * 2));
       expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
 
     test('sink', () async {
-      final result = await anyhow(1) //
+      final result = await bail(1) //
           .toFutureResult()
-          .flatMapErr((error) => anyhow(error.downcast<int>().unwrap() * 2));
+          .flatMapErr((error) => bail(error.downcast<int>().unwrap() * 2));
       expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
   });
@@ -41,13 +41,13 @@ void main() {
         .map((ok) => ok * 2);
 
     expect(result.unwrapOrNull(), 2);
-    expect(anyhow(2).toFutureResult().map((x) => x), completes);
+    expect(bail(2).toFutureResult().map((x) => x), completes);
   });
 
   test('mapError', () async {
-    final result = await anyhow(1) //
+    final result = await bail(1) //
         .toFutureResult()
-        .mapErr((error) => AError(error.downcast<int>().unwrap() * 2));
+        .mapErr((error) => Error(error.downcast<int>().unwrap() * 2));
     expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     expect(const Ok(2).toFutureResult().mapErr((x) => x), completes);
   });
@@ -60,7 +60,7 @@ void main() {
     });
 
     test('Error', () async {
-      final result = anyhow(0).toFutureResult();
+      final result = bail(0).toFutureResult();
       final futureValue = result.match((x) => x, (e) => e.downcast<int>().unwrap());
       expect(futureValue, completion(0));
     });
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('Error', () async {
-      final result = anyhow(0).toFutureResult();
+      final result = bail(0).toFutureResult();
 
       expect(result.isErr(), completion(true));
       expect(result.unwrapErr().downcast<int>().unwrap(), completion(0));
@@ -89,7 +89,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = anyhow(0).toFutureResult();
+      final result = bail(0).toFutureResult();
       expect(result.unwrap, throwsA(isA<Panic>()));
     });
   });
@@ -102,7 +102,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = Err.anyhow(0).toFutureResult();
+      final result = bail(0).toFutureResult();
       final value = result.unwrapOrElse((f) => 2);
       expect(value, completion(2));
     });
@@ -116,7 +116,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = Err.anyhow(0).toFutureResult();
+      final result = bail(0).toFutureResult();
       final value = result.unwrapOr(2);
       expect(value, completion(2));
     });
@@ -137,13 +137,13 @@ void main() {
     });
 
     test('Error', () {
-      Err.anyhow('error') //
+      bail('error') //
           .toFutureResult()
           .inspect((ok) {})
           .inspectErr(
         expectAsync1(
           (value) {
-            expect(value, AError('error'));
+            expect(value, Error('error'));
           },
         ),
       );

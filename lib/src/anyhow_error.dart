@@ -1,10 +1,11 @@
 part of 'result.dart';
 
-typedef AError = AnyhowError;
+/// Type alias for error if "Error" interferes with Dart Core's "Error"
+typedef AError = Error;
 
 /// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
-/// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [Result] and to be
+/// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [AResult] and to be
 /// consistent with Rust/ the anyhow crate.
 ///```html
 ///<h1>Exception Mapping</h1>
@@ -23,12 +24,12 @@ typedef AError = AnyhowError;
 ///  </tr>
 ///</table>
 ///```
-class AnyhowError implements Exception {
+class Error implements Exception {
   Object _cause;
-  AnyhowError? _additionalContext;
+  Error? _additionalContext;
   late final StackTrace? _stackTrace;
 
-  AnyhowError(this._cause, {AnyhowError? additionalContext})
+  Error(this._cause, {Error? additionalContext})
       : _additionalContext = additionalContext {
       _stackTrace = hasStackTrace ? StackTrace.current : null;
   }
@@ -50,7 +51,7 @@ class AnyhowError implements Exception {
   }
 
   /// Attempt to downcast the error object to a concrete type.
-  Anyhow<E> downcast<E>() {
+  Result<E> downcast<E>() {
     if (_cause is E) {
       return Ok(_cause as E);
     }
@@ -58,12 +59,12 @@ class AnyhowError implements Exception {
   }
 
   /// The latest context that was added to this error
-  AnyhowError latest() => _errors().lastOrNull!;
+  Error latest() => _errors().lastOrNull!;
 
-  /// An iterator of [AnyhowError]s that were added as additional context to this error. Starting at the root cause
-  /// (this [AnyhowError]).
-  Iterable<AnyhowError> _errors() sync* {
-    AnyhowError link = this;
+  /// An iterator of [Error]s that were added as additional context to this error. Starting at the root cause
+  /// (this [Error]).
+  Iterable<Error> _errors() sync* {
+    Error link = this;
     while (link._additionalContext != null) {
       yield link;
       link = link._additionalContext!;
@@ -71,9 +72,9 @@ class AnyhowError implements Exception {
     yield link;
   }
 
-  /// An iterator of the chain of source errors contained by this Error. Starting at the root cause (this [AnyhowError]).
+  /// An iterator of the chain of source errors contained by this Error. Starting at the root cause (this [Error]).
   Iterable<Object> chain() sync* {
-    AnyhowError link = this;
+    Error link = this;
     while (link._additionalContext != null) {
       yield link._cause;
       link = link._additionalContext!;
@@ -91,8 +92,8 @@ class AnyhowError implements Exception {
   Err toErr() => Err(this);
 
   /// Creates a deep copy of this
-  AnyhowError clone<E extends Object>({E? cause, AnyhowError? additionalContext}) {
-    return AnyhowError(cause ?? _cause,
+  Error clone<E extends Object>({E? cause, Error? additionalContext}) {
+    return Error(cause ?? _cause,
         additionalContext: additionalContext ?? _additionalContext?.clone());
   }
 
@@ -126,7 +127,7 @@ class AnyhowError implements Exception {
     }
   }
 
-  void _writeStackTraces(StringBuffer stringBuf, Iterator<AnyhowError> iter) {
+  void _writeStackTraces(StringBuffer stringBuf, Iterator<Error> iter) {
     if (hasStackTrace) {
       switch (stackTraceDisplayFormat) {
         case StackTraceDisplayFormat.none:
@@ -161,7 +162,7 @@ class AnyhowError implements Exception {
 
   @override
   bool operator ==(Object other) =>
-      other is AnyhowError && other._cause == _cause && other._additionalContext == _additionalContext;
+      other is Error && other._cause == _cause && other._additionalContext == _additionalContext;
 }
 
 /// Controls the base [toString] format
@@ -185,17 +186,17 @@ enum ErrDisplayFormat {
 
 /// How StackTrace should be displayed to the user. Known as "backtrace" in Rust anyhow.
 enum StackTraceDisplayFormat {
-  /// Every linked [Anyhow] error will print their full stackTrace. Warning can get verbose.
+  /// Every linked [Result] error will print their full stackTrace. Warning can get verbose.
   full,
 
-  /// Only this [Anyhow] error will print their full stackTrace.
+  /// Only this [Result] error will print their full stackTrace.
   one,
 
   /// No stackTraces should be printed.
   none,
 }
 
-extension FutureAnyhowError on Future<AnyhowError> {
+extension FutureAnyhowError on Future<Error> {
   /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
   /// protect keyword in dart
   Future<bool> isType<E>() {
@@ -203,12 +204,12 @@ extension FutureAnyhowError on Future<AnyhowError> {
   }
 
   /// Attempt to downcast the error object to a concrete type.
-  Future<Anyhow<E>> downcast<E>() {
+  Future<Result<E>> downcast<E>() {
     return then((e) => e.downcast<E>());
   }
 
   /// The latest context that was added to this error
-  Future<AnyhowError> latest() {
+  Future<Error> latest() {
     return then((e) => e.latest());
   }
 

@@ -1,14 +1,15 @@
 import '../anyhow.dart';
+import 'dart:core' as Core;
 
 /// As with [Error], [Panic] represents a state that should never happen and thus should never be caught.
-class Panic extends Error {
+class Panic extends Core.Error {
   final Result result;
-  final String? reason;
+  final Core.String? reason;
 
   Panic(this.result, [this.reason]);
 
-  @override
-  String toString() {
+  @Core.override
+  Core.String toString() {
     return 'Panic: ${reason == null ? "" : reason} on an ${result.runtimeType} with value: $result';
   }
 }

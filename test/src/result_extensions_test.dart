@@ -4,20 +4,20 @@ import 'package:test/test.dart';
 
 void main() {
   test('flatten', () {
-    Result<Result<int,x>,y> w = Ok(Ok(0));
-    expect(w.flatten(), isA<Result<int,x>>());
-    Result<Result<int,y>,x> v = Ok(Ok(0));
-    expect(v.flatten(), isA<Result<int,y>>());
+    AResult<AResult<int,x>,y> w = Ok(Ok(0));
+    expect(w.flatten(), isA<AResult<int,x>>());
+    AResult<AResult<int,y>,x> v = Ok(Ok(0));
+    expect(v.flatten(), isA<AResult<int,y>>());
   });
 
   test('transpose', () {
-    Result<int?,AnyhowError> result = Ok(0);
-    Result<int,AnyhowError>? transposed = result.transpose();
+    AResult<int?,Error> result = Ok(0);
+    AResult<int,Error>? transposed = result.transpose();
     expect(transposed!.unwrap(), 0);
     result = Ok(null);
     transposed = result.transpose();
     expect(transposed, null );
-    result = anyhow("");
+    result = bail("");
     transposed = result.transpose();
     expect(transposed!.unwrapErr().downcast<String>().unwrap(), "");
   });
@@ -26,21 +26,21 @@ void main() {
     test('without result type', () {
       final result = 'error'.toErr();
 
-      expect(result, isA<Result<dynamic, AnyhowError>>());
+      expect(result, isA<AResult<dynamic, Error>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
       expect(result.unwrapErr().downcast<String>().unwrap(), 'error');
     });
 
     test('with result type', () {
-      final Result<int, AnyhowError> result = 'error'.toErr();
+      final AResult<int, Error> result = 'error'.toErr();
 
-      expect(result, isA<Result<int, AnyhowError>>());
+      expect(result, isA<AResult<int, Error>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
       expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
     });
 
     test('throw AssertException if is a Result object', () {
-      final Result<int, AnyhowError> result = 'error'.toErr();
+      final AResult<int, Error> result = 'error'.toErr();
       expect(result.toErr, throwsA(isA<AssertionError>()));
     });
 
@@ -53,14 +53,14 @@ void main() {
     test('without result type', () {
       final result = 'ok'.toOk();
 
-      expect(result, isA<Result<String, dynamic>>());
+      expect(result, isA<AResult<String, dynamic>>());
       expect(result.unwrapOrNull(), 'ok');
     });
 
     test('with result type', () {
-      final Result<String, AnyhowError> result = 'ok'.toOk();
+      final AResult<String, Error> result = 'ok'.toOk();
 
-      expect(result, isA<Result<String, AnyhowError>>());
+      expect(result, isA<AResult<String, Error>>());
       expect(result.unwrapOrNull(), 'ok');
     });
 
@@ -75,7 +75,7 @@ void main() {
   });
 }
 
-class x extends AnyhowError {
+class x extends Error {
   x(super.cause);
 }
 class y extends x {

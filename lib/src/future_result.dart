@@ -2,12 +2,12 @@ import 'dart:async';
 
 import '../anyhow.dart';
 
-typedef FutureAnyhow<S> = Future<Result<S, AnyhowError>>;
+typedef FutureAnyhow<S> = Future<AResult<S, Error>>;
 
 /// [FutureResult] represents an asynchronous computation.
-typedef FutureResult<S, F extends AnyhowError> = Future<Result<S, F>>;
+typedef FutureResult<S, F extends Error> = Future<AResult<S, F>>;
 
-extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> {
+extension FutureResultExtension<S, F extends Error> on FutureResult<S, F> {
 
   /// Returns the ok value as a throwing expression.
   Future<S> unwrap() {
@@ -92,7 +92,7 @@ extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> 
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
-  FutureResult<S, W> mapErr<W extends AnyhowError>(
+  FutureResult<S, W> mapErr<W extends Error>(
       FutureOr<W> Function(F error) fn,
       ) {
     return then(
@@ -110,15 +110,15 @@ extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> 
   /// Returns a new [Result], mapping any [Ok] value
   /// using the given transformation and unwrapping the produced [Result].
   FutureResult<W, F> flatMap<W>(
-      FutureOr<Result<W, F>> Function(S ok) fn,
+      FutureOr<AResult<W, F>> Function(S ok) fn,
       ) {
     return then((result) => result.match(fn, Err.new));
   }
 
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation and unwrapping the produced [Result].
-  FutureResult<S, W> flatMapErr<W extends AnyhowError>(
-      FutureOr<Result<S, W>> Function(F error) fn,
+  FutureResult<S, W> flatMapErr<W extends Error>(
+      FutureOr<AResult<S, W>> Function(F error) fn,
       ) {
     return then((result) => result.match(Ok.new, fn));
   }
@@ -140,14 +140,14 @@ extension FutureResultExtension<S, F extends AnyhowError> on FutureResult<S, F> 
     return then((result) => result.copy());
   }
 
-  /// Adds the object as additional context to the [AnyhowError]. The context should not be an instance of
-  /// [AnyhowError].
+  /// Adds the object as additional context to the [Error]. The context should not be an instance of
+  /// [Error].
   FutureResult<S, F> context(Object context){
     return then((result) => result.context(context));
   }
 
   /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
-  /// [AnyhowError]. The context should not be an instance of [AnyhowError].
+  /// [Error]. The context should not be an instance of [Error].
   FutureResult<S, F> withContext(Object Function() fn){
     return then((result) => result.withContext(fn));
   }
