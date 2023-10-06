@@ -53,7 +53,8 @@ abstract mixin class Result<S, F extends Object> {
   /// Returns the err value if [Result] is [Err], otherwise returns null.
   /// This can be used to determine is [Ok] or is [Err], since when the failure type is not nullable, so a returned
   /// null value means this is not an [Err].
-  F? err();
+  /// Same as "err()" in Rust, but "err" is a field name here
+  F? unwrapErrOrNull();
 
   /// Returns the ok value if [Result] is [Ok].
   /// Throws a [Panic] if the [Result] is [Err], with the provided [message].
@@ -159,7 +160,6 @@ class Ok<S, F extends Object> implements Result<S, F> {
     return Ok<type_unit.Unit, F>(type_unit.unit);
   }
 
-  @internal
   final S ok;
 
   //************************************************************************//
@@ -196,7 +196,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  F? err() => null;
+  F? unwrapErrOrNull() => null;
 
   @override
   S expect(String message) {
@@ -309,10 +309,9 @@ class Ok<S, F extends Object> implements Result<S, F> {
 class Err<S, F extends Object> implements Result<S, F> {
   /// Receives the [F] param as
   /// the error result.
-  const Err(this.error);
+  const Err(this.err);
 
-  @internal
-  final F error;
+  final F err;
 
   //************************************************************************//
 
@@ -326,7 +325,7 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   S unwrapOrElse(S Function(F error) onError) {
-    return onError(error);
+    return onError(err);
   }
 
   @override
@@ -334,21 +333,21 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   F unwrapErr() {
-    return error;
+    return err;
   }
 
   @override
   F unwrapErrOr(F defaultValue) {
-    return error;
+    return err;
   }
 
   @override
   F unwrapErrOrElse(F Function(S ok) onOk) {
-    return error;
+    return err;
   }
 
   @override
-  F err() => error;
+  F unwrapErrOrNull() => err;
 
   @override
   S expect(String message) {
@@ -357,7 +356,7 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   F expectErr(String message) {
-    return error;
+    return err;
   }
 
   //************************************************************************//
@@ -385,30 +384,30 @@ class Err<S, F extends Object> implements Result<S, F> {
     W Function(S succcess) onOk,
     W Function(F error) onError,
   ) {
-    return onError(error);
+    return onError(err);
   }
 
   @override
   Result<W, F> map<W>(W Function(S ok) fn) {
-    return Err<W, F>(error);
+    return Err<W, F>(err);
   }
 
   @override
   Result<S, W> mapErr<W extends Object>(W Function(F error) fn) {
-    final newError = fn(error);
+    final newError = fn(err);
     return Err(newError);
   }
 
   @override
   Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn) {
-    return Err<W, F>(error);
+    return Err<W, F>(err);
   }
 
   @override
   Result<S, W> andThenErr<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
-    return fn(error);
+    return fn(err);
   }
 
   Result<S, F> inspect(void Function(S ok) fn) {
@@ -416,31 +415,31 @@ class Err<S, F extends Object> implements Result<S, F> {
   }
 
   Result<S, F> inspectErr(void Function(F error) fn) {
-    fn(error);
+    fn(err);
     return this;
   }
 
   Result<S, F> copy() {
-    return Err(error);
+    return Err(err);
   }
 
   //************************************************************************//
 
   Result<S2, F> into<S2>(){
-    return Err(error);
+    return Err(err);
   }
 
   //************************************************************************//
 
   @override
-  int get hashCode => error.hashCode;
+  int get hashCode => err.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Err && other.error == error;
+  bool operator ==(Object other) => other is Err && other.err == err;
 
   @override
   String toString(){
-    return "$error";
+    return "$err";
   }
 }
 

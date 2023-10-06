@@ -24,14 +24,14 @@ void main() {
       final result = await bail(1) //
           .toFutureResult()
           .andThenErr((error) async => bail(error.downcast<int>().unwrap() * 2));
-      expect(result.err()!.downcast<int>().unwrap(), 2);
+      expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
 
     test('sink', () async {
       final result = await bail(1) //
           .toFutureResult()
           .andThenErr((error) => bail(error.downcast<int>().unwrap() * 2));
-      expect(result.err()!.downcast<int>().unwrap(), 2);
+      expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
   });
 
@@ -48,7 +48,7 @@ void main() {
     final result = await bail(1) //
         .toFutureResult()
         .mapErr((error) => Error(error.downcast<int>().unwrap() * 2));
-    expect(result.err()!.downcast<int>().unwrap(), 2);
+    expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     expect(const Ok(2).toFutureResult().mapErr((x) => x), completes);
   });
 

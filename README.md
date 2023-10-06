@@ -196,13 +196,49 @@ Output:
 Error: this message was thrown
 ```
 ## Dart Equivalent To The Rust "?" Operator
-In Dart, the Rust "?" operator in `x?`, where `x` is a `Result`, can be mimicked with
+In Dart, the Rust "?" operator functionality in `x?`, where `x` is a `Result`, can be accomplished with
 ```dart
-if (x.isErr()) {
+if (x is Err) {
   return x.into();
 }
 ```
-"into" may be needed to change the `Ok` type of `x` to that of the calling function if they are different. 
+`into` may be needed to change the `Ok` type of `x` to that of the calling function if they are different.
+`into` only exits if `x` is type `Err`, so you will never mishandle a type change. 
+## How to Never Unwrap Incorrectly
+In Rust, as here, it is possible to unwrap values that should not be unwrapped:
+```dart
+if (x.isErr()) {
+  return x.unwrap(); // this will panic (should be "unwrapErr()")
+}
+```
+To never unwrap incorrectly, simple do a typecheck with `is` instead of `isErr()`.
+```dart
+if (x is Err){
+    return x.err;
+}
+```
+and vice versa
+```dart
+if (x is Ok){
+    return x.ok;
+}
+```
+The type check does an implicit cast, and we now have access to the immutable error and ok value respectively.
+
+Similarly, we can mimic Rust's `match` keyword, with Dart's `switch`
+```dart
+  switch(x){
+    case Ok o:
+      print(o.ok);
+    case Err e:
+      print(e.err);
+  }
+```
+Or declaratively with match
+```dart
+x.match((ok) => 0, (err) => 1);
+```
+
 
 See examples for more.
 

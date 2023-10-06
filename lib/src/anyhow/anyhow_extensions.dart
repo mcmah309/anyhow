@@ -48,7 +48,7 @@ extension AnyhowErrExtensions<S> on Err<S> {
     assert(context is! Error, "The context should not already be an instance of AnyhowError. If it is, you are "
         "likely using the api wrong. If you need to combine AnyhowErrors see \"and\" and \"andThen\" methods. If this"
         " is a valid use case please submit a PR.");
-    error.add(Error(context));
+    err.add(Error(context));
     return this;
   }
 

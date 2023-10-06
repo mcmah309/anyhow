@@ -39,7 +39,7 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
   }
 
   Future<F?> unwrapErrOrNull() {
-    return then((result) => result.err());
+    return then((result) => result.unwrapErrOrNull());
   }
 
   //************************************************************************//

@@ -107,7 +107,7 @@ void main() {
       final result2 = result.map((ok) => 'change');
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.err()?.downcast<int>().unwrap(), 4);
+      expect(result2.unwrapErrOrNull()?.downcast<int>().unwrap(), 4);
     });
   });
 
@@ -117,7 +117,7 @@ void main() {
       final result2 = result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
 
       expect(result2.unwrapOrNull(), 4);
-      expect(result2.err(), isNull);
+      expect(result2.unwrapErrOrNull(), isNull);
     });
 
     test('Error', () {
@@ -125,7 +125,7 @@ void main() {
       final result2 = result.mapErr((error) => Error('change'));
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.err(), Error('change'));
+      expect(result2.unwrapErrOrNull(), Error('change'));
     });
   });
 
@@ -142,7 +142,7 @@ void main() {
       final result2 = result.andThen(Ok.new);
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.err(), Error(4));
+      expect(result2.unwrapErrOrNull(), Error(4));
     });
   });
 
@@ -151,7 +151,7 @@ void main() {
       final result = 4.toErr();
       final result2 = result.andThenErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
 
-      expect(result2.err(), Error('===='));
+      expect(result2.unwrapErrOrNull(), Error('===='));
     });
 
     test('Ok', () {
@@ -159,7 +159,7 @@ void main() {
       final result2 = result.andThenErr(Err.new);
 
       expect(result2.unwrapOrNull(), 4);
-      expect(result2.err(), isNull);
+      expect(result2.unwrapErrOrNull(), isNull);
     });
   });
 
@@ -306,13 +306,13 @@ void main() {
   group('unwrapErrOrNull', () {
     test('Ok', () {
       const result = Ok(0);
-      final value = result.err();
+      final value = result.unwrapErrOrNull();
       expect(value, null);
     });
 
     test('Error', () {
       final result = Err<int>(Error(0));
-      final value = result.err();
+      final value = result.unwrapErrOrNull();
       expect(value, Error(0));
     });
   });
