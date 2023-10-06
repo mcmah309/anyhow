@@ -203,7 +203,8 @@ if (x is Err) {
 }
 ```
 `into` may be needed to change the `Ok` type of `x` to that of the calling function if they are different.
-`into` only exits if `x` is type `Err`, so you will never mishandle a type change. 
+`into` only exits if `x` is type `Err`, so you will never mishandle a type change. Note: There also exists 
+`intoUnchecked` that does not require implicit cast. 
 ## How to Never Unwrap Incorrectly
 In Rust, as here, it is possible to unwrap values that should not be unwrapped:
 ```dart

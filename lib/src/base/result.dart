@@ -1,5 +1,4 @@
 import 'package:meta/meta.dart';
-import 'package:anyhow/anyhow.dart' as anyhow;
 
 import '../../base.dart';
 import 'unit.dart' as type_unit;
@@ -118,7 +117,8 @@ abstract mixin class Result<S, F extends Object> {
   Result<S, F> copy();
   //************************************************************************//
 
-  /// Changes the [Ok] type to [S2]. This is usually used when "this" is known to be an [Err] and you want to return to
+  /// Changes the [Ok] type to [S2]. See [into] for a safe implementation of [intoUnchecked]. This is usually used
+  /// when "this" is known to be an [Err] and you want to return to
   /// the calling function, but the returning function's [Ok] type is different from this [Ok] type.
   ///
   /// Throws a [Panic] if this is not an [Err] and cannot cast the [Ok] value to [S2].
@@ -129,14 +129,14 @@ abstract mixin class Result<S, F extends Object> {
   /// Result<String,String> someFunction2() {
   ///   Result<int,String> result = someFunction1();
   ///   if (result.isErr()) {
-  ///     return result1.into();
+  ///     return result.intoUnchecked();
   ///   }
   /// ...
   ///```
   /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
   ///
-  /// In Rust, "into" is handled by the "?" operator, but there is no equivalent in Dart.
-  Result<S2, F> into<S2>();
+  /// In Rust, "intoUnchecked" is handled by the "?" operator, but there is no equivalent in Dart.
+  Result<S2, F> intoUnchecked<S2>();
 }
 
 /// {@template ok}
@@ -218,6 +218,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
+  @override
   Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
     if(other.isOk()){
       return this;
@@ -225,6 +226,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
     return other;
   }
 
+  @override
   Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
     return this;
   }
@@ -262,22 +264,26 @@ class Ok<S, F extends Object> implements Result<S, F> {
     return Ok<S, W>(ok);
   }
 
+  @override
   Result<S, F> inspect(void Function(S ok) fn) {
     fn(ok);
     return this;
   }
 
+  @override
   Result<S, F> inspectErr(void Function(F error) fn) {
     return this;
   }
 
+  @override
   Result<S, F> copy() {
     return Ok(ok);
   }
 
   //************************************************************************//
 
-  Result<S2, F> into<S2>(){
+  @override
+  Result<S2, F> intoUnchecked<S2>(){
     if(ok is S2){
       return Ok(ok as S2);
     }
@@ -369,13 +375,15 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-    Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
-      return this;
-    }
+  @override
+  Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
+    return this;
+  }
 
-    Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
-      return other;
-    }
+  @override
+  Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
+    return other;
+  }
 
   //************************************************************************//
 
@@ -410,22 +418,51 @@ class Err<S, F extends Object> implements Result<S, F> {
     return fn(err);
   }
 
+  @override
   Result<S, F> inspect(void Function(S ok) fn) {
     return this;
   }
 
+  @override
   Result<S, F> inspectErr(void Function(F error) fn) {
     fn(err);
     return this;
   }
 
+  @override
   Result<S, F> copy() {
     return Err(err);
   }
 
   //************************************************************************//
 
-  Result<S2, F> into<S2>(){
+  @override
+  Result<S2, F> intoUnchecked<S2>(){
+    return Err(err);
+  }
+
+  /// Changes the [Ok] type to [S2]. This is usually used when "this" is known to be an [Err] and you want to return to
+  /// the calling function, but the returning function's [Ok] type is different from this [Ok] type.
+  ///
+  /// Example of proper use:
+  /// ```dart
+  /// Result<int,String> someFunction1 () {...}
+  ///
+  /// Result<String,String> someFunction2() {
+  ///   Result<int,String> result = someFunction1();
+  ///   if (result is Err<int,String>) {
+  ///     return result.into();
+  ///   }
+  /// ...
+  ///```
+  /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
+  /// Also, If
+  /// you do not define "<int,String>" correctly in "Err<int,String>" Dart catches this syntax issue, since it will say
+  /// "result has no method 'into'". This is because Dart knows the conditional will never be true, thus it does not
+  /// do an implicit cast. Therefore, you don't have to worry about mis-specifying S and F in Err<S,F>
+  ///
+  /// Note: In Rust, "into" is handled by the "?" operator, but there is no equivalent in Dart.
+  Err<S2, F> into<S2>(){
     return Err(err);
   }
 

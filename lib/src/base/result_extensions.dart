@@ -60,7 +60,7 @@ extension ResultToFutureResultExtension<S,F extends Object> on Result<S,F> {
   /// Turns a [Result] into a [FutureResult].
   FutureResult<S,F> toFutureResult() async {
     if(isErr()){
-      return into();
+      return (this as Err<S,F>).into();
     }
     return Ok(await unwrap());
   }
@@ -70,9 +70,15 @@ extension ResultFutureToFutureResultExtension<S,F extends Object> on Result<Futu
   /// Turns a [Result] of a [Future] into a [FutureResult].
   FutureResult<S,F> toFutureResult() async {
     if(isErr()){
-      return into();
+      return (this as Err<Future<S>,F>).into();
     }
     return Ok(await unwrap());
   }
 }
+
+// extension IntoResultExtension<S, F extends Object> on Err<S,F> {
+//   Err<S2,F> into<S2>(){
+//     return Err(err);
+//   }
+// }
 

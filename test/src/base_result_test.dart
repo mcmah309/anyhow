@@ -7,24 +7,42 @@ import 'package:test/test.dart';
 /// Tests specific to the base Result, most other methods are tested with Anyhow
 void main(){
 
-  test("castOk",(){
+  test("intoUnchecked and into",(){
     Result<int,String> someFunction1 () {return Err("err");}
 
     Result<String,String> someFunction2() {
       final result = someFunction1();
       if (result.isErr()) {
-        return result.into();
+        return result.intoUnchecked();
       }
       return Ok("ok");
     }
 
     expect(someFunction2().unwrapErr(),"err");
+    expect(Err(0).intoUnchecked<String>().unwrapErr(),0);
+    expect(() => Ok(0).intoUnchecked<String>(),throwsA(isA<Panic>()));
+    expect(Ok(0).intoUnchecked<num>().unwrap(),0);
+    expect(Err(0).intoUnchecked().unwrapErr(),0);
+    expect(Ok(0).intoUnchecked().unwrap(),0);
+    expect(Ok(0).intoUnchecked().unwrap(),0);
+
+    Result<int,String> someFunction3 () {return Err("err");}
+
+    Result<String,String> someFunction4() {
+      final result = someFunction3();
+      if (result is Err<int,String>) {
+        return result.into();
+      }
+      return Ok("ok");
+    }
+
+    expect(someFunction4().unwrapErr(),"err");
     expect(Err(0).into<String>().unwrapErr(),0);
-    expect(() => Ok(0).into<String>(),throwsA(isA<Panic>()));
-    expect(Ok(0).into<num>().unwrap(),0);
+    // expect(() => Ok(0).into<String>(),throwsA(isA<Panic>()));
+    // expect(Ok(0).into<num>().unwrap(),0);
     expect(Err(0).into().unwrapErr(),0);
-    expect(Ok(0).into().unwrap(),0);
-    expect(Ok(0).into().unwrap(),0);
+    // expect(Ok(0).into().unwrap(),0);
+    // expect(Ok(0).into().unwrap(),0);
   });
 
   test("toAnyhowResult", (){
@@ -54,9 +72,11 @@ void main(){
     FutureResult<int,String> y = Err<int,String>("err").toFutureResult();
     expect(await y.unwrapErr(), "err");
 
-    Result<Future<int>,String> z = Ok(Future.value(1));
     // converts to Future<Result<int,String>> rather than Future<Result<Future<int>,String>>
+    Result<Future<int>,String> z = Ok(Future.value(1));
     expect(await z.toFutureResult().unwrap(),1);
+    z = Err("err");
+    expect(await z.toFutureResult().unwrapErr(),"err");
 
   });
 }
