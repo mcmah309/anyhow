@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:anyhow/anyhow.dart' as anyhow;
 
 import '../../base.dart';
 import 'unit.dart' as type_unit;
@@ -119,6 +120,21 @@ abstract mixin class Result<S, F extends Object> {
 
   /// Performs a shallow copy of this result.
   Result<S, F> copy();
+  //************************************************************************//
+
+  /// This is used when this is an error and the returning functions Ok type is different from this Ok type. You can
+  /// avoid this scenario by using the "anyhow" [anyhow.Result] consistently instead.
+  /// ```dart
+  /// Result<int,String> someFunction1 () {...}
+  ///
+  /// Result<String,String> someFunction2() {
+  ///   final result = someFunction1();
+  ///   if (result.isErr()) {
+  ///     return result1.castOk();
+  ///   }
+  /// ...
+  ///```
+  Result<Result<S2, F>,OkCastException> castOk<S2>();
 }
 
 /// {@template ok}
@@ -261,6 +277,15 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   Result<S, F> copy() {
     return Ok(ok);
+  }
+
+  //************************************************************************//
+
+  Result<Result<S2, F>,OkCastException> castOk<S2>(){
+    if(ok is S2){
+      return Ok(Ok(ok as S2));
+    }
+    return Err(OkCastException(S.runtimeType,S2.runtimeType));
   }
 
   //************************************************************************//
@@ -410,6 +435,12 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
+  Result<Result<S2, F>,OkCastException> castOk<S2>(){
+    return Ok(Err(error));
+  }
+
+  //************************************************************************//
+
   @override
   int get hashCode => error.hashCode;
 
@@ -419,6 +450,17 @@ class Err<S, F extends Object> implements Result<S, F> {
   @override
   String toString(){
     return "$error";
+  }
+}
+
+class OkCastException implements Exception {
+  final Type fromType;
+  final Type targetType;
+
+  OkCastException(this.fromType, this.targetType);
+
+  String toString() {
+    return "DowncastException: Attempted to cast $fromType to $targetType";
   }
 }
 

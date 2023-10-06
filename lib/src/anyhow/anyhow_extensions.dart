@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../../anyhow.dart';
+import '../../base.dart' as base;
 
 extension AnyhowResultExtensions<S> on Result<S> {
   /// Adds the object as additional context to the [Error]. The context should not be an instance of
@@ -20,6 +21,10 @@ extension AnyhowResultExtensions<S> on Result<S> {
     }
     return (this as Err<S>).withContext(fn);
   }
+
+  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
+  /// Otherwise returns this. Overrides the base Extension.
+  Result<S> toAnyhowResult() => this;
 }
 
 extension AnyhowOkExtensions<S> on Ok<S> {
@@ -113,5 +118,32 @@ extension ResultObjectExtension<S extends Object> on S {
     assert(this is! Future, 'Don\'t use the "toError()" method on instances of Future.');
     assert(this is! Error, 'Don\'t use the "toOk()" method on instances of Error.');
     return Err<S>(Error(this));
+  }
+}
+
+extension BaseResultExtension<S,F extends Object> on base.Result<S,F> {
+  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
+  /// Otherwise returns this.
+  Result<S> toAnyhowResult(){
+    if(isOk()){
+      return Ok((this as base.Ok<S,F>).unwrap());
+    }
+    return bail((this as base.Err<S,F>).unwrapErr());
+  }
+}
+
+extension BaseOkExtension<S,F extends Object> on base.Ok<S,F> {
+  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
+  /// Otherwise returns this.
+  Result<S> toAnyhowResult(){
+    return Ok(unwrap());
+  }
+}
+
+extension BaseErrExtension<S,F extends Object> on base.Err<S,F> {
+  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
+  /// Otherwise returns this.
+  Result<S> toAnyhowResult(){
+    return bail(unwrapErr());
   }
 }
