@@ -122,8 +122,8 @@ abstract mixin class Result<S, F extends Object> {
   Result<S, F> copy();
   //************************************************************************//
 
-  /// Casts the [Ok] value. This is usually used when "this", is known to be an [Err] and you want to return to the
-  /// calling function, but the returning function's [Ok] type is different from this [Ok] type.
+  /// Changes the [Ok] type to [S2]. This is usually used when "this" is known to be an [Err] and you want to return to
+  /// the calling function, but the returning function's [Ok] type is different from this [Ok] type.
   ///
   /// Throws a [Panic] if this is not an [Err] and cannot cast the [Ok] value to [S2].
   /// Example of proper use:
@@ -133,12 +133,14 @@ abstract mixin class Result<S, F extends Object> {
   /// Result<String,String> someFunction2() {
   ///   Result<int,String> result = someFunction1();
   ///   if (result.isErr()) {
-  ///     return result1.castOk();
+  ///     return result1.as();
   ///   }
   /// ...
   ///```
-  /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit
-  Result<S2, F> castOk<S2>();
+  /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
+  ///
+  /// In Rust, "as" is handled by the "?" operator, but there is no equivalent in Dart.
+  Result<S2, F> as<S2>();
 }
 
 /// {@template ok}
@@ -285,7 +287,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<S2, F> castOk<S2>(){
+  Result<S2, F> as<S2>(){
     if(ok is S2){
       return Ok(ok as S2);
     }
@@ -439,7 +441,7 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<S2, F> castOk<S2>(){
+  Result<S2, F> as<S2>(){
     return Err(error);
   }
 

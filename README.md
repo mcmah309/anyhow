@@ -195,6 +195,14 @@ Output:
 ```text
 Error: this message was thrown
 ```
+## Dart Equivalent To The Rust "?" Operator
+In Dart, the Rust "?" operator in `x?`, where `x` is a `Result`, can be mimicked with
+```dart
+if (x.isErr()) {
+  return x.as();
+}
+```
+"as" may be needed to change the `Ok` type of `x` to that of the calling function if they are different. 
 
 See examples for more.
 
