@@ -13,15 +13,18 @@ void main(){
     Result<String,String> someFunction2() {
       final result = someFunction1();
       if (result.isErr()) {
-        return result.castOk<String>().unwrap();
+        return result.castOk();
       }
       return Ok("ok");
     }
 
     expect(someFunction2().unwrapErr(),"err");
-    expect(Err(0).castOk<String>().unwrap().unwrapErr(),0);
-    expect(Ok(0).castOk<String>().unwrapErr(),isA<OkCastException>());
-    expect(Ok(0).castOk<num>().unwrap().unwrap(),0);
+    expect(Err(0).castOk<String>().unwrapErr(),0);
+    expect(() => Ok(0).castOk<String>(),throwsA(isA<Panic>()));
+    expect(Ok(0).castOk<num>().unwrap(),0);
+    expect(Err(0).castOk().unwrapErr(),0);
+    expect(Ok(0).castOk().unwrap(),0);
+    expect(Ok(0).castOk().unwrap(),0);
   });
 
   test("toAnyhowResult", (){

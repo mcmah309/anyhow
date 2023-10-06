@@ -122,19 +122,23 @@ abstract mixin class Result<S, F extends Object> {
   Result<S, F> copy();
   //************************************************************************//
 
-  /// This is used when this is an error and the returning functions Ok type is different from this Ok type. You can
-  /// avoid this scenario by using the "anyhow" [anyhow.Result] consistently instead.
+  /// Casts the [Ok] value. This is usually used when "this", is known to be an [Err] and you want to return to the
+  /// calling function, but the returning function's [Ok] type is different from this [Ok] type.
+  ///
+  /// Throws a [Panic] if this is not an [Err] and cannot cast the [Ok] value to [S2].
+  /// Example of proper use:
   /// ```dart
   /// Result<int,String> someFunction1 () {...}
   ///
   /// Result<String,String> someFunction2() {
-  ///   final result = someFunction1();
+  ///   Result<int,String> result = someFunction1();
   ///   if (result.isErr()) {
   ///     return result1.castOk();
   ///   }
   /// ...
   ///```
-  Result<Result<S2, F>,OkCastException> castOk<S2>();
+  /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit
+  Result<S2, F> castOk<S2>();
 }
 
 /// {@template ok}
@@ -281,11 +285,11 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<Result<S2, F>,OkCastException> castOk<S2>(){
+  Result<S2, F> castOk<S2>(){
     if(ok is S2){
-      return Ok(Ok(ok as S2));
+      return Ok(ok as S2);
     }
-    return Err(OkCastException(S.runtimeType,S2.runtimeType));
+    throw Panic(this,"attempted to cast ${S.runtimeType} to ${S2.runtimeType}");
   }
 
   //************************************************************************//
@@ -435,8 +439,8 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<Result<S2, F>,OkCastException> castOk<S2>(){
-    return Ok(Err(error));
+  Result<S2, F> castOk<S2>(){
+    return Err(error);
   }
 
   //************************************************************************//
@@ -450,17 +454,6 @@ class Err<S, F extends Object> implements Result<S, F> {
   @override
   String toString(){
     return "$error";
-  }
-}
-
-class OkCastException implements Exception {
-  final Type fromType;
-  final Type targetType;
-
-  OkCastException(this.fromType, this.targetType);
-
-  String toString() {
-    return "DowncastException: Attempted to cast $fromType to $targetType";
   }
 }
 
