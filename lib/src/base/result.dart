@@ -133,14 +133,14 @@ abstract mixin class Result<S, F extends Object> {
   /// Result<String,String> someFunction2() {
   ///   Result<int,String> result = someFunction1();
   ///   if (result.isErr()) {
-  ///     return result1.as();
+  ///     return result1.into();
   ///   }
   /// ...
   ///```
   /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
   ///
-  /// In Rust, "as" is handled by the "?" operator, but there is no equivalent in Dart.
-  Result<S2, F> as<S2>();
+  /// In Rust, "into" is handled by the "?" operator, but there is no equivalent in Dart.
+  Result<S2, F> into<S2>();
 }
 
 /// {@template ok}
@@ -287,7 +287,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<S2, F> as<S2>(){
+  Result<S2, F> into<S2>(){
     if(ok is S2){
       return Ok(ok as S2);
     }
@@ -441,7 +441,7 @@ class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
-  Result<S2, F> as<S2>(){
+  Result<S2, F> into<S2>(){
     return Err(error);
   }
 

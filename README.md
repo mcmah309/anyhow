@@ -199,10 +199,10 @@ Error: this message was thrown
 In Dart, the Rust "?" operator in `x?`, where `x` is a `Result`, can be mimicked with
 ```dart
 if (x.isErr()) {
-  return x.as();
+  return x.into();
 }
 ```
-"as" may be needed to change the `Ok` type of `x` to that of the calling function if they are different. 
+"into" may be needed to change the `Ok` type of `x` to that of the calling function if they are different. 
 
 See examples for more.
 
