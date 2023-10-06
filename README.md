@@ -8,7 +8,8 @@ Taking inspiration from the Rust crate of the same name, "[anyhow]", this Dart p
 error handling capabilities.
 
 "anyhow" not only faithfully embodies Rust's standard [Result] monad type but also brings the renowned Rust "anyhow" 
-crate into the Dart ecosystem. You can seamlessly employ both the Result type and the Anyhow Result type, either in 
+crate into the Dart ecosystem. You can seamlessly employ both the Standard (Base) Result type and the Anyhow Result 
+type, either in 
 conjunction or independently, to suit your error-handling needs.
 
 ## Intro to Usage
@@ -44,19 +45,22 @@ String makeHamburger() {
 ```text
 Hmm something went wrong making the hamburger.
 ```
+Note, if we forget to catch in the write spot, we just introduced a bug or worse - crashed our entire program.
+
 ## The Better Ways To Handle Errors With Anyhow
 #### What Is a Result Monad Type And Why Use it?
 A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The 
 `Result` monad is used in place of throwing exceptions. Instead of a function throwing an exception, the function 
 returns a `Result`, which can either be a `Ok` (Success) or `Err` (Error/Failure), `Result` is the type union 
-between the two. Before using the inner object, you need to check the type of the `Result` through `isOk()` or 
-`isErr()`, or you can directly `unwrap()` if you know an error is impossible. Doing so allows you to 
+between the two. Before unwrapping the inner object, you check the type of the `Result` through `is Ok`, `isOk()`,
+`is Err`, or `isErr()`. Checking allows you to 
 either resolve any potential issues in the calling function or pass the error up the chain until a function resolves 
 the issue. This provides predictable control flow to your program, eliminating many potential bugs and countless 
 hours of debugging.
 
 ### Result Type Error Handling
-With the base `Result` type, there is no more undefined behaviour due to control flow.
+With the base `Result` type, implemented based on the Rust standard [Result] type, there are no more undefined 
+behaviours due to control flow.
 ```dart
 import 'package:anyhow/base.dart';
 
@@ -89,7 +93,7 @@ Hmm something went wrong making the hamburger.
 ```
 
 ### Anyhow Result Type Error Handling
-With the Anyhow `Result` type, we now can know and add context around errors. To do so, we can add `context` or 
+With the Anyhow `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or 
 `withContext` (lazily). Either will only have an effect if a `Result` is the `Err` subclass.
 ```dart
 import 'package:anyhow/anyhow.dart';
@@ -138,7 +142,7 @@ StackTrace:
 #2      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
 ... <OMITTED FOR EXAMPLE>
 ```
-and we can swap the order with `Error.displayFormat = ErrDisplayFormat.stackTrace`
+or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.stackTrace`
 ```text
 Root Cause: Hmm something went wrong making the hamburger.
 
@@ -152,6 +156,41 @@ StackTrace:
 #2      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
 ... <OMITTED FOR EXAMPLE>
 ```
+Before Anyhow, if we wanted to accomplish something similar, we could do
+```dart
+Result<String,String> order() {
+  final user = "Bob";
+  final food = "pizza";
+  final result = makeFood(food);
+  if(result.isErr()){
+    Loggig.w("$user ordered.");
+    return result;
+  }
+  return Ok("Order Complete");
+}
+
+Result<String,String> makeFood(String order) {
+  final result = makeHamburger();
+  if(result.isErr()){
+    Loggig.w("order was $order.");
+    return result;
+  }
+  return result;
+}
+
+Result<String,String> makeHamburger() {
+  // What is the context around this error??
+  return Err("Hmm something went wrong making the hamburger.");
+}
+```
+Which is more verbose/error-prone and may not be what we actually want. Since:
+1. we may not want to log anything if the error state is 
+known and can be recovered from
+2. Related logs should be kept together (in the example other function could log before this Result had been handled)
+3. We have no way to get the correct stack traces related to the original issue
+4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
+
+Now with anyhow, we are able to better understand and handle errors in an idiomatic way.
 
 ### Base Result Type vs Anyhow Result Type
 The base `Result` Type and the anyhow `Result` Type can be imported with
