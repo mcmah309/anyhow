@@ -101,13 +101,13 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
     );
   }
 
-  FutureResult<W, F> flatMap<W>(
+  FutureResult<W, F> andThen<W>(
       FutureOr<Result<W, F>> Function(S ok) fn,
       ) {
     return then((result) => result.match(fn, Err.new));
   }
 
-  FutureResult<S, W> flatMapErr<W extends Object>(
+  FutureResult<S, W> andThenErr<W extends Object>(
       FutureOr<Result<S, W>> Function(F error) fn,
       ) {
     return then((result) => result.match(Ok.new, fn));

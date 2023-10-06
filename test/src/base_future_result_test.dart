@@ -7,14 +7,14 @@ void main() {
     test('async ', () async {
       final result = await const Ok(1) //
           .toFutureResult()
-          .flatMap((ok) async => Ok(ok * 2));
+          .andThen((ok) async => Ok(ok * 2));
       expect(result.unwrapOrNull(), 2);
     });
 
     test('sink', () async {
       final result = await const Ok(1) //
           .toFutureResult()
-          .flatMap((ok) => Ok(ok * 2));
+          .andThen((ok) => Ok(ok * 2));
       expect(result.unwrapOrNull(), 2);
     });
   });
@@ -23,14 +23,14 @@ void main() {
     test('async ', () async {
       final result = await bail(1) //
           .toFutureResult()
-          .flatMapErr((error) async => bail(error.downcast<int>().unwrap() * 2));
+          .andThenErr((error) async => bail(error.downcast<int>().unwrap() * 2));
       expect(result.err()!.downcast<int>().unwrap(), 2);
     });
 
     test('sink', () async {
       final result = await bail(1) //
           .toFutureResult()
-          .flatMapErr((error) => bail(error.downcast<int>().unwrap() * 2));
+          .andThenErr((error) => bail(error.downcast<int>().unwrap() * 2));
       expect(result.err()!.downcast<int>().unwrap(), 2);
     });
   });

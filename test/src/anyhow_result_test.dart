@@ -132,14 +132,14 @@ void main() {
   group('flatMap', () {
     test('Ok', () {
       final result = 4.toOk();
-      final result2 = result.flatMap((ok) => Ok('=' * ok));
+      final result2 = result.andThen((ok) => Ok('=' * ok));
 
       expect(result2.unwrapOrNull(), '====');
     });
 
     test('Error', () {
       final result = 4.toErr();
-      final result2 = result.flatMap(Ok.new);
+      final result2 = result.andThen(Ok.new);
 
       expect(result2.unwrapOrNull(), isNull);
       expect(result2.err(), Error(4));
@@ -149,14 +149,14 @@ void main() {
   group('flatMapError', () {
     test('Error', () {
       final result = 4.toErr();
-      final result2 = result.flatMapErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
+      final result2 = result.andThenErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
 
       expect(result2.err(), Error('===='));
     });
 
     test('Ok', () {
       const result = Ok(4);
-      final result2 = result.flatMapErr(Err.new);
+      final result2 = result.andThenErr(Err.new);
 
       expect(result2.unwrapOrNull(), 4);
       expect(result2.err(), isNull);

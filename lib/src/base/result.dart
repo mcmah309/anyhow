@@ -99,24 +99,19 @@ abstract mixin class Result<S, F extends Object> {
   /// using the given transformation.
   Result<S, W> mapErr<W extends Object>(W Function(F error) fn);
 
-  /// If [Ok], Returns a new [Result] mapping the [Ok] value with
-  /// the given transformation and unwrapping the produced [Result].
-  Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn);
+  /// If [Ok], Returns a new [Result] by passing the [Ok] value
+  /// to the provided function.
+  Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn);
 
-  /// If [Err], Returns a new [Result] mapping the [Err] value with
-  /// the given transformation and unwrapping the produced [Result].
-  Result<S, W> flatMapErr<W extends Object>(Result<S, W> Function(F error) fn);
+  //// If [Err], Returns a new [Result] by passing the [Err] value
+  /// to the provided function.
+  Result<S, W> andThenErr<W extends Object>(Result<S, W> Function(F error) fn);
 
   /// If [Ok], Calls the provided closure with the ok value, else does nothing.
   Result<S, F> inspect(void Function(S ok) fn);
 
   /// If [Err], Calls the provided closure with the err value, else does nothing.
   Result<S, F> inspectErr(void Function(F error) fn);
-
-  //************************************************************************//
-
-  /// Return a [FutureResult].
-  FutureResult<S, F> toFutureResult();
 
   /// Performs a shallow copy of this result.
   Result<S, F> copy();
@@ -256,12 +251,12 @@ class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn) {
+  Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn) {
     return fn(ok);
   }
 
   @override
-  Result<S, W> flatMapErr<W extends Object>(
+  Result<S, W> andThenErr<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
     return Ok<S, W>(ok);
@@ -275,11 +270,6 @@ class Ok<S, F extends Object> implements Result<S, F> {
   Result<S, F> inspectErr(void Function(F error) fn) {
     return this;
   }
-
-  //************************************************************************//
-
-  @override
-  FutureResult<S, F> toFutureResult() async => this;
 
   Result<S, F> copy() {
     return Ok(ok);
@@ -410,12 +400,12 @@ class Err<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<W, F> flatMap<W>(Result<W, F> Function(S ok) fn) {
+  Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn) {
     return Err<W, F>(error);
   }
 
   @override
-  Result<S, W> flatMapErr<W extends Object>(
+  Result<S, W> andThenErr<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
     return fn(error);
@@ -429,11 +419,6 @@ class Err<S, F extends Object> implements Result<S, F> {
     fn(error);
     return this;
   }
-
-  //************************************************************************//
-
-  @override
-  FutureResult<S, F> toFutureResult() async => this;
 
   Result<S, F> copy() {
     return Err(error);

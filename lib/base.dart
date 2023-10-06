@@ -1,4 +1,4 @@
-library result;
+library base;
 
 export 'src/base/future_result.dart';
 export 'src/base/result.dart';

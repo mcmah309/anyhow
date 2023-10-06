@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../anyhow.dart';
+import '../../base.dart' as base;
 
 
 part 'anyhow_result.dart';
@@ -235,38 +236,3 @@ extension FutureAnyhowError on Future<Error> {
     return then((e) => e.toErr());
   }
 }
-
-// Note: If you decided to uncomment below, you should also implement nullable for Future<Result?>. Otherwise, ex:
-// "downcast" for a null will have no methods
-// extension FutureAnyhowErrorNullable on Future<AnyhowError?> {
-//   /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
-//   /// protect keyword in dart
-//   Future<bool?> isType<E>() {
-//     return then((e) => e?.isType<E>());
-//   }
-//
-//   /// Attempt to downcast the error object to a concrete type.
-//   Future<Anyhow<E>?> downcast<E>() {
-//     return then((e) => e?.downcast<E>());
-//   }
-//
-//   /// The latest context that was added to this error
-//   Future<AnyhowError?> latest() {
-//     return then((e) => e?.latest());
-//   }
-//
-//   /// Additional context has been added to this error
-//   Future<bool?> hasContext() {
-//     return then((e) => e?.hasContext());
-//   }
-//
-//   /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
-//   Future<StackTrace?> stacktrace() {
-//     return then((e) => e?.stacktrace());
-//   }
-//
-//   /// Implemented to override the "toErr" extension applied to all objects
-//   Future<Err?> toErr() {
-//     return then((e) => e?.toErr());
-//   }
-// }
