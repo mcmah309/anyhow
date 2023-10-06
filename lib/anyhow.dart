@@ -1,7 +1,6 @@
 library result;
 
 import 'base.dart' as base;
-import 'src/anyhow/anyhow_error.dart';
 
 export 'base.dart' hide executeProtected, executeProtectedAsync, executeProtectedAsyncResult, executeProtectedResult,
 Result, Ok, Err, FutureResult;
