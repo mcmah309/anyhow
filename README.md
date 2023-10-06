@@ -239,7 +239,38 @@ Or declaratively with match
 ```dart
 x.match((ok) => 0, (err) => 1);
 ```
+### Misc
+#### Futures
+When working with `Future`s it is easy to make a mistake like this
+```dart
+Future.delayed(Duration(seconds: 1)); // Future not awaited
+```
+Where the future is not awaited. With Result's (Or any wrapped type) it is possible to make this mistake
+```dart
+await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))); // Outer "await" has no effect
+```
+The outer "await" has no effect since the value's type is `Result<Future<int>>` not `Future<Result<int>>`.
+To address this use `toFutureResult()`
+```dart
+await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))).toFutureResult(); // Works as expected
+```
+To avoid these issues all together in regular Dart and with wrapped types like `Result`, it is recommended to enable 
+these `Future` linting rules in `analysis_options.yaml`
+```yaml
+linter:
+  rules:
+    unawaited_futures: true # Future results in async function bodies must be awaited or marked unawaited using dart:async
+    await_only_futures: true # "await" should only be used on Futures
+    avoid_void_async: true # Avoid async functions that return void. (they should return Future<void>)
+    discarded_futures: true # Don’t invoke asynchronous functions in non-async blocks.
 
+analyzer:
+  errors:
+    unawaited_futures: error
+    await_only_futures: error
+    avoid_void_async: error
+    discarded_futures: error
+```
 
 See examples for more.
 

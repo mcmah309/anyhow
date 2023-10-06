@@ -76,9 +76,3 @@ extension ResultFutureToFutureResultExtension<S,F extends Object> on Result<Futu
   }
 }
 
-// extension IntoResultExtension<S, F extends Object> on Err<S,F> {
-//   Err<S2,F> into<S2>(){
-//     return Err(err);
-//   }
-// }
-
