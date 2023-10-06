@@ -56,15 +56,15 @@ extension ResultIterableExtensions<S, F extends Object> on Iterable<Result<S, F>
   }
 }
 
-extension ResultToFutureResultExtension<S,F extends Object> on Result<S,F> {
-  /// Turns a [Result] into a [FutureResult].
-  FutureResult<S,F> toFutureResult() async {
-    if(isErr()){
-      return (this as Err<S,F>).into();
-    }
-    return Ok(await unwrap());
-  }
-}
+// extension ResultToFutureResultExtension<S,F extends Object> on Result<S,F> {
+//   /// Turns a [Result] into a [FutureResult].
+//   FutureResult<S,F> toFutureResult() async {
+//     if(isErr()){
+//       return (this as Err<S,F>).into();
+//     }
+//     return Ok(await unwrap());
+//   }
+// }
 
 extension ResultFutureToFutureResultExtension<S,F extends Object> on Result<Future<S>,F> {
   /// Turns a [Result] of a [Future] into a [FutureResult].

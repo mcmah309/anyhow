@@ -163,12 +163,6 @@ void main() {
     });
   });
 
-  test('toAsyncResult', () {
-    const result = Ok(0);
-
-    expect(result.toFutureResult(), isA<FutureResult>());
-  });
-
   group('match', () {
     test('Ok', () {
       const result = Ok(0);

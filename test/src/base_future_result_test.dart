@@ -5,15 +5,13 @@ import 'package:test/test.dart';
 void main() {
   group('flatMap', () {
     test('async ', () async {
-      final result = await const Ok(1) //
-          .toFutureResult()
+      final result = await Future.value(const Ok(1))
           .andThen((ok) async => Ok(ok * 2));
       expect(result.unwrapOrNull(), 2);
     });
 
     test('sink', () async {
-      final result = await const Ok(1) //
-          .toFutureResult()
+      final result = await Future.value(const Ok(1))
           .andThen((ok) => Ok(ok * 2));
       expect(result.unwrapOrNull(), 2);
     });
@@ -21,46 +19,42 @@ void main() {
 
   group('flatMapError', () {
     test('async ', () async {
-      final result = await bail(1) //
-          .toFutureResult()
+      final result = await Future.value(bail(1))
           .andThenErr((error) async => bail(error.downcast<int>().unwrap() * 2));
       expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
 
     test('sink', () async {
-      final result = await bail(1) //
-          .toFutureResult()
+      final result = await Future.value(bail(1))
           .andThenErr((error) => bail(error.downcast<int>().unwrap() * 2));
       expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
     });
   });
 
   test('map', () async {
-    final result = await const Ok(1) //
-        .toFutureResult()
+    final result = await Future.value(const Ok(1))
         .map((ok) => ok * 2);
 
     expect(result.unwrapOrNull(), 2);
-    expect(bail(2).toFutureResult().map((x) => x), completes);
+    expect(Future.value(bail(2)).map((x) => x), completes);
   });
 
   test('mapError', () async {
-    final result = await bail(1) //
-        .toFutureResult()
+    final result = await Future.value(bail(1))
         .mapErr((error) => Error(error.downcast<int>().unwrap() * 2));
     expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);
-    expect(const Ok(2).toFutureResult().mapErr((x) => x), completes);
+    expect(Future.value(const Ok(2)).mapErr((x) => x), completes);
   });
 
   group('match', () {
     test('Ok', () async {
-      final result = const Ok(0).toFutureResult();
+      final result = Future.value(const Ok(0));
       final futureValue = result.match((x) => x, (e) => -1);
       expect(futureValue, completion(0));
     });
 
     test('Error', () async {
-      final result = bail(0).toFutureResult();
+      final result = Future.value(bail(0));
       final futureValue = result.match((x) => x, (e) => e.downcast<int>().unwrap());
       expect(futureValue, completion(0));
     });
@@ -68,14 +62,14 @@ void main() {
 
   group('unwrapOrNull and unwrapErrOrNull', () {
     test('Ok', () async {
-      final result = const Ok(0).toFutureResult();
+      final result = Future.value(const Ok(0));
 
       expect(result.isOk(), completion(true));
       expect(result.unwrapOrNull(), completion(0));
     });
 
     test('Error', () async {
-      final result = bail(0).toFutureResult();
+      final result = Future.value(bail(0));
 
       expect(result.isErr(), completion(true));
       expect(result.unwrapErr().downcast<int>().unwrap(), completion(0));
@@ -84,25 +78,25 @@ void main() {
 
   group('unwrap', () {
     test('Ok', () {
-      final result = const Ok(0).toFutureResult();
+      final result = Future.value(const Ok(0));
       expect(result.unwrap(), completion(0));
     });
 
     test('Error', () {
-      final result = bail(0).toFutureResult();
+      final result = Future.value(bail(0));
       expect(result.unwrap, throwsA(isA<Panic>()));
     });
   });
 
   group('unwrapOrElse', () {
     test('Ok', () {
-      final result = const Ok(0).toFutureResult();
+      final result = Future.value(const Ok(0));
       final value = result.unwrapOrElse((f) => -1);
       expect(value, completion(0));
     });
 
     test('Error', () {
-      final result = bail(0).toFutureResult();
+      final result = Future.value(bail(0));
       final value = result.unwrapOrElse((f) => 2);
       expect(value, completion(2));
     });
@@ -110,13 +104,13 @@ void main() {
 
   group('unwrapOr', () {
     test('Ok', () {
-      final result = const Ok(0).toFutureResult();
+      final result = Future.value(const Ok(0));
       final value = result.unwrapOr(-1);
       expect(value, completion(0));
     });
 
     test('Error', () {
-      final result = bail(0).toFutureResult();
+      final result = Future.value(bail(0));
       final value = result.unwrapOr(2);
       expect(value, completion(2));
     });
@@ -124,8 +118,7 @@ void main() {
 
   group('inspect', () {
     test('Ok', () {
-      const Ok(0) //
-          .toFutureResult()
+      Future.value(const Ok(0))
           .inspectErr((error) {})
           .inspect(
         expectAsync1(
@@ -137,8 +130,7 @@ void main() {
     });
 
     test('Error', () {
-      bail('error') //
-          .toFutureResult()
+      Future.value(bail('error'))
           .inspect((ok) {})
           .inspectErr(
         expectAsync1(
