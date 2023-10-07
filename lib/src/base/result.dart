@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import '../../base.dart';
 import 'unit.dart' as type_unit;
 
@@ -11,8 +9,7 @@ import 'unit.dart' as type_unit;
 /// .rust-lang
 /// .org/std/result/enum.Result.html
 /// {@endtemplate}
-@sealed
-abstract mixin class Result<S, F extends Object> {
+sealed class Result<S, F extends Object> {
 
   /// Returns the ok value if [Result] is [Ok].
   /// Throws a [Panic] if the [Result] is [Err].
@@ -134,7 +131,6 @@ abstract mixin class Result<S, F extends Object> {
   /// ...
   ///```
   /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
-  ///
   /// In Rust, "intoUnchecked" is handled by the "?" operator, but there is no equivalent in Dart.
   Result<S2, F> intoUnchecked<S2>();
 }
@@ -144,8 +140,7 @@ abstract mixin class Result<S, F extends Object> {
 ///
 /// Returned when the result is an expected value
 /// {@endtemplate}
-@immutable
-class Ok<S, F extends Object> implements Result<S, F> {
+final class Ok<S, F extends Object> implements Result<S, F> {
   /// Receives the [S] param as
   /// the ok result.
   const Ok(
@@ -311,8 +306,7 @@ class Ok<S, F extends Object> implements Result<S, F> {
 ///
 /// Returned when the result is an unexpected value
 /// {@endtemplate}
-@immutable
-class Err<S, F extends Object> implements Result<S, F> {
+final class Err<S, F extends Object> implements Result<S, F> {
   /// Receives the [F] param as
   /// the error result.
   const Err(this.err);
@@ -450,17 +444,12 @@ class Err<S, F extends Object> implements Result<S, F> {
   ///
   /// Result<String,String> someFunction2() {
   ///   Result<int,String> result = someFunction1();
-  ///   if (result is Err<int,String>) {
+  ///   if (result case Err()) {
   ///     return result.into();
   ///   }
   /// ...
   ///```
   /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
-  /// Also, If
-  /// you do not define "<int,String>" correctly in "Err<int,String>" Dart catches this syntax issue, since it will say
-  /// "result has no method 'into'". This is because Dart knows the conditional will never be true, thus it does not
-  /// do an implicit cast. Therefore, you don't have to worry about mis-specifying S and F in Err<S,F>
-  ///
   /// Note: In Rust, "into" is handled by the "?" operator, but there is no equivalent in Dart.
   Err<S2, F> into<S2>(){
     return Err(err);

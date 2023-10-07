@@ -146,7 +146,7 @@ packages:
     source: hosted
     version: "0.12.16"
   meta:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: meta
       sha256: a6e590c838b18133bb482a2745ad77c5bb7715fb0451209e1a7567d416678b8e

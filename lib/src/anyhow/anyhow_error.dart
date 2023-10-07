@@ -1,10 +1,9 @@
-import 'package:meta/meta.dart';
-
 import '../../anyhow.dart';
 import '../../base.dart' as base;
 
 
 part 'anyhow_result.dart';
+part 'anyhow_extensions.dart';
 
 /// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
@@ -94,8 +93,7 @@ class Error implements Exception {
     yield link;
   }
 
-  @internal
-  void add(Error error){
+  void _add(Error error){
     latest()._additionalContext = error;
   }
 

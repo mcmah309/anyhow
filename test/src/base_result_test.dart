@@ -12,8 +12,8 @@ void main(){
 
     Result<String,String> someFunction2() {
       final result = someFunction1();
-      if (result.isErr()) {
-        return result.intoUnchecked();
+      if (result case Err()) {
+        return result.into();
       }
       return Ok("ok");
     }
@@ -78,5 +78,16 @@ void main(){
     z = Err("err");
     expect(await z.toFutureResult().unwrapErr(),"err");
 
+  });
+
+  test("toResult on Iterable",(){
+    var result = [Ok(1), Ok(2), Ok(3)].toResult();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResult();
+    expect(result.unwrapErr(), 2);
+
+    result = [Ok<int,int>(1), Err<int,int>(2), Err<int,int>(3)].toResult();
+    expect(result.unwrapErr(), 2);
   });
 }

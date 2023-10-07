@@ -1,7 +1,6 @@
-import 'dart:async';
 
-import '../../anyhow.dart';
-import '../../base.dart' as base;
+
+part of 'anyhow_error.dart';
 
 extension AnyhowResultExtensions<S> on Result<S> {
   /// Adds the object as additional context to the [Error]. The context should not be an instance of
@@ -48,7 +47,7 @@ extension AnyhowErrExtensions<S> on Err<S> {
     assert(context is! Error, "The context should not already be an instance of AnyhowError. If it is, you are "
         "likely using the api wrong. If you need to combine AnyhowErrors see \"and\" and \"andThen\" methods. If this"
         " is a valid use case please submit a PR.");
-    err.add(Error(context));
+    err._add(Error(context));
     return this;
   }
 
@@ -85,10 +84,12 @@ extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
         if (result.isErr()) {
           finalResult = Err(result.unwrapErr());
         }
-        list.add(result.unwrap());
+        else {
+          list.add(result.unwrap());
+        }
       }
       if (result.isErr()) {
-        finalResult = finalResult.context(result.unwrapErr());
+        finalResult = finalResult.context(result.unwrapErr()._cause);
       }
     }
     return finalResult;

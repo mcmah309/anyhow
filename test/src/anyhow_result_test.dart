@@ -311,6 +311,24 @@ void main() {
     });
   });
 
+  test("toResult on Iterable",(){
+    var result = [Ok(1), Ok(2), Ok(3)].toResult();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].toResult();
+    expect(result.unwrapErr().downcast<int>().unwrap(), 2);
+    expect(result.unwrapErr().latest().downcast<int>().unwrap(), 2);
+
+    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
+    expect(result.unwrapErr().downcast<int>().unwrap(), 2);
+    expect(result.unwrapErr().latest().downcast<int>().unwrap(), 3);
+  });
+
+  test("toErr overriden for Error", (){
+    expect(1.toErr(),Err(Error(1)));
+    expect(Error(1).toErr(),Err(Error(1)));
+  });
+
   test('printing error', () {
     Result error = bail(Exception("Root cause"));
     Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
