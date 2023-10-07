@@ -103,6 +103,7 @@ class Error implements Exception {
         additionalContext: additionalContext ?? _additionalContext?.clone());
   }
 
+  /// Human readable error representation
   @override
   String toString() {
     final StringBuffer stringBuf = StringBuffer();

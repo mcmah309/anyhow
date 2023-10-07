@@ -1,3 +1,4 @@
+// Anyhow implementation on top of Base
 library anyhow;
 
 export 'base.dart' hide executeProtected, executeProtectedAsync, executeProtectedAsyncResult, executeProtectedResult,

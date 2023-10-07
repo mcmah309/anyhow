@@ -1,3 +1,4 @@
+/// Base implementation of the Result Type and tools
 library base;
 
 export 'src/base/future_result.dart';
