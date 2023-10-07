@@ -1,3 +1,9 @@
+## 0.5.0
+
+* More extensions
+* Better type matching
+* intoUnchecked
+
 ## 0.4.0
 
 * Separate Result into base Result and anyhow Result
