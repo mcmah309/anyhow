@@ -52,8 +52,8 @@ Note, if we forget to catch in the write spot, we just introduced a bug or worse
 A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The 
 `Result` monad is used in place of throwing exceptions. Instead of a function throwing an exception, the function 
 returns a `Result`, which can either be a `Ok` (Success) or `Err` (Error/Failure), `Result` is the type union 
-between the two. Before unwrapping the inner object, you check the type of the `Result` through `is Ok`, `isOk()`,
-`is Err`, or `isErr()`. Checking allows you to 
+between the two. Before unwrapping the inner object, you check the type of the `Result` through conventions like 
+`case Ok(:final ok)` and `isOk()`. Checking allows you to 
 either resolve any potential issues in the calling function or pass the error up the chain until a function resolves 
 the issue. This provides predictable control flow to your program, eliminating many potential bugs and countless 
 hours of debugging.
@@ -237,13 +237,13 @@ Error: this message was thrown
 ## Dart Equivalent To The Rust "?" Operator
 In Dart, the Rust "?" operator functionality in `x?`, where `x` is a `Result`, can be accomplished with
 ```dart
-if (x is Err) {
+if (x case Err()) {
   return x.into();
 }
 ```
 `into` may be needed to change the `Ok` type of `x` to that of the calling function if they are different.
 `into` only exits if `x` is type `Err`, so you will never mishandle a type change. Note: There also exists 
-`intoUnchecked` that does not require implicit cast. 
+`intoUnchecked` that does not require implicit cast of a `Result` Type. 
 ## How to Never Unwrap Incorrectly
 In Rust, as here, it is possible to unwrap values that should not be unwrapped:
 ```dart
@@ -251,35 +251,40 @@ if (x.isErr()) {
   return x.unwrap(); // this will panic (should be "unwrapErr()")
 }
 ```
-To never unwrap incorrectly, simple do a typecheck with `is` instead of `isErr()`.
+To never unwrap incorrectly, simple do a typecheck with `is` or `case` instead of `isErr()`.
 ```dart
-if (x is Err){
-    return x.err;
+if (x case Err(:final err)){
+    return err;
 }
 ```
 and vice versa
 ```dart
-if (x is Ok){
-    return x.ok;
+if (x case Ok(:final ok){
+    return ok;
 }
 ```
 The type check does an implicit cast, and we now have access to the immutable error and ok value respectively.
 
 Similarly, we can mimic Rust's `match` keyword, with Dart's `switch`
 ```dart
-  switch(x){
-    case Ok o:
-      print(o.ok);
-    case Err e:
-      print(e.err);
-  }
+switch(x){
+ case Ok(:final ok):
+   print(ok);
+ case Err(:final err):
+   print(err);
+}
+
+final y = switch(x){
+  Ok(:final ok) => ok,
+  Err(:final err) => err,
+};
 ```
 Or declaratively with match
 ```dart
-x.match((ok) => 0, (err) => 1);
+x.match((ok) => ok, (err) => err);
 ```
 ### Misc
-#### Futures
+#### Working with Futures
 When working with `Future`s it is easy to make a mistake like this
 ```dart
 Future.delayed(Duration(seconds: 1)); // Future not awaited
@@ -288,8 +293,8 @@ Where the future is not awaited. With Result's (Or any wrapped type) it is possi
 ```dart
 await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))); // Outer "await" has no effect
 ```
-The outer "await" has no effect since the value's type is `Result<Future<int>>` not `Future<Result<int>>`.
-To address this use `toFutureResult()`
+The outer "await" has no effect since the value's type is `Result<Future<void>>` not `Future<Result<void>>`.
+To address this use `toFutureResult()`, which is only a method if in this scenario
 ```dart
 await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))).toFutureResult(); // Works as expected
 ```
@@ -310,6 +315,20 @@ analyzer:
     avoid_void_async: error
     discarded_futures: error
 ```
+#### Working With Iterable Results
+In addition to useful `.toErr()`, `.toOk()` extension methods, anyhow provides a `.toResult()` on types that can be 
+converted to a single result. One of these is on `Iterable<Result<S,F>>`, which can turn into a single 
+`Result<List<S>,F>`.
+If 
+using the anyhow `Result`, `Err`'s will be chained, if using the base `Result` The first `Err` if any will be used.
+```dart
+var result = [Ok(1), Ok(2), Ok(3)].toResult();
+expect(result.unwrap(), [1, 2, 3]);
+
+result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResult();
+expect(result.unwrapErr(), 2);
+```
+
 
 See examples for more.
 
