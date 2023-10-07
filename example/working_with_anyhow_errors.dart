@@ -1,6 +1,5 @@
 
 import 'package:anyhow/anyhow.dart';
-import 'package:anyhow/base.dart' as base;
 
 void main(){
   final Result err = bail("This is single error");
