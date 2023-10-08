@@ -9,23 +9,11 @@ part 'anyhow_extensions.dart';
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
 /// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [Result] and to be
 /// consistent with Rust/ the anyhow crate.
-///```html
-///<h1>Exception Mapping</h1>
-///<table border="1">
-///  <tr>
-///    <th>Dart Exception Type</th>
-///    <th>Equivalent in Rust</th>
-///  </tr>
-///  <tr>
-///    <td>Exception</td>
-///    <td>Error</td>
-///  </tr>
-///  <tr>
-///    <td>Error</td>
-///    <td>Panic</td>
-///  </tr>
-///</table>
-///```
+///
+/// Dart Exception Type    | Equivalent in Rust
+/// -----------------------|---------------------
+/// Exception              | Error
+/// Error                  | Panic
 class Error implements Exception {
   Object _cause;
   Error? _additionalContext;

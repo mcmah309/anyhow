@@ -100,6 +100,10 @@ sealed class Result<S, F extends Object> {
   /// to the provided function.
   Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn);
 
+  // /// If [Ok], Returns a new [Result] by passing the [Ok] value
+  // /// to the provided function.
+  // FutureResult<W, F> andThenAsync<W>(FutureResult<W, F> Function(S ok) fn);
+
   //// If [Err], Returns a new [Result] by passing the [Err] value
   /// to the provided function.
   Result<S, W> andThenErr<W extends Object>(Result<S, W> Function(F error) fn);
@@ -110,9 +114,10 @@ sealed class Result<S, F extends Object> {
   /// If [Err], Calls the provided closure with the err value, else does nothing.
   Result<S, F> inspectErr(void Function(F error) fn);
 
+  //************************************************************************//
+
   /// Performs a shallow copy of this result.
   Result<S, F> copy();
-  //************************************************************************//
 
   /// Changes the [Ok] type to [S2]. See [into] for a safe implementation of [intoUnchecked]. This is usually used
   /// when "this" is known to be an [Err] and you want to return to
@@ -260,22 +265,22 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<S, F> inspect(void Function(S ok) fn) {
+  Ok<S, F> inspect(void Function(S ok) fn) {
     fn(ok);
     return this;
   }
 
   @override
-  Result<S, F> inspectErr(void Function(F error) fn) {
+  Ok<S, F> inspectErr(void Function(F error) fn) {
     return this;
   }
+
+  //************************************************************************//
 
   @override
   Result<S, F> copy() {
     return Ok(ok);
   }
-
-  //************************************************************************//
 
   @override
   Result<S2, F> intoUnchecked<S2>(){
@@ -413,22 +418,22 @@ final class Err<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<S, F> inspect(void Function(S ok) fn) {
+  Err<S, F> inspect(void Function(S ok) fn) {
     return this;
   }
 
   @override
-  Result<S, F> inspectErr(void Function(F error) fn) {
+  Err<S, F> inspectErr(void Function(F error) fn) {
     fn(err);
     return this;
   }
+
+  //************************************************************************//
 
   @override
   Result<S, F> copy() {
     return Err(err);
   }
-
-  //************************************************************************//
 
   @override
   Result<S2, F> intoUnchecked<S2>(){
