@@ -8,9 +8,19 @@ Taking inspiration from the Rust crate of the same name, "[anyhow]", this Dart p
 error handling capabilities.
 
 "anyhow" not only faithfully embodies Rust's standard [Result] monad type but also brings the renowned Rust "anyhow" 
-crate into the Dart ecosystem. You can seamlessly employ both the Standard (Base) Result type and the Anyhow Result 
-type, either in 
-conjunction or independently, to suit your error-handling needs.
+crate into the Dart ecosystem, allowing you to add `context` to `Err`s. You can seamlessly employ both the Standard 
+(Base) Result type and the Anyhow Result  type, either in conjunction or independently, to suit your error-handling 
+needs.
+
+## What Is a Result Monad Type And Why Use it?
+A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The
+`Result` monad is used in place of throwing exceptions. Instead of a function throwing an exception, the function
+returns a `Result`, which can either be a `Ok` (Success) or `Err` (Error/Failure), `Result` is the type union
+between the two. Before unwrapping the inner object, you check the type of the `Result` through conventions like
+`case Ok(:final ok)` and `isOk()`. Checking allows you to
+either resolve any potential issues in the calling function or pass the error up the chain until a function resolves
+the issue. This provides predictable control flow to your program, eliminating many potential bugs and countless
+hours of debugging.
 
 ## Intro to Usage
 ### Regular Dart Error handling
@@ -45,20 +55,15 @@ String makeHamburger() {
 ```text
 Hmm something went wrong making the hamburger.
 ```
-Note, if we forget to catch in the write spot, we just introduced a bug or worse - crashed our entire program.
+#### What's Wrong with Solution?
+If we forget to catch in the correct spot, we just introduced a bug or worse - crashed our entire program. We 
+may later reuse `makeHamburger`, `makeFood`, or `order`, and forget that it can throw. The more we reuse functions 
+that can throw, the less maintainable and error-prone our program becomes. Throwing is also an expensive operation, 
+as it requires stack unwinding.
 
 ## The Better Ways To Handle Errors With Anyhow
-#### What Is a Result Monad Type And Why Use it?
-A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The 
-`Result` monad is used in place of throwing exceptions. Instead of a function throwing an exception, the function 
-returns a `Result`, which can either be a `Ok` (Success) or `Err` (Error/Failure), `Result` is the type union 
-between the two. Before unwrapping the inner object, you check the type of the `Result` through conventions like 
-`case Ok(:final ok)` and `isOk()`. Checking allows you to 
-either resolve any potential issues in the calling function or pass the error up the chain until a function resolves 
-the issue. This provides predictable control flow to your program, eliminating many potential bugs and countless 
-hours of debugging.
-
-### Result Type Error Handling
+Other languages address the throwing exception issue by preventing them entirely. Most that do use a `Result` monad.
+### Base Result Type Error Handling
 With the base `Result` type, implemented based on the Rust standard [Result] type, there are no more undefined 
 behaviours due to control flow.
 ```dart
@@ -163,7 +168,7 @@ Result<String,String> order() {
   final food = "pizza";
   final result = makeFood(food);
   if(result.isErr()){
-    Loggig.w("$user ordered.");
+    Logging.w("$user ordered.");
     return result;
   }
   return Ok("Order Complete");
@@ -172,7 +177,7 @@ Result<String,String> order() {
 Result<String,String> makeFood(String order) {
   final result = makeHamburger();
   if(result.isErr()){
-    Loggig.w("order was $order.");
+    Logging.w("order was $order.");
     return result;
   }
   return result;
@@ -184,9 +189,9 @@ Result<String,String> makeHamburger() {
 }
 ```
 Which is more verbose/error-prone and may not be what we actually want. Since:
-1. we may not want to log anything if the error state is 
+1. We may not want to log anything if the error state is 
 known and can be recovered from
-2. Related logs should be kept together (in the example other function could log before this Result had been handled)
+2. Related logs should be kept together (in the example, other functions could log before this Result had been handled)
 3. We have no way to get the correct stack traces related to the original issue
 4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
 
@@ -241,7 +246,8 @@ if (x case Err()) {
   return x.into();
 }
 ```
-`into` may be needed to change the `Ok` type of `x` to that of the calling function if they are different.
+`into` may be needed to change the `S` type of `Result<S,F>` for `x` to that of the functions return type if 
+they are different.
 `into` only exits if `x` is type `Err`, so you will never mishandle a type change. Note: There also exists 
 `intoUnchecked` that does not require implicit cast of a `Result` Type. 
 ## How to Never Unwrap Incorrectly
