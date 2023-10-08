@@ -66,10 +66,10 @@ void main(){
   });
 
   test("toFutureResult",() async {
-    // FutureResult<int,String> x = Ok<int,String>(1).toFutureResult();
-    // expect(await x.unwrap(), 1);
-    // FutureResult<int,String> y = Err<int,String>("err").toFutureResult();
-    // expect(await y.unwrapErr(), "err");
+    FutureResult<int,String> x = Ok<int,String>(1).toFutureResult();
+    expect(await x.unwrap(), 1);
+    FutureResult<int,String> y = Err<int,String>("err").toFutureResult();
+    expect(await y.unwrapErr(), "err");
 
     // converts to Future<Result<int,String>> rather than Future<Result<Future<int>,String>>
     Result<Future<int>,String> z = Ok(Future.value(1));
