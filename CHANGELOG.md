@@ -1,3 +1,7 @@
+## 0.5.1
+
+* Add intoFutureResult for any Result type
+
 ## 0.5.0
 
 * More extensions
