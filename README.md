@@ -56,10 +56,11 @@ String makeHamburger() {
 Hmm something went wrong making the hamburger.
 ```
 #### What's Wrong with Solution?
-If we forget to catch in the correct spot, we just introduced a bug or worse - crashed our entire program. We 
-may later reuse `makeHamburger`, `makeFood`, or `order`, and forget that it can throw. The more we reuse functions 
-that can throw, the less maintainable and error-prone our program becomes. Throwing is also an expensive operation, 
-as it requires stack unwinding.
+* If we forget to catch in the correct spot, we just introduced a bug or worse - crashed our entire program.
+* We may later reuse `makeHamburger`, `makeFood`, or `order`, and forget that it can throw.
+* The more we reuse functions 
+that can throw, the less maintainable and error-prone our program becomes. 
+* Throwing is also an expensive operation, as it requires stack unwinding.
 
 ## The Better Ways To Handle Errors With Anyhow
 Other languages address the throwing exception issue by preventing them entirely. Most that do use a `Result` monad.
