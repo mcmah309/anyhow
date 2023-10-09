@@ -12,6 +12,25 @@ crate into the Dart ecosystem, allowing you to add `context` to `Err`s. You can 
 (Base) Result type and the Anyhow Result  type, either in conjunction or independently, to suit your error-handling 
 needs.
 
+## Table of Contents
+
+* [What Is a Result Monad Type And Why Use it?](#what-is-a-result-monad-type-and-why-use-it)
+* [Intro to Usage](#intro-to-usage)
+    - [Regular Dart Error handling](#regular-dart-error-handling)
+        - [What's Wrong with Solution?](#whats-wrong-with-solution)
+    - [The Better Ways To Handle Errors With Anyhow](#the-better-ways-to-handle-errors-with-anyhow)
+        - [Base Result Type Error Handling](#base-result-type-error-handling)
+        - [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling)
+        - [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
+    - [Adding Predictable Control Flow To Legacy Dart Code](#adding-predictable-control-flow-to-legacy-dart-code)
+    - [Dart Equivalent To The Rust "?" Operator](#dart-equivalent-to-the-rust--operator)
+    - [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly)
+* [Misc](#misc)
+    - [Working with Futures](#working-with-futures)
+    - [Working With Iterable Results](#working-with-iterable-results)
+    - [Panic](#panic)
+    - [Unit](#unit)
+
 ## What Is a Result Monad Type And Why Use it?
 A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The
 `Result` monad is used in place of throwing exceptions. Instead of a function throwing an exception, the function
@@ -123,7 +142,7 @@ Result<String> makeFood(String order) {
 }
 
 Result<String> makeHamburger() {
-  return bail("Hmm something went wrong making the hamburger.");
+  return bail("Hmm something went wrong making the hamburger."); // bail(...) == Err(Error(...))
 }
 ```
 #### Output
@@ -301,7 +320,7 @@ Where the future is not awaited. With Result's (Or any wrapped type) it is possi
 await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))); // Outer "await" has no effect
 ```
 The outer "await" has no effect since the value's type is `Result<Future<void>>` not `Future<Result<void>>`.
-To address this use `toFutureResult()`, which is only a method if in this scenario
+To address this use `toFutureResult()`
 ```dart
 await Ok(1).map((n) async => await Future.delayed(Duration(seconds: n))).toFutureResult(); // Works as expected
 ```
@@ -334,6 +353,44 @@ expect(result.unwrap(), [1, 2, 3]);
 
 result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResult();
 expect(result.unwrapErr(), 2);
+```
+#### Panic
+Rust vs Dart Error handling terminology:
+
+| Dart Exception Type | Equivalent in Rust |
+|---------------------|--------------------|
+| Exception           | Error              |
+| Error               | Panic              |
+
+Thus, here `Error` implements Dart core `Exception` (Not to be confused with the 
+Dart core `Error` type)
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+import 'package:anyhow/base.dart' as base;
+
+base.Result<String,anyhow.Error> x = anyhow.Err(1); // == base.Err(anyhow.Error(1));
+```
+And `Panic` implements Dart core `Error`.
+```dart
+if (x.isErr()) {
+  return x.unwrap(); // this will throw a Panic (should be "unwrapErr()")
+}
+```
+As with Dart core `Error`s, `Panic`s should never be caught.
+
+Anyhow was designed with safety in mind. The only time anyhow will ever throw is if you `unwrap` incorrectly (as above),
+in 
+this case it will throw a `Panic`. See [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly) section to 
+avoid ever using `unwrap`.
+
+#### Unit
+In Dart, void can be a generic type, but not a return type:
+```dart
+Result<void,int> x = Ok(null) // not valid
+```
+To solve this, when you do not care about the return value, use the constant `unit` and type `Unit` over `void`:
+```dart
+Result<Unit,int> x = Ok(unit) // valid
 ```
 
 
