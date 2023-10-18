@@ -5,6 +5,11 @@ import 'package:test/test.dart';
 
 /// Tests specific to the base Result, most other methods are tested with Anyhow
 void main(){
+  test("Unit", () {
+    Result<Null, int> x = Ok(null);
+    Result<Unit, int> y = Ok(null);
+    expect(x.runtimeType, y.runtimeType);
+  });
 
   test("intoUnchecked and into",(){
     Result<int,String> someFunction1 () {return Err("err");}
@@ -89,8 +94,8 @@ void main(){
     result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3)].toResultEager();
     expect(result.unwrapErr(), 2);
 
-    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3), Ok<int, int>(4)].toResultEager();
-    expect(result.unwrapErr(), 2);
+    result = [Ok<int, int>(1), Err<int, int>(3), Err<int, int>(2), Ok<int, int>(4)].toResultEager();
+    expect(result.unwrapErr(), 3);
   });
 
   test("toResult on Iterable", () {
@@ -103,7 +108,53 @@ void main(){
     result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3)].toResult();
     expect(result.unwrapErr(), [2, 3]);
 
-    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3), Ok<int, int>(4)].toResult();
+    result = [Ok<int, int>(1), Err<int, int>(3), Err<int, int>(2), Ok<int, int>(4)].toResult();
+    expect(result.unwrapErr(), [3, 2]);
+  });
+
+  test("toResultEager on Future Iterable", () async {
+    var result = await [_delay(Ok(3)), _delay(Ok(1)), _delay(Ok(2))].toResultEager();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = await [_delay(Ok<int, int>(3)), _delay(Err<int, int>(1)), _delay(Ok<int, int>(2))].toResultEager();
+    expect(result.unwrapErr(), 1);
+
+    result = await [_delay(Ok<int, int>(1)), _delay(Err<int, int>(3)), _delay(Err<int, int>(2))].toResultEager();
+    expect(result.unwrapErr(), 2);
+
+    result = await [
+      _delay(Ok<int, int>(1)),
+      _delay(Err<int, int>(2)),
+      _delay(Err<int, int>(3)),
+      _delay(Ok<int, int>(4))
+    ].toResultEager();
+    expect(result.unwrapErr(), 2);
+  });
+
+  test("toResult on Future Iterable", () async {
+    var result = await [_delay(Ok(3)), _delay(Ok(1)), _delay(Ok(2))].toResult();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = await [_delay(Ok<int, int>(3)), _delay(Err<int, int>(1)), _delay(Ok<int, int>(2))].toResult();
+    expect(result.unwrapErr(), [1]);
+
+    result = await [_delay(Ok<int, int>(1)), _delay(Err<int, int>(3)), _delay(Err<int, int>(2))].toResult();
     expect(result.unwrapErr(), [2, 3]);
+
+    result = await [
+      _delay(Ok<int, int>(1)),
+      _delay(Err<int, int>(2)),
+      _delay(Err<int, int>(3)),
+      _delay(Ok<int, int>(4))
+    ].toResult();
+    expect(result.unwrapErr(), [2, 3]);
+  });
+}
+
+FutureResult<int, int> _delay(Result<int, int> result) {
+  int delay = result.isOk() ? result.unwrap() : result.unwrapErr();
+  return Future.value(result).then((value) async {
+    await Future.delayed(Duration(seconds: delay));
+    return result;
   });
 }

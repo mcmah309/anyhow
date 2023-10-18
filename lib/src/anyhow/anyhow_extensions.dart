@@ -3,17 +3,18 @@
 part of 'anyhow_error.dart';
 
 extension AnyhowResultExtensions<S> on Result<S> {
-  /// Adds the object as additional context to the [Error]. The context should not be an instance of
-  /// [Error].
+  /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
+  /// should not be an instance of [Error].
   Result<S> context(Object context){
     if(isOk()){
       return (this as Ok<S>).context(context);
+      ;
     }
     return (this as Err<S>).context(context);
   }
 
-  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
-  /// [Error]. The context should not be an instance of [Error].
+  /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
+  /// context. The context should not be an instance of [Error].
   Result<S> withContext(Object Function() fn){
     if(isOk()){
       return (this as Ok<S>).withContext(fn);
@@ -27,22 +28,19 @@ extension AnyhowResultExtensions<S> on Result<S> {
 }
 
 extension AnyhowOkExtensions<S> on Ok<S> {
-  /// Adds the object as additional context to the [Error]. The context should not be an instance of
-  /// [Error].
+  /// returns this
   Ok<S> context(Object context){
     return this;
   }
 
-  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
-  /// [Error]. The context should not be an instance of [Error].
+  /// returns this
   Ok<S> withContext(Object Function() fn){
     return this;
   }
 }
 
 extension AnyhowErrExtensions<S> on Err<S> {
-  /// Adds the object as additional context to the [Error]. The context should not be an instance of
-  /// [Error].
+  /// Returns an [Error] with the additional context. The context should not be an instance of [Error].
   Err<S> context(Object context) {
     assert(
         context is! Error,
@@ -52,23 +50,22 @@ extension AnyhowErrExtensions<S> on Err<S> {
     return Err(Error(context, parent: err));
   }
 
-  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
-  /// [Error]. The context should not be an instance of [Error].
+  /// Lazily calls the function if the [Result] is an [Err] and returns an [Error] with the additional context.
+  /// The context should not be an instance of [Error].
   Err<S> withContext(Object Function() fn) {
     return context(fn());
   }
 }
 
 extension AnyhowFutureResultExtension<S> on FutureResult<S> {
-
-  /// Adds the object as additional context to the [Error]. The context should not be an instance of
-  /// [Error].
+  /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
+  /// should not be an instance of [Error].
   FutureResult<S> context(Object context){
     return then((result) => result.context(context));
   }
 
-  /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
-  /// [Error]. The context should not be an instance of [Error].
+  /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
+  /// context. The context should not be an instance of [Error].
   FutureResult<S> withContext(Object Function() fn){
     return then((result) => result.withContext(fn));
   }
