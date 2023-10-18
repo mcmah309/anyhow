@@ -79,14 +79,31 @@ void main(){
 
   });
 
-  test("toResult on Iterable",(){
+  test("toResultEager on Iterable", () {
+    var result = [Ok(1), Ok(2), Ok(3)].toResultEager();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = [Ok<int, int>(1), Err<int, int>(2), Ok<int, int>(3)].toResultEager();
+    expect(result.unwrapErr(), 2);
+
+    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3)].toResultEager();
+    expect(result.unwrapErr(), 2);
+
+    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3), Ok<int, int>(4)].toResultEager();
+    expect(result.unwrapErr(), 2);
+  });
+
+  test("toResult on Iterable", () {
     var result = [Ok(1), Ok(2), Ok(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);
 
-    result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResult();
-    expect(result.unwrapErr(), 2);
+    result = [Ok<int, int>(1), Err<int, int>(2), Ok<int, int>(3)].toResult();
+    expect(result.unwrapErr(), [2]);
 
-    result = [Ok<int,int>(1), Err<int,int>(2), Err<int,int>(3)].toResult();
-    expect(result.unwrapErr(), 2);
+    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3)].toResult();
+    expect(result.unwrapErr(), [2, 3]);
+
+    result = [Ok<int, int>(1), Err<int, int>(2), Err<int, int>(3), Ok<int, int>(4)].toResult();
+    expect(result.unwrapErr(), [2, 3]);
   });
 }

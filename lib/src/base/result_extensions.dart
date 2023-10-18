@@ -43,7 +43,7 @@ extension TransposeResult<S, F extends Object> on Result<S?, F> {
 extension ResultIterableExtensions<S, F extends Object> on Iterable<Result<S, F>> {
   /// Transforms an Iterable of results into a single result where the ok value is the list of all successes. If any
   /// error is encountered, the first error is used as the error result.
-  Result<List<S>,F> toResult() {
+  Result<List<S>, F> toResultEager() {
     List<S> list = [];
     Result<List<S>, F> finalResult = Ok(list);
     for (final result in this) {
@@ -51,6 +51,27 @@ extension ResultIterableExtensions<S, F extends Object> on Iterable<Result<S, F>
           return Err(result.unwrapErr());
         }
         list.add(result.unwrap());
+    }
+    return finalResult;
+  }
+
+  /// Transforms an Iterable of results into a single result where the ok value is the list of all successes and err
+  /// value is a list of all failures.
+  Result<List<S>, List<F>> toResult() {
+    List<S> okList = [];
+    late List<F> errList;
+    Result<List<S>, List<F>> finalResult = Ok(okList);
+    for (final result in this) {
+      if (finalResult.isOk()) {
+        if (result.isOk()) {
+          okList.add(result.unwrap());
+        } else {
+          errList = [result.unwrapErr()];
+          finalResult = Err(errList);
+        }
+      } else if (result.isErr()) {
+        errList.add(result.unwrapErr());
+      }
     }
     return finalResult;
   }
