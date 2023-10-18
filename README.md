@@ -332,14 +332,14 @@ linter:
     unawaited_futures: true # Future results in async function bodies must be awaited or marked unawaited using dart:async
     await_only_futures: true # "await" should only be used on Futures
     avoid_void_async: true # Avoid async functions that return void. (they should return Future<void>)
-    discarded_futures: true # Don’t invoke asynchronous functions in non-async blocks.
+    #discarded_futures: true # Don’t invoke asynchronous functions in non-async blocks.
 
 analyzer:
   errors:
     unawaited_futures: error
     await_only_futures: error
     avoid_void_async: error
-    discarded_futures: error
+    #discarded_futures: error
 ```
 #### Working With Iterable Results
 In addition to useful `.toErr()`, `.toOk()` extension methods, anyhow provides a `.toResult()` on types that can be 
