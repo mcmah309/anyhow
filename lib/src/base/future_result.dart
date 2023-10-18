@@ -54,11 +54,11 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
 
   //************************************************************************//
 
-  FutureResult<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
+  FutureResult<S2, F> and<S2>(Result<S2, F> other) {
     return then((result) => result.and(other));
   }
 
-  FutureResult<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
+  FutureResult<S, F2> or<F2 extends Object>(Result<S, F2> other) {
     return then((result) => result.or(other));
   }
 

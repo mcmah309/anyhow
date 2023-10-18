@@ -70,12 +70,12 @@ sealed class Result<S, F extends Object> {
   //************************************************************************//
 
   /// Performs an "and" operation on the results. Returns the
-  /// first result that is [Err], otherwise if both are [Ok], this [Ok] Result is returned.
-  Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other);
+  /// first result that is [Err], otherwise if both are [Ok], other [Ok] Result is returned.
+  Result<S2, F> and<S2>(Result<S2, F> other);
 
   /// Performs an "or" operation on the results. Returns the first [Ok] value, if neither are [Ok], returns
   /// the other [Err].
-  Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other);
+  Result<S, F2> or<F2 extends Object>(Result<S, F2> other);
 
   //************************************************************************//
 
@@ -210,16 +210,13 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
-    if(other.isOk()){
-      return this;
-    }
+  Result<S2, F> and<S2>(Result<S2, F> other) {
     return other;
   }
 
   @override
-  Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
-    return this;
+  Result<S, F2> or<F2 extends Object>(Result<S, F2> other) {
+    return this.into();
   }
 
   //************************************************************************//
@@ -233,13 +230,13 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<W, F> map<W>(W Function(S ok) fn) {
+  Ok<W, F> map<W>(W Function(S ok) fn) {
     final newOk = fn(ok);
     return Ok<W, F>(newOk);
   }
 
   @override
-  Result<S, W> mapErr<W extends Object>(W Function(F error) fn) {
+  Ok<S, W> mapErr<W extends Object>(W Function(F error) fn) {
     return Ok<S, W>(ok);
   }
 
@@ -249,7 +246,7 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<S, W> andThenErr<W extends Object>(
+  Ok<S, W> andThenErr<W extends Object>(
     Result<S, W> Function(F error) fn,
   ) {
     return Ok<S, W>(ok);
@@ -269,16 +266,26 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  Result<S, F> copy() {
+  Ok<S, F> copy() {
     return Ok(ok);
   }
 
   @override
-  Result<S2, F> intoUnchecked<S2>(){
+  Ok<S2, F> intoUnchecked<S2>() {
     if(ok is S2){
       return Ok(ok as S2);
     }
     throw Panic(this,"attempted to cast ${S.runtimeType} to ${S2.runtimeType}");
+  }
+
+  /// Changes the [Err] type to [F2]. This is usually used when "this" is known to be an [Ok] and you want to return to
+  /// the calling function, but the returning function's [F] type is different from this [F] type.
+  ///
+  /// Note: This function should almost never be used, since if the calling function expects a [Result], then calling
+  /// functions [F] type should be a super type of this [F] type. [into] is usually only useful for this is known to
+  /// be an error
+  Ok<S, F2> into<F2 extends Object>() {
+    return Ok(ok);
   }
 
   //************************************************************************//
@@ -366,12 +373,12 @@ final class Err<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  Result<dynamic, Object> and<S2, F2 extends Object>(Result<S2, F2> other){
-    return this;
+  Result<S2, F> and<S2>(Result<S2, F> other) {
+    return this.into();
   }
 
   @override
-  Result<dynamic, Object> or<S2, F2 extends Object>(Result<S2, F2> other){
+  Result<S, F2> or<F2 extends Object>(Result<S, F2> other) {
     return other;
   }
 
@@ -386,12 +393,12 @@ final class Err<S, F extends Object> implements Result<S, F> {
   }
 
   @override
-  Result<W, F> map<W>(W Function(S ok) fn) {
+  Err<W, F> map<W>(W Function(S ok) fn) {
     return Err<W, F>(err);
   }
 
   @override
-  Result<S, W> mapErr<W extends Object>(W Function(F error) fn) {
+  Err<S, W> mapErr<W extends Object>(W Function(F error) fn) {
     final newError = fn(err);
     return Err(newError);
   }
@@ -422,17 +429,17 @@ final class Err<S, F extends Object> implements Result<S, F> {
   //************************************************************************//
 
   @override
-  Result<S, F> copy() {
+  Err<S, F> copy() {
     return Err(err);
   }
 
   @override
-  Result<S2, F> intoUnchecked<S2>(){
+  Err<S2, F> intoUnchecked<S2>() {
     return Err(err);
   }
 
   /// Changes the [Ok] type to [S2]. This is usually used when "this" is known to be an [Err] and you want to return to
-  /// the calling function, but the returning function's [Ok] type is different from this [Ok] type.
+  /// the calling function, but the returning function's [S] type is different from this [S] type.
   ///
   /// Example of proper use:
   /// ```dart
