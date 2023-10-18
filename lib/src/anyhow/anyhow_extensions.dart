@@ -8,7 +8,6 @@ extension AnyhowResultExtensions<S> on Result<S> {
   Result<S> context(Object context){
     if(isOk()){
       return (this as Ok<S>).context(context);
-      ;
     }
     return (this as Err<S>).context(context);
   }

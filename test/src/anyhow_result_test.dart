@@ -105,7 +105,7 @@ void main() {
       final result2 = result.map((ok) => 'change');
 
       expect(result2.unwrapOrNull(), isNull);
-      expect(result2.unwrapErrOrNull()?.downcast<int>().unwrap(), 4);
+      expect(result2.unwrapErrOrNull().downcast<int>().unwrap(), 4);
     });
   });
 
