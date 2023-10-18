@@ -1,3 +1,7 @@
+## 0.6.1
+
+* Add Unit
+
 ## 0.6.0
 
 * Update "and" and "or" to be more explicit
