@@ -12,10 +12,10 @@ Err<S> bail<S>(Object err){
 /// final check = ensure(() => x > 1, "x should be greater than 1");
 /// if(check.isErr()) return check;
 /// ```
-Result<Unit> ensure(bool Function() fn, Object err){
+Result<Null> ensure(bool Function() fn, Object err) {
   assert(err is! Error, "err should not already be an Error.");
   if(fn()) {
-    return Ok(unit);
+    return Ok(null);
   }
   return Err(Error(err));
 }

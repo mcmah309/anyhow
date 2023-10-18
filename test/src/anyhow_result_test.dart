@@ -2,28 +2,26 @@ import 'package:anyhow/anyhow.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('factories', () {
-    test('Ok.unit', () {
-      final result = Ok.unit();
-      expect(result.unwrap(), unit);
-    });
-
-    test('Ok.unit Result', () {
-      Result<Unit> fn() {
-        return Ok.unit();
-      }
-
-      final result = fn();
-      expect(result.unwrap(), unit);
-    });
+  test('Ok Null', () {
+    final result = Ok(null);
+    expect(result.unwrap(), null);
   });
 
-  test('Result.ok', () {
+  test('Ok Null Result', () {
+    Result<Null> fn() {
+      return Ok(null);
+    }
+
+    final result = fn();
+    expect(result.unwrap(), null);
+  });
+
+  test('Result Ok', () {
     final result = Ok(0);
     expect(result.unwrap(), 0);
   });
 
-  test('Result.error', () {
+  test('Result Error', () {
     final result = bail(0);
     expect(result.unwrapErr().downcast<int>().unwrap(), 0);
   });
@@ -39,7 +37,7 @@ void main() {
     expect(result.isErr(), isFalse);
   });
 
-  test("Result.err", () {
+  test("Result.isErr", () {
     Result<dynamic> result = bail(0);
     late int err;
     if (result.isErr()) {

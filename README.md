@@ -29,7 +29,7 @@ needs.
     - [Working with Futures](#working-with-futures)
     - [Working With Iterable Results](#working-with-iterable-results)
     - [Panic](#panic)
-    - [Unit](#unit)
+  - [Null and Unit](#null-and-unit)
 
 ## What Is a Result Monad Type And Why Use it?
 A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The
@@ -383,14 +383,29 @@ in
 this case it will throw a `Panic`. See [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly) section to 
 avoid ever using `unwrap`.
 
-#### Unit
+#### Null and Unit
 In Dart, void can be a generic type, but not a return type:
 ```dart
-Result<void,int> x = Ok(null) // not valid
+
+Result<void, int> x = Ok(null); // not valid
 ```
-To solve this, when you do not care about the return value, use the constant `unit` and type `Unit` over `void`:
+
+To solve this, Dart provides a `Null` type which is equivalent to the `()` (Unit or Nil) type in Rust. For consistency,
+anyhow also exports `Unit` as a type alias for `Null`. When you do not care about the return value use this over `void`:
 ```dart
-Result<Unit,int> x = Ok(unit) // valid
+
+Result<Null, int> x = Ok(null); // valid
+Result<Unit, int> y = Ok(null); // valid
+x.runtimeType == y.runtimeType; // true
+```
+
+Note `()` in dart represents an empty record so:
+
+```dart
+
+Result<(), int> x = Ok(()); // valid
+Result<Unit, int> y = Ok(null); // valid
+x.runtimeType == y.runtimeType; // false
 ```
 
 

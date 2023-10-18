@@ -1,5 +1,4 @@
 import '../../base.dart';
-import 'unit.dart' as type_unit;
 
 /// {@template result}
 /// [Result] class representing the type union between [Ok] and [Err].
@@ -151,14 +150,6 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   const Ok(
     this.ok,
   );
-
-  /// Build a [Ok] with [Unit] value.
-  /// ```dart
-  /// Ok.unit() == Ok(unit)
-  /// ```
-  static Ok<type_unit.Unit, F> unit<F extends Object>() {
-    return Ok<type_unit.Unit, F>(type_unit.unit);
-  }
 
   final S ok;
 
