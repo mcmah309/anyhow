@@ -1,3 +1,10 @@
+## 0.6.0
+
+* Update "and" and "or" to be more explicit
+* Add handling for Iterable Future Result
+* Add toResultEager
+* Reverse Anyhow Error
+
 ## 0.5.1
 
 * Add intoFutureResult for any Result type
