@@ -6,9 +6,12 @@ import 'package:test/test.dart';
 /// Tests specific to the base Result, most other methods are tested with Anyhow
 void main(){
   test("Unit", () {
-    Result<Null, int> x = Ok(null);
-    Result<Unit, int> y = Ok(null);
-    expect(x.runtimeType, y.runtimeType);
+    Result<Unit, void> x = Ok(());
+    Result<(), void> y = Ok(unit);
+    expect(x, y);
+    Result<void, Unit> a = Err(());
+    Result<Unit, ()> b = Err(unit);
+    expect(a, b);
   });
 
   test("intoUnchecked and into",(){
@@ -65,7 +68,7 @@ void main(){
 
     anyhow.Result<int> z = anyhow.Ok(1);
     expect(z.toAnyhowResult().unwrap(), 1);
-    z = bail("err");
+    z = anyhow.bail("err");
     expect(z.toAnyhowResult().unwrapErr().downcast<String>().unwrap(), "err");
     expect(identical(z,z.toAnyhowResult()), true);
   });

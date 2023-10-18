@@ -384,28 +384,32 @@ this case it will throw a `Panic`. See [How to Never Unwrap Incorrectly](#how-to
 avoid ever using `unwrap`.
 
 #### Null and Unit
-In Dart, void can be a generic type, but not a return type:
-```dart
 
-Result<void, int> x = Ok(null); // not valid
+In Dart, `void` is used to indicate that a function doesn't return anything or a type should not be used, as such:
+```dart
+Result<void, void> x = Ok(1); // valid
+Result<void, void> y = Err(1); // valid
+int z = x.unwrap(); // not valid 
 ```
 
-To solve this, Dart provides a `Null` type which is equivalent to the `()` (Unit or Nil) type in Rust. For consistency,
-anyhow also exports `Unit` as a type alias for `Null`. When you do not care about the return value use this over `void`:
+Since stricter types are preferred and `Err` cannot be null:
 ```dart
-
-Result<Null, int> x = Ok(null); // valid
-Result<Unit, int> y = Ok(null); // valid
-x.runtimeType == y.runtimeType; // true
+Result<void, void> x = Ok(null); // valid
+Result<void, void> x = Err(null); // not valid
 ```
 
-Note `()` in dart represents an empty record so:
+Therefore use `()` or `Unit`:
 
 ```dart
+Unit == ().runtimeType; // true
+Result<(), ()> x = Err(unit); // valid
+Result<Unit, Unit> y = Err(()); // valid
+x == y; // true
 
-Result<(), int> x = Ok(()); // valid
-Result<Unit, int> y = Ok(null); // valid
-x.runtimeType == y.runtimeType; // false
+// Note:
+// const unit = const ();
+// const okay = const Ok(unit);
+// const error = const Err(unit);
 ```
 
 
