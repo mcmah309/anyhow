@@ -315,11 +315,11 @@ void main() {
 
     result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].toResult();
     expect(result.unwrapErr().downcast<int>().unwrap(), 2);
-    expect(result.unwrapErr().latest().downcast<int>().unwrap(), 2);
+    expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
 
     result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
-    expect(result.unwrapErr().downcast<int>().unwrap(), 2);
-    expect(result.unwrapErr().latest().downcast<int>().unwrap(), 3);
+    expect(result.unwrapErr().downcast<int>().unwrap(), 3);
+    expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
   });
 
   test("toErr overriden for Error", (){

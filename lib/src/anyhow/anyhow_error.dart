@@ -1,14 +1,11 @@
 import '../../anyhow.dart';
 import '../../base.dart' as base;
 
-
-part 'anyhow_result.dart';
 part 'anyhow_extensions.dart';
+part 'anyhow_result.dart';
 
 /// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
-/// This is named "AnyhowError" over "AnyhowException" since this is used as the error type of [Result] and to be
-/// consistent with Rust/ the anyhow crate.
 ///
 /// Dart Exception Type    | Equivalent in Rust
 /// -----------------------|---------------------
@@ -16,12 +13,11 @@ part 'anyhow_extensions.dart';
 /// Error                  | Panic
 class Error implements Exception {
   Object _cause;
-  Error? _additionalContext;
+  Error? _parent;
   late final StackTrace? _stackTrace;
 
-  Error(this._cause, {Error? additionalContext})
-      : _additionalContext = additionalContext {
-      _stackTrace = hasStackTrace ? StackTrace.current : null;
+  Error(this._cause, {Error? parent}) : _parent = parent {
+    _stackTrace = hasStackTrace ? StackTrace.current : null;
   }
 
   /// Setting for how errors are converted to strings
@@ -48,47 +44,29 @@ class Error implements Exception {
     return Err(this);
   }
 
-  /// The latest context that was added to this error
-  Error latest() => _errors().lastOrNull!;
+  /// The lowest level cause of this error — this error’s cause’s cause’s cause etc. The root cause is the last error
+  /// in the iterator produced by [chain].
+  Error rootCause() => chain().last;
 
-  /// An iterator of the chain of source errors contained by this Error. Starting at the root cause (this [Error]).
-  Iterable<Object> chain() sync* {
+  /// An iterator of the chain of source errors. Starting at the this.
+  Iterable<Error> chain() sync* {
     Error link = this;
-    while (link._additionalContext != null) {
-      yield link._cause;
-      link = link._additionalContext!;
-    }
-    yield link._cause;
-  }
-
-  /// Additional context has been added to this error
-  bool hasContext() => _additionalContext != null;
-
-  /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
-  StackTrace? stacktrace() => _stackTrace;
-
-  /// Implemented to override the "toErr" extension applied to all objects
-  Err toErr() => Err(this);
-
-  /// An iterator of [Error]s that were added as additional context to this error. Starting at the root cause
-  /// (this [Error]).
-  Iterable<Error> _errors() sync* {
-    Error link = this;
-    while (link._additionalContext != null) {
+    while (link._parent != null) {
       yield link;
-      link = link._additionalContext!;
+      link = link._parent!;
     }
     yield link;
   }
 
-  void _add(Error error){
-    latest()._additionalContext = error;
-  }
+  /// Is this [Error] the first error
+  bool isRoot() => _parent == null;
 
-  /// Creates a deep copy of this
-  Error clone<E extends Object>({E? cause, Error? additionalContext}) {
-    return Error(cause ?? _cause,
-        additionalContext: additionalContext ?? _additionalContext?.clone());
+  /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
+  StackTrace? stacktrace() => _stackTrace;
+
+  /// Creates a clone of this [Error], cloning all [Error], but the causes are not cloned.
+  Error clone<E extends Object>({E? cause, Error? parent}) {
+    return Error(cause ?? _cause, parent: parent ?? _parent?.clone());
   }
 
   /// Human readable error representation
@@ -97,26 +75,28 @@ class Error implements Exception {
     final StringBuffer stringBuf = StringBuffer();
     switch (displayFormat) {
       case ErrDisplayFormat.traditionalAnyhow:
-        _writeErrorAndContext(stringBuf, "Error", "Caused by", chain().toList(growable: false).reversed.iterator);
-        _writeStackTraces(stringBuf, _errors().toList(growable: false).reversed.iterator);
+        final list = chain();
+        _writeErrorAndContext(stringBuf, "Error", "Caused by", list.iterator);
+        _writeStackTraces(stringBuf, list.iterator);
         break;
       case ErrDisplayFormat.stackTrace:
-        _writeErrorAndContext(stringBuf, "Root Cause", "Additional Context", chain().iterator);
-        _writeStackTraces(stringBuf, _errors().iterator);
+        final list = chain().toList(growable: false).reversed;
+        _writeErrorAndContext(stringBuf, "Root Cause", "Additional Context", list.iterator);
+        _writeStackTraces(stringBuf, list.iterator);
         break;
     }
     return stringBuf.toString();
   }
 
-  void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle, String restTitle, Iterator<Object> iter) {
+  void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle, String restTitle, Iterator<Error> iter) {
     iter.moveNext();
-    stringBuf.write("$firstTitle: ${iter.current}\n");
+    stringBuf.write("$firstTitle: ${iter.current._cause}\n");
     if (iter.moveNext()) {
       stringBuf.write("\n$restTitle:\n");
-      stringBuf.write("\t0: ${iter.current}\n");
+      stringBuf.write("\t0: ${iter.current._cause}\n");
       int index = 1;
       while (iter.moveNext()) {
-        stringBuf.write("\t${index}: ${iter.current}\n");
+        stringBuf.write("\t${index}: ${iter.current._cause}\n");
         index++;
       }
     }
@@ -156,8 +136,7 @@ class Error implements Exception {
   int get hashCode => _cause.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      other is Error && other._cause == _cause && other._additionalContext == _additionalContext;
+  bool operator ==(Object other) => other is Error && other._cause == _cause && other._parent == _parent;
 }
 
 /// Controls the base [toString] format
@@ -203,23 +182,24 @@ extension FutureAnyhowError on Future<Error> {
     return then((e) => e.downcast<E>());
   }
 
-  /// The latest context that was added to this error
-  Future<Error> latest() {
-    return then((e) => e.latest());
+  /// The lowest level cause of this error — this error’s cause’s cause’s cause etc. The root cause is the last error
+  /// in the iterator produced by [chain].
+  Future<Error> rootCause() {
+    return then((e) => e.rootCause());
   }
 
-  /// Additional context has been added to this error
-  Future<bool> hasContext() {
-    return then((e) => e.hasContext());
+  /// Is this [Error] the first error
+  Future<bool> isRoot() {
+    return then((e) => e.isRoot());
+  }
+
+  /// An iterator of the chain of source errors. Starting at the this.
+  Future<Iterable<Error>> chain() {
+    return then((e) => e.chain());
   }
 
   /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
   Future<StackTrace?> stacktrace() {
     return then((e) => e.stacktrace());
-  }
-
-  /// Implemented to override the "toErr" extension applied to all objects
-  Future<Err> toErr() {
-    return then((e) => e.toErr());
   }
 }

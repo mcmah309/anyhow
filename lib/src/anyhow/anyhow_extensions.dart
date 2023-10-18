@@ -44,11 +44,12 @@ extension AnyhowErrExtensions<S> on Err<S> {
   /// Adds the object as additional context to the [Error]. The context should not be an instance of
   /// [Error].
   Err<S> context(Object context) {
-    assert(context is! Error, "The context should not already be an instance of AnyhowError. If it is, you are "
-        "likely using the api wrong. If you need to combine AnyhowErrors see \"and\" and \"or\" methods. If this"
+    assert(
+        context is! Error,
+        "The context should not already be an instance of Error. If it is, you are "
+        "likely using the api wrong. If you need to combine Errors see \"and\" and \"or\" methods. If this"
         " is a valid use case please submit a PR.");
-    err._add(Error(context));
-    return this;
+    return Err(Error(context, parent: err));
   }
 
   /// Lazily calls the function if the [Result] is an [Err] and adds the object as additional context to the
@@ -75,7 +76,7 @@ extension AnyhowFutureResultExtension<S> on FutureResult<S> {
 
 extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
   /// Transforms an Iterable of results into a single result where the ok value is the list of all successes. If any
-  /// error is encountered, the first error becomes the head to the rest of the errors.
+  /// error is encountered, the first error becomes the root to the rest of the errors.
   Result<List<S>> toResult() {
     List<S> list = [];
     Result<List<S>> finalResult = Ok(list);
@@ -101,8 +102,6 @@ extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
 extension ResultObjectNullableExtension<S> on S {
 
   /// Convert the object to a [Result] type [Ok].
-  ///
-  /// Will throw an error if used on a [Result] or [Future] instance.
   Ok<S> toOk() {
     assert(this is! Result, 'Don\'t use the "toOk()" method on instances of Result.');
     assert(this is! Future, 'Don\'t use the "toOk()" method on instances of Future.');
@@ -112,13 +111,18 @@ extension ResultObjectNullableExtension<S> on S {
 
 extension ResultObjectExtension<S extends Object> on S {
   /// Convert the object to a [Result] type [Err].
-  ///
-  /// Will throw an error if used on a [Result] or [Future] instance.
   Err<S> toErr<S>() {
-    assert(this is! Result, 'Don\'t use the "toError()" method on instances of Result.');
-    assert(this is! Future, 'Don\'t use the "toError()" method on instances of Future.');
-    assert(this is! Error, 'Don\'t use the "toOk()" method on instances of Error.');
+    assert(this is! Result, 'Don\'t use the "toErr()" method on instances of Result.');
+    assert(this is! Future, 'Don\'t use the "toErr()" method on instances of Future.');
+    assert(this is! Error, 'Don\'t use the "toErr()" method on instances of Error.');
     return Err<S>(Error(this));
+  }
+}
+
+extension ErrorExtension<E extends Error> on E {
+  /// Convert the error to a [Result] type [Err].
+  Err<E> toErr<E>() {
+    return Err<E>(this);
   }
 }
 
