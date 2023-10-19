@@ -215,7 +215,9 @@ Result<String, String> order(String user, int orderNumber) {
 Result<String, String> makeFood(int orderNumber) {
   if (order == 1) {
     final result = makeHamburger();
-    Logging.w("order was $orderNumber.");
+    if (result.isErr()) {
+      Logging.w("order was $orderNumber.");
+    }
     return result;
   }
   else {
