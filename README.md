@@ -107,7 +107,7 @@ Result<String, String> order(String user, int orderNumber) {
 }
 
 Result<String, String> makeFood(int orderNumber) {
-  if (order == 1) {
+  if (orderNumber == 1) {
     return makeHamburger();
   }
   else {
@@ -213,7 +213,7 @@ Result<String, String> order(String user, int orderNumber) {
 }
 
 Result<String, String> makeFood(int orderNumber) {
-  if (order == 1) {
+  if (orderNumber == 1) {
     final result = makeHamburger();
     if (result.isErr()) {
       Logging.w("order was $orderNumber.");
