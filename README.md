@@ -46,21 +46,24 @@ hours of debugging.
 ```dart
 void main() {
   try {
-    print(order());
+    print(order("Bob", 1));
   } catch(e) {
     print(e);
   }
 }
 
-String order() {
-  final user = "Bob";
-  final food = "pizza";
-  makeFood(food);
-  return "Order Complete";
+String order(String user, int orderNumber) {
+  final result = makeFood(orderNumber);
+  return "Order of $result is complete for $user";
 }
 
-String makeFood(String order) {
-  return makeHamburger();
+String makeFood(int orderNumber) {
+  if (orderNumber == 1) {
+    return makeHamburger();
+  }
+  else {
+    return "pasta";
+  }
 }
 
 String makeHamburger() {
@@ -90,21 +93,26 @@ behaviours due to control flow.
 import 'package:anyhow/base.dart';
 
 void main() {
-  print(order());
+  print(order("Bob", 1));
 }
 
-Result<String,String> order() {
-  final user = "Bob";
-  final food = "pizza";
-  final result = makeFood(food);
-  if(result.isOk()){
-    return Ok("Order Complete");
+Result<String, String> order(String user, int orderNumber) {
+  final result = makeFood(orderNumber);
+  switch (result) {
+    case Ok(:final ok):
+      return Ok("Order of $ok is complete for $user");
+    case Err():
+      return result;
   }
-  return result;
 }
 
-Result<String,String> makeFood(String order) {
-  return makeHamburger();
+Result<String, String> makeFood(int orderNumber) {
+  if (order == 1) {
+    return makeHamburger();
+  }
+  else {
+    return Ok("pasta");
+  }
 }
 
 Result<String,String> makeHamburger() {
@@ -124,25 +132,30 @@ With the Anyhow `Result` type, we can now add any `Object` as context around err
 import 'package:anyhow/anyhow.dart';
 
 void main() {
-  print(order());
+  print(order("Bob", 1));
 }
 
-Result order() {
-  final user = "Bob";
-  final food = "pizza";
-  final result = makeFood(food).context("$user ordered.");
-  if(result.isOk()){
-    return Ok("Order Complete");
+Result<String> order(String user, int orderNumber) {
+  final result = makeFood(orderNumber).context("$user ordered.");
+  switch (result) { // Could also use "if(result.isOk())" and "unwrap()"
+    case Ok(:final ok):
+      return Ok("Order of $ok is complete for $user");
+    case Err():
+      return result;
   }
-  return result;
 }
 
-Result<String> makeFood(String order) {
-  return makeHamburger().context("order was $order.");
+Result<String> makeFood(int orderNumber) {
+  if (orderNumber == 1) {
+    return makeHamburger().context("order was $orderNumber.");
+  }
+  else {
+    return Ok("pasta");
+  }
 }
 
 Result<String> makeHamburger() {
-  return bail("Hmm something went wrong making the hamburger."); // bail(...) == Err(Error(...))
+  return bail("Hmm something went wrong making the hamburger.");
 }
 ```
 #### Output
@@ -162,9 +175,8 @@ Caused by:
 	1: Hmm something went wrong making the hamburger.
 
 StackTrace:
-#0      new Error (package:anyhow/src/anyhow/anyhow_error.dart:36:48)
-#1      AnyhowErrExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:46:15)
-#2      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+#1      order (package:anyhow/test/src/temp.dart:9:40)
 ... <OMITTED FOR EXAMPLE>
 ```
 or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.stackTrace`
@@ -176,31 +188,39 @@ Additional Context:
 	1: Bob ordered.
 
 StackTrace:
-#0      new Error (package:anyhow/src/anyhow/anyhow_error.dart:36:48)
-#1      bail (package:anyhow/src/anyhow/functions.dart:6:14)
-#2      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
+#0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
+#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
 ... <OMITTED FOR EXAMPLE>
 ```
+
+There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
+
 Before Anyhow, if we wanted to accomplish something similar, we could do
 ```dart
-Result<String,String> order() {
-  final user = "Bob";
-  final food = "pizza";
-  final result = makeFood(food);
-  if(result.isErr()){
-    Logging.w("$user ordered.");
-    return result;
-  }
-  return Ok("Order Complete");
+void main() {
+  print(order("Bob", 1));
 }
 
-Result<String,String> makeFood(String order) {
-  final result = makeHamburger();
-  if(result.isErr()){
-    Logging.w("order was $order.");
+Result<String, String> order(String user, int orderNumber) {
+  final result = makeFood(orderNumber);
+  switch (result) {
+    case Ok(:final ok):
+      return Ok("Order of $ok is complete for $user");
+    case Err():
+      Logging.w("$user ordered.");
+      return result;
+  }
+}
+
+Result<String, String> makeFood(int orderNumber) {
+  if (order == 1) {
+    final result = makeHamburger();
+    Logging.w("order was $orderNumber.");
     return result;
   }
-  return result;
+  else {
+    return Ok("pasta");
+  }
 }
 
 Result<String,String> makeHamburger() {
@@ -247,11 +267,11 @@ At times, you may need to integrate with legacy code that may throw or code outs
 can just wrap in a helper function like `executeProtected`
 ```dart
 void main() {
-  Result<int> result = executeProtected(() => functionMayThrow());
+  Result<int> result = executeProtected(() => functionWillThrow());
   print(result);
 }
 
-int functionMayThrow(){
+int functionWillThrow() {
   throw "this message was thrown";
 }
 ```
@@ -268,7 +288,8 @@ if (x case Err()) {
 ```
 `into` may be needed to change the `S` type of `Result<S,F>` for `x` to that of the functions return type if 
 they are different.
-`into` only exits if `x` is type `Err`, so you will never mishandle a type change. Note: There also exists 
+`into` only exits if after the type check, so you will never mishandle a type change since the compiler will stop you.
+Note: There also exists
 `intoUnchecked` that does not require implicit cast of a `Result` Type. 
 ## How to Never Unwrap Incorrectly
 In Rust, as here, it is possible to unwrap values that should not be unwrapped:

@@ -1,33 +1,34 @@
 import 'package:anyhow/anyhow.dart';
 
 void main() {
-  print(order());
+  print(order("Bob", 1));
 }
 
-Result order() {
-  final user = "Bob";
-  final food = "pizza";
-  final result = makeFood(food).context("$user ordered.");
-  if(result.isOk()){
-    return Ok("Order Complete");
+Result<String> order(String user, int orderNumber) {
+  final result = makeFood(orderNumber).context("$user ordered.");
+  switch (result) {
+    case Ok(:final ok):
+      return Ok("Order of $ok is complete for $user");
+    case Err():
+      return result;
   }
-  return result;
 }
 
-Result<int> makeFood(String order) {
-  return makeHamburger().context("order was $order.");
-}
-
-Result<int> makeHamburger() {
-  if(true) {
-    return bail("Hmm something went wrong making the hamburger.");
+Result<String> makeFood(int orderNumber) {
+  if (orderNumber == 1) {
+    return makeHamburger().context("order was $orderNumber.");
+  } else {
+    return Ok("pasta");
   }
-  return Ok(0);
 }
 
-// Output:
+Result<String> makeHamburger() {
+  return bail("Hmm something went wrong making the hamburger.");
+}
+
+//Output:
 // Error: Bob ordered.
 //
 // Caused by:
-// 0: order was pizza.
-// 1: Hmm something went wrong making the hamburger.
+//  0: order was 1.
+//  1: Hmm something went wrong making the hamburger.
