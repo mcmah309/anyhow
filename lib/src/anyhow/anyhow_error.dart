@@ -1,8 +1,8 @@
-import '../../anyhow.dart';
 import '../../base.dart' as base;
 
 part 'anyhow_extensions.dart';
 part 'anyhow_result.dart';
+part 'functions.dart';
 
 /// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
 /// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
@@ -19,6 +19,9 @@ class Error implements Exception {
   Error(this._cause, {Error? parent}) : _parent = parent {
     _stackTrace = hasStackTrace ? StackTrace.current : null;
   }
+
+  /// Constructor used internally when it is know a [StackTrace] is needed, so it is eagerly created.
+  Error._withStackTrace(this._cause, this._stackTrace, {Error? parent}) : _parent = parent;
 
   /// Setting for how errors are converted to strings
   static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;

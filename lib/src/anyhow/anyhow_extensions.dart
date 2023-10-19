@@ -1,24 +1,36 @@
-
-
 part of 'anyhow_error.dart';
+
+const _isAlreadyErrorAssertionMessage =
+    "should not already be an instance of Error. If it is, you are likely using the api wrong. "
+    "If you need to combine Errors see \"and\", \"or\", \"toResult\", \"toResultEager\" methods. If this"
+    " is a valid use case please submit a PR.";
 
 extension AnyhowResultExtensions<S> on Result<S> {
   /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
   /// should not be an instance of [Error].
   Result<S> context(Object context){
     if(isOk()){
-      return (this as Ok<S>).context(context);
+      return this;
     }
-    return (this as Err<S>).context(context);
+    assert(context is! Error, _isAlreadyErrorAssertionMessage);
+    if (Error.hasStackTrace) {
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: (this as Err).err));
+    }
+    return Err(Error(context, parent: (this as Err).err));
   }
 
   /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
   /// context. The context should not be an instance of [Error].
   Result<S> withContext(Object Function() fn){
     if(isOk()){
-      return (this as Ok<S>).withContext(fn);
+      return this;
     }
-    return (this as Err<S>).withContext(fn);
+    final context = fn();
+    assert(context is! Error, _isAlreadyErrorAssertionMessage);
+    if (Error.hasStackTrace) {
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: (this as Err).err));
+    }
+    return Err(Error(context, parent: (this as Err).err));
   }
 
   /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
@@ -41,18 +53,22 @@ extension AnyhowOkExtensions<S> on Ok<S> {
 extension AnyhowErrExtensions<S> on Err<S> {
   /// Returns an [Error] with the additional context. The context should not be an instance of [Error].
   Err<S> context(Object context) {
-    assert(
-        context is! Error,
-        "The context should not already be an instance of Error. If it is, you are "
-        "likely using the api wrong. If you need to combine Errors see \"and\" and \"or\" methods. If this"
-        " is a valid use case please submit a PR.");
+    assert(context is! Error, _isAlreadyErrorAssertionMessage);
+    if (Error.hasStackTrace) {
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+    }
     return Err(Error(context, parent: err));
   }
 
   /// Lazily calls the function if the [Result] is an [Err] and returns an [Error] with the additional context.
   /// The context should not be an instance of [Error].
   Err<S> withContext(Object Function() fn) {
-    return context(fn());
+    final context = fn();
+    assert(context is! Error, _isAlreadyErrorAssertionMessage);
+    if (Error.hasStackTrace) {
+      return Err(Error._withStackTrace(fn(), StackTrace.current, parent: err));
+    }
+    return Err(Error(fn(), parent: err));
   }
 }
 
