@@ -20,7 +20,7 @@ class Error implements Exception {
     _stackTrace = hasStackTrace ? StackTrace.current : null;
   }
 
-  /// Constructor used internally when it is know a [StackTrace] is needed, so it is eagerly created.
+  /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
   Error._withStackTrace(this._cause, this._stackTrace, {Error? parent}) : _parent = parent;
 
   /// Setting for how errors are converted to strings
