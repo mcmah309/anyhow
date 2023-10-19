@@ -163,7 +163,7 @@ Result<String> makeHamburger() {
 Error: Bob ordered.
 
 Caused by:
-	0: order was pizza.
+	0: order was 1.
 	1: Hmm something went wrong making the hamburger.
 ```
 and we can include Stack Trace with `Error.hasStackTrace = true`:
@@ -171,7 +171,7 @@ and we can include Stack Trace with `Error.hasStackTrace = true`:
 Error: Bob ordered.
 
 Caused by:
-	0: order was pizza.
+	0: order was 1.
 	1: Hmm something went wrong making the hamburger.
 
 StackTrace:
@@ -184,7 +184,7 @@ or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.sta
 Root Cause: Hmm something went wrong making the hamburger.
 
 Additional Context:
-	0: order was pizza.
+	0: order was 1.
 	1: Bob ordered.
 
 StackTrace:

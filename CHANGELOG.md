@@ -1,3 +1,7 @@
+## 0.6.2
+
+* Create stacktraces earlier when needed
+
 ## 0.6.1
 
 * Add Unit
