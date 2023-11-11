@@ -15,10 +15,10 @@ Err<S> bail<S>(Object err){
 /// final check = ensure(() => x > 1, "x should be greater than 1");
 /// if(check.isErr()) return check;
 /// ```
-Result<Null> ensure(bool Function() fn, Object err) {
+Result<()> ensure(bool Function() fn, Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if(fn()) {
-    return Ok(null);
+    return Ok(unit);
   }
   if (Error.hasStackTrace) {
     return Err(Error._withStackTrace(err, StackTrace.current));
