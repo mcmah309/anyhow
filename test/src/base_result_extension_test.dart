@@ -8,6 +8,13 @@ void main() {
     Result<Result<int, y>, x> v = Ok(Ok(0));
     expect(v.flatten(), isA<Result<int, y>>());
   });
+
+  test('Infallible', () {
+    Result<int, Infallible> x = Ok(1);
+    expect(x.intoOk(), 1);
+    Result<Infallible, int> w = Err(1);
+    expect(w.intoErr(), 1);
+  });
 }
 
 class x extends Object {}

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import '../../base.dart';
 
-extension FlattenExtension1<S,F extends Object> on Result<Result<S,F>,F> {
+extension FlattenExtension<S, F extends Object> on Result<Result<S, F>, F> {
   /// Converts a [Result] of a [Result] into a single [Result]
   Result<S,F> flatten() {
     if(isOk()){
@@ -12,19 +12,7 @@ extension FlattenExtension1<S,F extends Object> on Result<Result<S,F>,F> {
   }
 }
 
-// Dart does not realize this is less specific
-// extension FlattenExtension2<S,F extends Object, F2 extends Object> on Result<Result<S,F>,F2> {
-//   /// Converts a [Result] of a [Result] into a single [Result]
-//   Result<S,Object> flatten() {
-//     if(isOk()){
-//       return unwrap();
-//     }
-//     return Err(unwrapErr());
-//   }
-// }
-
-extension TransposeResult<S, F extends Object> on Result<S?, F> {
-
+extension TransposeResultExtension<S, F extends Object> on Result<S?, F> {
   /// transposes a [Result] of a nullable type into a nullable [Result].
   Result<S, F>? transpose() {
     if (isOk()) {
