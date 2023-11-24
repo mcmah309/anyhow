@@ -83,7 +83,7 @@ class Error implements Exception {
         _writeErrorAndContext(stringBuf, "Error", "Caused by", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
         break;
-      case ErrDisplayFormat.stackTrace:
+      case ErrDisplayFormat.rootCauseFirst:
         final list = chain().toList(growable: false).reversed;
         _writeErrorAndContext(stringBuf, "Root Cause", "Additional Context", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
@@ -159,7 +159,7 @@ enum ErrDisplayFormat {
   /// Additional Context:
   /// 	0: order was pizza.
   /// 	1: Bob ordered.
-  stackTrace
+  rootCauseFirst
 }
 
 /// How StackTrace should be displayed to the user. Known as "backtrace" in Rust anyhow.

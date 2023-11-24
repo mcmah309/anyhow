@@ -211,7 +211,7 @@ StackTrace:
 ... <OMITTED FOR EXAMPLE>
 ```
 
-or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.stackTrace`
+or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
 
 ```text
 Root Cause: Hmm something went wrong making the hamburger.
