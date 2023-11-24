@@ -26,7 +26,7 @@ void main() {
     expect(result.unwrapErr().downcast<int>().unwrap(), 0);
   });
 
-  test("Result.isOk", () {
+  test("isOk", () {
     Result result = Ok(0);
     late int ok;
     if (result.isOk()) {
@@ -37,7 +37,18 @@ void main() {
     expect(result.isErr(), isFalse);
   });
 
-  test("Result.isErr", () {
+  test("isOkAnd", () {
+    Result result = Ok(0);
+    late int ok;
+    if (result.isOkAnd((r) => true)) {
+      ok = result.unwrap();
+    }
+
+    expect(ok, isA<int>());
+    expect(result.isErr(), isFalse);
+  });
+
+  test("isErr", () {
     Result<dynamic> result = bail(0);
     late int err;
     if (result.isErr()) {
@@ -46,6 +57,31 @@ void main() {
 
     expect(err, isA<int>());
     expect(result.isOk(), isFalse);
+  });
+
+  test("isErrAnd", () {
+    Result<dynamic> result = bail(0);
+    late int err;
+    if (result.isErrAnd((r) => true)) {
+      err = result.unwrapErr().downcast<int>().unwrap();
+    }
+
+    expect(err, isA<int>());
+    expect(result.isOk(), isFalse);
+  });
+
+  test("iter", () {
+    Result<int> result = Ok(10000);
+    int calls = 0;
+    for (final r in result.iter()) {
+      calls++;
+    }
+    expect(calls, 1);
+    result = bail(1);
+    for (final r in result.iter()) {
+      calls++;
+    }
+    expect(calls, 1);
   });
 
   test("and",(){

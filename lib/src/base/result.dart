@@ -75,6 +75,12 @@ sealed class Result<S, F extends Object> {
 
   //************************************************************************//
 
+  /// Returns an iterable over the possibly contained value. The iterator yields one value if the result is
+  /// [Ok], otherwise none.
+  Iterable<S> iter();
+
+  //************************************************************************//
+
   /// Performs an "and" operation on the results. Returns the
   /// first result that is [Err], otherwise if both are [Ok], other [Ok] Result is returned.
   Result<S2, F> and<S2>(Result<S2, F> other);
@@ -218,6 +224,12 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   bool isOkAnd(bool Function(S) fn) => fn(ok);
+
+  //************************************************************************//
+
+  Iterable<S> iter() sync* {
+    yield ok;
+  }
 
   //************************************************************************//
 
@@ -390,6 +402,10 @@ final class Err<S, F extends Object> implements Result<S, F> {
 
   //************************************************************************//
 
+  Iterable<S> iter() sync* {}
+
+  //************************************************************************//
+
   @override
   Result<S2, F> and<S2>(Result<S2, F> other) {
     return this.into();
@@ -490,4 +506,23 @@ final class Err<S, F extends Object> implements Result<S, F> {
   }
 }
 
+class SingleElementIterator<T> implements Iterator<T> {
+  final T? element;
+  bool _hasMoveNextBeenCalled = false;
 
+  SingleElementIterator([this.element]);
+
+  @override
+  T get current => _hasMoveNextBeenCalled ? throw StateError('No more elements') : element!;
+
+  @override
+  bool moveNext() {
+    if (_hasMoveNextBeenCalled) {
+      _hasMoveNextBeenCalled = false;
+      if (element != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
