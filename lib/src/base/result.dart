@@ -64,8 +64,14 @@ sealed class Result<S, F extends Object> {
   /// Returns true if the current result is an [Err].
   bool isErr();
 
+  /// Returns true if the result is [Err] and the value inside of it matches a predicate.
+  bool isErrAnd(bool Function(F) fn);
+
   /// Returns true if the current result is a [Ok].
   bool isOk();
+
+  /// Returns true if the result is [Ok] and the value inside of it matches a predicate.
+  bool isOkAnd(bool Function(S) fn);
 
   //************************************************************************//
 
@@ -205,7 +211,13 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   bool isErr() => false;
 
   @override
+  bool isErrAnd(bool Function(F) fn) => false;
+
+  @override
   bool isOk() => true;
+
+  @override
+  bool isOkAnd(bool Function(S) fn) => fn(ok);
 
   //************************************************************************//
 
@@ -368,7 +380,13 @@ final class Err<S, F extends Object> implements Result<S, F> {
   bool isErr() => true;
 
   @override
+  bool isErrAnd(bool Function(F) fn) => fn(err);
+
+  @override
   bool isOk() => false;
+
+  @override
+  bool isOkAnd(bool Function(S) fn) => false;
 
   //************************************************************************//
 
