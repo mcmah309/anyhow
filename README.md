@@ -4,13 +4,15 @@
 [![Dart Package Docs](https://img.shields.io/badge/documentation-pub.dev-blue.svg)](https://pub.dev/documentation/anyhow/latest/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
-Taking inspiration from the Rust crate of the same name, "[anyhow]", this Dart package offers versatile and idiomatic 
-error handling capabilities.
+Anyhow is a Dart implementation of the Rust crate of the same name - [anyhow]. Anyhow offers versatile and
+idiomatic error handling capabilities.
 
-"anyhow" not only faithfully embodies Rust's standard [Result] monad type but also brings the renowned Rust "anyhow" 
-crate into the Dart ecosystem, allowing you to add `context` to `Err`s. You can seamlessly employ both the Standard 
-(Base) Result type and the Anyhow Result  type, either in conjunction or independently, to suit your error-handling 
-needs.
+This is accomplished through providing a Dart implementation of the Rust [Result] monad type and Anyhow functionality
+that allows you to add `context` to errors. See
+[Anyhow Result Type Error Handling](#anyhow-result-type-error-handling) to jump right into an example.
+
+You can seamlessly employ both the Standard (Base) Result type and the Anyhow Result type, either in conjunction or
+independently, to suit your error-handling needs.
 
 ## Table of Contents
 
@@ -22,6 +24,7 @@ needs.
         - [Base Result Type Error Handling](#base-result-type-error-handling)
         - [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling)
         - [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
+  - [Configuration Options](#configuration-options)
     - [Adding Predictable Control Flow To Legacy Dart Code](#adding-predictable-control-flow-to-legacy-dart-code)
     - [Dart Equivalent To The Rust "?" Operator](#dart-equivalent-to-the-rust--operator)
     - [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly)
@@ -136,7 +139,7 @@ void main() {
 }
 
 Result<String> order(String user, int orderNumber) {
-  final result = makeFood(orderNumber).context("$user ordered.");
+  final result = makeFood(orderNumber).context("Could not order for user: $user.");
   switch (result) { // Could also use "if(result.isOk())" and "unwrap()"
     case Ok(:final ok):
       return Ok("Order of $ok is complete for $user");
@@ -147,7 +150,7 @@ Result<String> order(String user, int orderNumber) {
 
 Result<String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
-    return makeHamburger().context("order was $orderNumber.");
+    return makeHamburger().context("Order number $orderNumber failed.");
   }
   else {
     return Ok("pasta");
@@ -160,85 +163,12 @@ Result<String> makeHamburger() {
 ```
 #### Output
 ```text
-Error: Bob ordered.
+Error: Could not order for user: Bob.
 
 Caused by:
-	0: order was 1.
+	0: Order number 1 failed.
 	1: Hmm something went wrong making the hamburger.
 ```
-and we can include Stack Trace with `Error.hasStackTrace = true`:
-```text
-Error: Bob ordered.
-
-Caused by:
-	0: order was 1.
-	1: Hmm something went wrong making the hamburger.
-
-StackTrace:
-#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
-#1      order (package:anyhow/test/src/temp.dart:9:40)
-... <OMITTED FOR EXAMPLE>
-```
-or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.stackTrace`
-```text
-Root Cause: Hmm something went wrong making the hamburger.
-
-Additional Context:
-	0: order was 1.
-	1: Bob ordered.
-
-StackTrace:
-#0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
-#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
-... <OMITTED FOR EXAMPLE>
-```
-
-There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
-
-Before Anyhow, if we wanted to accomplish something similar, we could do
-```dart
-void main() {
-  print(order("Bob", 1));
-}
-
-Result<String, String> order(String user, int orderNumber) {
-  final result = makeFood(orderNumber);
-  switch (result) {
-    case Ok(:final ok):
-      return Ok("Order of $ok is complete for $user");
-    case Err():
-      Logging.w("$user ordered.");
-      return result;
-  }
-}
-
-Result<String, String> makeFood(int orderNumber) {
-  if (orderNumber == 1) {
-    final result = makeHamburger();
-    if (result.isErr()) {
-      Logging.w("order was $orderNumber.");
-    }
-    return result;
-  }
-  else {
-    return Ok("pasta");
-  }
-}
-
-Result<String,String> makeHamburger() {
-  // What is the context around this error??
-  return Err("Hmm something went wrong making the hamburger.");
-}
-```
-Which is more verbose/error-prone and may not be what we actually want. Since:
-1. We may not want to log anything if the error state is 
-known and can be recovered from
-2. Related logs should be kept together (in the example, other functions could log before this Result had been handled)
-3. We have no way to get the correct stack traces related to the original issue
-4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
-
-Now with anyhow, we are able to better understand and handle errors in an idiomatic way.
-
 ### Base Result Type vs Anyhow Result Type
 The base `Result` Type and the anyhow `Result` Type can be imported with
 ```dart
@@ -263,6 +193,87 @@ void main(){
 ```
 The base `Result` type is the standard implementation of the `Result` type and the anyhow `Result` type is the anyhow 
 implementation on top of the standard `Result` type.
+
+## Configuration Options
+
+Anyhow functionality can be configured. We can include Stack Trace with `Error.hasStackTrace = true`:
+
+```text
+Error: Could not order for user: Bob.
+
+Caused by:
+	0: Order number 1 failed.
+	1: Hmm something went wrong making the hamburger.
+
+StackTrace:
+#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+#1      order (package:anyhow/test/src/temp.dart:9:40)
+... <OMITTED FOR EXAMPLE>
+```
+
+or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.stackTrace`
+
+```text
+Root Cause: Hmm something went wrong making the hamburger.
+
+Additional Context:
+	0: Order number 1 failed.
+	1: Could not order for user: Bob.
+
+StackTrace:
+#0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
+#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
+... <OMITTED FOR EXAMPLE>
+```
+
+There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
+
+Before Anyhow, if we wanted to accomplish something similar, we had to do
+
+```dart
+void main() {
+  print(order("Bob", 1));
+}
+
+Result<String, String> order(String user, int orderNumber) {
+  final result = makeFood(orderNumber);
+  switch (result) {
+    case Ok(:final ok):
+      return Ok("Order of $ok is complete for $user");
+    case Err():
+      Logging.w("Could not order for user: $user.");
+      return result;
+  }
+}
+
+Result<String, String> makeFood(int orderNumber) {
+  if (orderNumber == 1) {
+    final result = makeHamburger();
+    if (result.isErr()) {
+      Logging.w("Order number $orderNumber failed.");
+    }
+    return result;
+  }
+  else {
+    return Ok("pasta");
+  }
+}
+
+Result<String, String> makeHamburger() {
+  // What is the context around this error??
+  return Err("Hmm something went wrong making the hamburger.");
+}
+```
+
+Which is more verbose/error-prone and may not be what we actually want. Since:
+
+1. We may not want to log anything if the error state is
+   known and can be recovered from
+2. Related logs should be kept together (in the example, other functions could log before this Result had been handled)
+3. We have no way to get the correct stack traces related to the original issue
+4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
+
+Now with anyhow, we are able to better understand and handle errors in an idiomatic way.
 
 ## Adding Predictable Control Flow To Legacy Dart Code
 At times, you may need to integrate with legacy code that may throw or code outside your project. To handle, you 
