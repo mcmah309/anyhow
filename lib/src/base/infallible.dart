@@ -14,3 +14,15 @@ extension InfallibleErrExtension<F extends Object> on Result<Infallible, F> {
     return unwrapErr();
   }
 }
+
+extension InfallibleFutureOkExtension<S> on FutureResult<S, Infallible> {
+  Future<S> intoOk() {
+    return then((result) => result.intoOk());
+  }
+}
+
+extension InfallibleFutureErrExtension<F extends Object> on FutureResult<Infallible, F> {
+  Future<F> intoErr() {
+    return then((result) => result.intoErr());
+  }
+}

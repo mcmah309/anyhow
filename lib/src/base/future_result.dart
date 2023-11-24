@@ -48,8 +48,22 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
     return then((result) => result.isErr());
   }
 
+  Future<bool> isErrOr(bool Function(F) fn) {
+    return then((result) => result.isErrAnd(fn));
+  }
+
   Future<bool> isOk() {
     return then((result) => result.isOk());
+  }
+
+  Future<bool> isOkOr(bool Function(S) fn) {
+    return then((result) => result.isOkAnd(fn));
+  }
+
+  //************************************************************************//
+
+  Future<Iterable<S>> iter() {
+    return then((result) => result.iter());
   }
 
   //************************************************************************//

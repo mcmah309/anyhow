@@ -73,14 +73,10 @@ extension AnyhowErrExtensions<S> on Err<S> {
 }
 
 extension AnyhowFutureResultExtension<S> on FutureResult<S> {
-  /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
-  /// should not be an instance of [Error].
   FutureResult<S> context(Object context){
     return then((result) => result.context(context));
   }
 
-  /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
-  /// context. The context should not be an instance of [Error].
   FutureResult<S> withContext(Object Function() fn){
     return then((result) => result.withContext(fn));
   }

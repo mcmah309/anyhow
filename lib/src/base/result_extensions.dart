@@ -12,6 +12,12 @@ extension FlattenExtension<S, F extends Object> on Result<Result<S, F>, F> {
   }
 }
 
+extension FlattenFutureExtension<S, F extends Object> on FutureResult<Result<S, F>, F> {
+  FutureResult<S, F> flatten() {
+    return then((result) => result.flatten());
+  }
+}
+
 extension TransposeResultExtension<S, F extends Object> on Result<S?, F> {
   /// transposes a [Result] of a nullable type into a nullable [Result].
   Result<S, F>? transpose() {
@@ -30,7 +36,13 @@ extension TransposeResultExtension<S, F extends Object> on Result<S?, F> {
   }
 }
 
-extension ResultIterableExtensions<S, F extends Object> on Iterable<Result<S, F>> {
+extension TransposeFutureResultExtension<S, F extends Object> on FutureResult<S?, F> {
+  Future<Result<S, F>?> transpose() {
+    return then((result) => result.transpose());
+  }
+}
+
+extension IterableResultExtensions<S, F extends Object> on Iterable<Result<S, F>> {
   /// Transforms an Iterable of results into a single result where the ok value is the list of all successes. If any
   /// error is encountered, the first error is used as the error result.
   Result<List<S>, F> toResultEager() {
@@ -67,7 +79,17 @@ extension ResultIterableExtensions<S, F extends Object> on Iterable<Result<S, F>
   }
 }
 
-extension FutureIterableResultExtensions<S, F extends Object> on Iterable<FutureResult<S, F>> {
+extension FutureIterableResultExtensions<S, F extends Object> on Future<Iterable<Result<S, F>>> {
+  FutureResult<List<S>, F> toResultEager() {
+    return then((result) => result.toResultEager());
+  }
+
+  FutureResult<List<S>, List<F>> toResult() {
+    return then((result) => result.toResult());
+  }
+}
+
+extension IterableFutureResultExtensions<S, F extends Object> on Iterable<FutureResult<S, F>> {
   /// Transforms an Iterable of [FutureResult]s into a single result where the ok value is the list of all successes. If
   /// any error is encountered, the first error is used as the error result. The order of [S] and [F] is determined by
   /// the order in which futures complete.
@@ -103,6 +125,16 @@ extension FutureIterableResultExtensions<S, F extends Object> on Iterable<Future
       }
     }
     return finalResult;
+  }
+}
+
+extension FutureIterableFutureResultExtensions<S, F extends Object> on Future<Iterable<FutureResult<S, F>>> {
+  FutureResult<List<S>, F> toResultEager() async {
+    return then((result) => result.toResultEager());
+  }
+
+  FutureResult<List<S>, List<F>> toResult() async {
+    return then((result) => result.toResult());
   }
 }
 
