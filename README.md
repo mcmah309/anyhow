@@ -24,10 +24,10 @@ independently, to suit your error-handling needs.
         - [Base Result Type Error Handling](#base-result-type-error-handling)
         - [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling)
         - [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
-  - [Configuration Options](#configuration-options)
-    - [Adding Predictable Control Flow To Legacy Dart Code](#adding-predictable-control-flow-to-legacy-dart-code)
-    - [Dart Equivalent To The Rust "?" Operator](#dart-equivalent-to-the-rust--operator)
-    - [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly)
+* [Configuration Options](#configuration-options)
+* [Adding Predictable Control Flow To Legacy Dart Code](#adding-predictable-control-flow-to-legacy-dart-code)
+* [Dart Equivalent To The Rust "?" Operator](#dart-equivalent-to-the-rust--operator)
+* [How to Never Unwrap Incorrectly](#how-to-never-unwrap-incorrectly)
 * [Misc](#misc)
     - [Working with Futures](#working-with-futures)
     - [Working With Iterable Results](#working-with-iterable-results)
@@ -169,66 +169,10 @@ Caused by:
 	0: Order number 1 failed.
 	1: Hmm something went wrong making the hamburger.
 ```
-### Base Result Type vs Anyhow Result Type
-The base `Result` Type and the anyhow `Result` Type can be imported with
-```dart
-import 'package:anyhow/base.dart' as base;
-```
-or
-```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-```
-Respectively. Like in anyhow, these types have parity, thus can be used together
-```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-import 'package:anyhow/base.dart' as base;
 
-void main(){
-  base.Result<int,anyhow.Error> x = anyhow.Ok(1); // valid
-  anyhow.Result<int> y = base.Ok(1); // valid
-  anyhow.Ok(1).context(1); // valid
-  base.Ok(1).context(1); // not valid
+#### What Would This Look Like Without Anyhow
 
-}
-```
-The base `Result` type is the standard implementation of the `Result` type and the anyhow `Result` type is the anyhow 
-implementation on top of the standard `Result` type.
-
-## Configuration Options
-
-Anyhow functionality can be configured. We can include Stack Trace with `Error.hasStackTrace = true`:
-
-```text
-Error: Could not order for user: Bob.
-
-Caused by:
-	0: Order number 1 failed.
-	1: Hmm something went wrong making the hamburger.
-
-StackTrace:
-#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
-#1      order (package:anyhow/test/src/temp.dart:9:40)
-... <OMITTED FOR EXAMPLE>
-```
-
-or we view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
-
-```text
-Root Cause: Hmm something went wrong making the hamburger.
-
-Additional Context:
-	0: Order number 1 failed.
-	1: Could not order for user: Bob.
-
-StackTrace:
-#0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
-#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
-... <OMITTED FOR EXAMPLE>
-```
-
-There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
-
-Before Anyhow, if we wanted to accomplish something similar, we had to do
+Before Anyhow, if we wanted to accomplish something similar, we had to do:
 
 ```dart
 void main() {
@@ -274,6 +218,75 @@ Which is more verbose/error-prone and may not be what we actually want. Since:
 4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
 
 Now with anyhow, we are able to better understand and handle errors in an idiomatic way.
+
+### Base Result Type vs Anyhow Result Type
+The base `Result` Type and the anyhow `Result` Type can be imported with
+```dart
+import 'package:anyhow/base.dart' as base;
+```
+or
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+```
+Respectively. Like in anyhow, these types have parity, thus can be used together
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+import 'package:anyhow/base.dart' as base;
+
+void main(){
+  base.Result<int,anyhow.Error> x = anyhow.Ok(1); // valid
+  anyhow.Result<int> y = base.Ok(1); // valid
+  anyhow.Ok(1).context(1); // valid
+  base.Ok(1).context(1); // not valid
+
+}
+```
+The base `Result` type is the standard implementation of the `Result` type and the anyhow `Result` type is the anyhow 
+implementation on top of the standard `Result` type.
+
+## Configuration Options
+
+Anyhow functionality can be changed by changing:
+
+```text
+Error.hasStackTrace;
+Error.rootCauseFirst;
+Error.stackTraceDisplayFormat;
+```
+
+Which is usually done at startup.
+
+We can include Stack Trace with `Error.hasStackTrace = true`:
+
+```text
+Error: Could not order for user: Bob.
+
+Caused by:
+	0: Order number 1 failed.
+	1: Hmm something went wrong making the hamburger.
+
+StackTrace:
+#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+#1      order (package:anyhow/test/src/temp.dart:9:40)
+... <OMITTED FOR EXAMPLE>
+```
+
+We can view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
+
+```text
+Root Cause: Hmm something went wrong making the hamburger.
+
+Additional Context:
+	0: Order number 1 failed.
+	1: Could not order for user: Bob.
+
+StackTrace:
+#0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
+#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
+... <OMITTED FOR EXAMPLE>
+```
+
+There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
 
 ## Adding Predictable Control Flow To Legacy Dart Code
 At times, you may need to integrate with legacy code that may throw or code outside your project. To handle, you 

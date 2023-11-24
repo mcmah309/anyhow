@@ -13,6 +13,15 @@ part 'functions.dart';
 /// Exception              | Error
 /// Error                  | Panic
 class Error implements Exception {
+  /// Setting for how errors are converted to strings
+  static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
+
+  /// If Errors should be captured with a [StackTrace].
+  static bool hasStackTrace = false;
+
+  /// How to display [StackTrace]s.
+  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
+
   Object _cause;
   Error? _parent;
   late final StackTrace? _stackTrace;
@@ -23,13 +32,6 @@ class Error implements Exception {
 
   /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
   Error._withStackTrace(this._cause, this._stackTrace, {Error? parent}) : _parent = parent;
-
-  /// Setting for how errors are converted to strings
-  static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
-
-  /// if Errors should be captured with a [StackTrace]. Known as "backtrace" in Rust anyhow;
-  static bool hasStackTrace = false;
-  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
 
   /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
   /// protect keyword in dart
