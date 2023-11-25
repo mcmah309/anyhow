@@ -5,7 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/mcmah309/anyhow/actions/workflows/dart.yml/badge.svg)](https://github.com/mcmah309/anyhow/actions)
 
-Anyhow offers versatile and idiomatic error handling capabilities to make your code safer and errors easier to debug.
+Anyhow offers versatile and idiomatic error handling capabilities to make your code safer, more maintainable, and
+errors easier to debug.
 
 This is accomplished through providing a Dart implementation of the Rust [Result] monad type, and
 an implementation of the popular Rust crate with the same name - [anyhow].
