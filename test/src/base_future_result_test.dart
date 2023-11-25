@@ -31,6 +31,20 @@ void main() {
     });
   });
 
+  group('match', () {
+    test('Ok', () async {
+      final result = Future.value(const Ok(0));
+      final futureValue = result.match(err: (e) => -1, ok: (x) => x);
+      expect(futureValue, completion(0));
+    });
+
+    test('Error', () async {
+      final result = Future.value(bail(0));
+      final futureValue = result.match(err: (e) => e.downcast<int>().unwrap(), ok: (x) => x);
+      expect(futureValue, completion(0));
+    });
+  });
+
   test('map', () async {
     final result = await Future.value(const Ok(1))
         .map((ok) => ok * 2);

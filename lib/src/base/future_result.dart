@@ -99,6 +99,10 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
 
   //************************************************************************//
 
+  Future<W> match<W>({required FutureOr<W> Function(S) ok, required FutureOr<W> Function(F) err}) {
+    return then<W>((result) => result.match(ok: ok, err: err));
+  }
+
   FutureResult<W, F> map<W>(FutureOr<W> Function(S ok) fn) {
     return mapOrElse(
       (error) {

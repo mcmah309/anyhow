@@ -221,16 +221,16 @@ void main() {
     });
   });
 
-  group('mapOrElse', () {
+  group('match', () {
     test('Ok', () {
       const result = Ok(0);
-      final futureValue = result.mapOrElse((e) => -1, (x) => x);
+      final futureValue = result.match(err: (e) => -1, ok: (x) => x);
       expect(futureValue, 0);
     });
 
     test('Error', () {
       final result = 0.toErr();
-      final futureValue = result.mapOrElse((x) => x, (ok) => -1);
+      final futureValue = result.match(err: (x) => x, ok: (ok) => -1);
       expect(futureValue, Error(0));
     });
   });

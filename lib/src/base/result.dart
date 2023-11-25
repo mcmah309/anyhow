@@ -94,6 +94,11 @@ sealed class Result<S, F extends Object> {
 
   //************************************************************************//
 
+  /// Returns the result of [ok] for the encapsulated value
+  /// if this instance represents [Ok] or the result of [err] function
+  /// for the encapsulated value if it is [Err].
+  W match<W>({required W Function(S) ok, required W Function(F) err});
+
   /// Returns a new [Result], mapping any [Ok] value
   /// using the given transformation.
   Result<W, F> map<W>(W Function(S ok) fn);
@@ -246,6 +251,11 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   //************************************************************************//
+
+  @override
+  W match<W>({required W Function(S) ok, required W Function(F) err}) {
+    return ok(this.ok);
+  }
 
   @override
   Ok<W, F> map<W>(W Function(S ok) fn) {
@@ -426,6 +436,11 @@ final class Err<S, F extends Object> implements Result<S, F> {
   }
 
   //************************************************************************//
+
+  @override
+  W match<W>({required W Function(S) ok, required W Function(F) err}) {
+    return err(this.err);
+  }
 
   @override
   Err<W, F> map<W>(W Function(S ok) fn) {

@@ -355,12 +355,14 @@ final y = switch(x){
 };
 ```
 
-Or declaratively with `mapOrElse`
+Or declaratively with `match`
 ```dart
-x.mapOrElse
-(
-(err) => err, (ok) => ok);
+x.match(
+  ok: (ok) => ok,
+  err: (err) => err
+);
 ```
+Or even with `mapOrElse`
 ### Misc
 #### Working with Futures
 When working with `Future`s it is easy to make a mistake like this
@@ -473,9 +475,7 @@ and parameterize the error type, to indicate that the result is always Ok.Thus t
 ```dart
 
 Result<int, Infallible> x = Ok(1);
-expect
-(
-x.intoOk(), 1);
+expect(x.intoOk(), 1);
 Result<Infallible, int> w = Err(1);
 expect(w.intoErr(), 1);
 ```
