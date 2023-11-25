@@ -369,6 +369,36 @@ void main() {
     });
   });
 
+  test("context", () {
+    final result = bail(1).context("bing bong").context("bong bing");
+    List<Object> causes = [];
+    for (final (index, cause) in result.err.chain().indexed) {
+      if (index == 2) {
+        causes.add(cause.downcast<int>().unwrap());
+      } else {
+        causes.add(cause.downcast<String>().unwrap());
+      }
+    }
+    expect(causes[0], "bong bing");
+    expect(causes[1], "bing bong");
+    expect(causes[2], 1);
+  });
+
+  test("withContext", () {
+    final result = bail(1).withContext(() => "bing bong").withContext(() => "bong bing");
+    List<Object> causes = [];
+    for (final (index, cause) in result.err.chain().indexed) {
+      if (index == 2) {
+        causes.add(cause.downcast<int>().unwrap());
+      } else {
+        causes.add(cause.downcast<String>().unwrap());
+      }
+    }
+    expect(causes[0], "bong bing");
+    expect(causes[1], "bing bong");
+    expect(causes[2], 1);
+  });
+
   test("toResult on Iterable",(){
     var result = [Ok(1), Ok(2), Ok(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);
