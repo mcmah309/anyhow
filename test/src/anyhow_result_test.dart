@@ -73,12 +73,12 @@ void main() {
   test("iter", () {
     Result<int> result = Ok(10000);
     int calls = 0;
-    for (final r in result.iter()) {
+    for (final _ in result.iter()) {
       calls++;
     }
     expect(calls, 1);
     result = bail(1);
-    for (final r in result.iter()) {
+    for (final _ in result.iter()) {
       calls++;
     }
     expect(calls, 1);
