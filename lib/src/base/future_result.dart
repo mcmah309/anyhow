@@ -18,12 +18,12 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
   }
 
   Future<S> unwrapOrElse(FutureOr<S> Function(F) onError) {
-    return match(
+    return mapOrElse(
+      (err) {
+        return onError(err);
+      },
       (ok) {
         return ok;
-      },
-      (error) {
-        return onError(error);
       },
     );
   }
@@ -41,14 +41,11 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
   }
 
   Future<F> unwrapErrOrElse(FutureOr<F> Function(S ok) onOk) {
-    return match(
-      (ok) {
-        return onOk(ok);
-      },
-      (error) {
-        return error;
-      },
-    );
+    return mapOrElse((error) {
+      return error;
+    }, (ok) {
+      return onOk(ok);
+    });
   }
 
   Future<F?> unwrapErrOrNull() {
@@ -90,72 +87,61 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
   }
 
   FutureResult<S, F2> orElse<F2 extends Object>(FutureOr<Result<S, F2>> Function(F) fn) {
-    return match(
-      (ok) {
-        return Ok(ok);
-      },
+    return mapOrElse(
       (error) {
         return fn(error);
+      },
+      (ok) {
+        return Ok(ok);
       },
     );
   }
 
   //************************************************************************//
 
-  Future<W> match<W>(FutureOr<W> Function(S ok) onOk, FutureOr<W> Function(F error) onError) {
-    return then<W>((result) => result.match(onOk, onError));
-  }
-
   FutureResult<W, F> map<W>(FutureOr<W> Function(S ok) fn) {
-    return match(
-      (ok) async {
-        return Ok(await fn(ok));
-      },
+    return mapOrElse(
       (error) {
         return Err(error);
+      },
+      (ok) async {
+        return Ok(await fn(ok));
       },
     );
   }
 
   Future<W> mapOr<W>(W defaultValue, FutureOr<W> Function(S ok) fn) {
-    return match(
-      (ok) {
-        return fn(ok);
-      },
+    return mapOrElse(
       (error) {
         return defaultValue;
+      },
+      (ok) {
+        return fn(ok);
       },
     );
   }
 
   Future<W> mapOrElse<W>(FutureOr<W> Function(F err) defaultFn, FutureOr<W> Function(S ok) fn) {
-    return match(
-      (ok) {
-        return fn(ok);
-      },
-      (error) {
-        return defaultFn(error);
-      },
-    );
+    return then<W>((result) => result.mapOrElse(defaultFn, fn));
   }
 
   FutureResult<S, W> mapErr<W extends Object>(FutureOr<W> Function(F error) fn) {
-    return match(
-      (ok) {
-        return Ok(ok);
-      },
+    return mapOrElse(
       (error) async {
         return Err(await fn(error));
+      },
+      (ok) {
+        return Ok(ok);
       },
     );
   }
 
   FutureResult<W, F> andThen<W>(FutureOr<Result<W, F>> Function(S ok) fn) {
-    return match(fn, Err.new);
+    return mapOrElse(Err.new, fn);
   }
 
   FutureResult<S, W> andThenErr<W extends Object>(FutureOr<Result<S, W>> Function(F error) fn) {
-    return match(Ok.new, fn);
+    return mapOrElse(fn, Ok.new);
   }
 
   FutureResult<S, F> inspect(FutureOr<void> Function(S ok) fn) {

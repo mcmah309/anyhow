@@ -354,9 +354,12 @@ final y = switch(x){
   Err(:final err) => err,
 };
 ```
-Or declaratively with match
+
+Or declaratively with `mapOrElse`
 ```dart
-x.match((ok) => ok, (err) => err);
+x.mapOrElse
+(
+(err) => err, (ok) => ok);
 ```
 ### Misc
 #### Working with Futures

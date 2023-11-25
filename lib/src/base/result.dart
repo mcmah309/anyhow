@@ -94,14 +94,6 @@ sealed class Result<S, F extends Object> {
 
   //************************************************************************//
 
-  /// Returns the result of [onOk] for the encapsulated value
-  /// if this instance represents [Ok] or the result of [onError] function
-  /// for the encapsulated value if it is [Err].
-  W match<W>(
-    W Function(S ok) onOk,
-    W Function(F err) onError,
-  );
-
   /// Returns a new [Result], mapping any [Ok] value
   /// using the given transformation.
   Result<W, F> map<W>(W Function(S ok) fn);
@@ -254,14 +246,6 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   }
 
   //************************************************************************//
-
-  @override
-  W match<W>(
-    W Function(S ok) onOk,
-    W Function(F error) onError,
-  ) {
-    return onOk(ok);
-  }
 
   @override
   Ok<W, F> map<W>(W Function(S ok) fn) {
@@ -442,14 +426,6 @@ final class Err<S, F extends Object> implements Result<S, F> {
   }
 
   //************************************************************************//
-
-  @override
-  W match<W>(
-    W Function(S succcess) onOk,
-    W Function(F error) onError,
-  ) {
-    return onError(err);
-  }
 
   @override
   Err<W, F> map<W>(W Function(S ok) fn) {

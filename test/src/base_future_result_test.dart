@@ -46,16 +46,16 @@ void main() {
     expect(Future.value(const Ok(2)).mapErr((x) => x), completes);
   });
 
-  group('match', () {
+  group('mapOrElse', () {
     test('Ok', () async {
       final result = Future.value(const Ok(0));
-      final futureValue = result.match((x) => x, (e) => -1);
+      final futureValue = result.mapOrElse((e) => -1, (x) => x);
       expect(futureValue, completion(0));
     });
 
     test('Error', () async {
       final result = Future.value(bail(0));
-      final futureValue = result.match((x) => x, (e) => e.downcast<int>().unwrap());
+      final futureValue = result.mapOrElse((e) => e.downcast<int>().unwrap(), (x) => x);
       expect(futureValue, completion(0));
     });
   });
