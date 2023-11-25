@@ -103,6 +103,12 @@ sealed class Result<S, F extends Object> {
   /// using the given transformation.
   Result<W, F> map<W>(W Function(S ok) fn);
 
+  /// Returns the provided default (if [Err]), or applies a function to the contained value (if [Ok]).
+  W mapOr<W>(W defaultValue, W Function(S ok) fn);
+
+  /// Evaluates the provided [defaultFn] (if [Err]), or applies a function to the contained value (if [Ok]).
+  W mapOrElse<W>(W Function(F err) defaultFn, W Function(S ok) fn);
+
   /// Returns a new [Result], mapping any [Err] value
   /// using the given transformation.
   Result<S, W> mapErr<W extends Object>(W Function(F error) fn);
@@ -110,10 +116,6 @@ sealed class Result<S, F extends Object> {
   /// If [Ok], Returns a new [Result] by passing the [Ok] value
   /// to the provided function.
   Result<W, F> andThen<W>(Result<W, F> Function(S ok) fn);
-
-  // /// If [Ok], Returns a new [Result] by passing the [Ok] value
-  // /// to the provided function.
-  // FutureResult<W, F> andThenAsync<W>(FutureResult<W, F> Function(S ok) fn);
 
   //// If [Err], Returns a new [Result] by passing the [Err] value
   /// to the provided function.
@@ -257,6 +259,16 @@ final class Ok<S, F extends Object> implements Result<S, F> {
   Ok<W, F> map<W>(W Function(S ok) fn) {
     final newOk = fn(ok);
     return Ok<W, F>(newOk);
+  }
+
+  @override
+  W mapOr<W>(W defaultValue, W Function(S ok) fn) {
+    return fn(ok);
+  }
+
+  @override
+  W mapOrElse<W>(W Function(F err) defaultFn, W Function(S ok) fn) {
+    return fn(ok);
   }
 
   @override
@@ -429,6 +441,16 @@ final class Err<S, F extends Object> implements Result<S, F> {
   @override
   Err<W, F> map<W>(W Function(S ok) fn) {
     return Err<W, F>(err);
+  }
+
+  @override
+  W mapOr<W>(W defaultValue, W Function(S ok) fn) {
+    return defaultValue;
+  }
+
+  @override
+  W mapOrElse<W>(W Function(F err) defaultFn, W Function(S ok) fn) {
+    return defaultFn(err);
   }
 
   @override

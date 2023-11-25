@@ -3,7 +3,7 @@ import 'package:anyhow/anyhow.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('flatMap', () {
+  group('andThen', () {
     test('async ', () async {
       final result = await Future.value(const Ok(1))
           .andThen((ok) async => Ok(ok * 2));
@@ -17,7 +17,7 @@ void main() {
     });
   });
 
-  group('flatMapError', () {
+  group('andThenError', () {
     test('async ', () async {
       final result = await Future.value(bail(1))
           .andThenErr((error) async => bail(error.downcast<int>().unwrap() * 2));
@@ -39,7 +39,7 @@ void main() {
     expect(Future.value(bail(2)).map((x) => x), completes);
   });
 
-  test('mapError', () async {
+  test('mapErr', () async {
     final result = await Future.value(bail(1))
         .mapErr((error) => Error(error.downcast<int>().unwrap() * 2));
     expect(result.unwrapErrOrNull()!.downcast<int>().unwrap(), 2);

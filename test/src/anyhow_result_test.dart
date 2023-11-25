@@ -16,12 +16,12 @@ void main() {
     expect(result.unwrap(), null);
   });
 
-  test('Result Ok', () {
+  test('Ok', () {
     final result = Ok(0);
     expect(result.unwrap(), 0);
   });
 
-  test('Result Error', () {
+  test('Error', () {
     final result = bail(0);
     expect(result.unwrapErr().downcast<int>().unwrap(), 0);
   });
@@ -128,7 +128,7 @@ void main() {
     expect(bail(1).hashCode == bail(1).hashCode, isTrue);
   });
 
-  group('Map', () {
+  group('map', () {
     test('Ok', () {
       final result = Ok(4);
       final result2 = result.map((ok) => '=' * ok);
@@ -145,7 +145,31 @@ void main() {
     });
   });
 
-  group('MapError', () {
+  group('mapOr', () {
+    test('Ok', () {
+      final result = Ok(1).mapOr(2, (ok) => 3);
+      expect(result, 3);
+    });
+
+    test('Error', () {
+      final result = bail(1).mapOr(2, (ok) => 3);
+      expect(result, 2);
+    });
+  });
+
+  group('mapOrElse', () {
+    test('Ok', () {
+      final result = Ok(1).mapOrElse((err) => 2, (ok) => 3);
+      expect(result, 3);
+    });
+
+    test('Error', () {
+      final result = bail(1).mapOrElse((err) => 2, (ok) => 3);
+      expect(result, 2);
+    });
+  });
+
+  group('mapErr', () {
     test('Ok', () {
       const result = Ok<int>(4);
       final result2 = result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
@@ -163,7 +187,7 @@ void main() {
     });
   });
 
-  group('flatMap', () {
+  group('andThn', () {
     test('Ok', () {
       final result = 4.toOk();
       final result2 = result.andThen((ok) => Ok('=' * ok));
@@ -180,7 +204,7 @@ void main() {
     });
   });
 
-  group('flatMapError', () {
+  group('andThenError', () {
     test('Error', () {
       final result = 4.toErr();
       final result2 = result.andThenErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
