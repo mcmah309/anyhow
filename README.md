@@ -168,6 +168,12 @@ Error: Could not order for user: Bob.
 Caused by:
 	0: Order number 1 failed.
 	1: Hmm something went wrong making the hamburger.
+	
+StackTrace:
+#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+#1      order (package:anyhow/test/src/temp.dart:9:40)
+#2      main (package:anyhow/example/main.dart:5:9)
+... <OMITTED FOR EXAMPLE>
 ```
 
 #### What Would This Look Like Without Anyhow
@@ -256,7 +262,7 @@ Error.stackTraceDisplayFormat;
 
 Which is usually done at startup.
 
-We can include Stack Trace with `Error.hasStackTrace = true`:
+We can include Stack Trace with `Error.hasStackTrace = false` to not capture a stack trace:
 
 ```text
 Error: Could not order for user: Bob.
@@ -264,11 +270,6 @@ Error: Could not order for user: Bob.
 Caused by:
 	0: Order number 1 failed.
 	1: Hmm something went wrong making the hamburger.
-
-StackTrace:
-#0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
-#1      order (package:anyhow/test/src/temp.dart:9:40)
-... <OMITTED FOR EXAMPLE>
 ```
 
 We can view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
@@ -286,7 +287,7 @@ StackTrace:
 ... <OMITTED FOR EXAMPLE>
 ```
 
-There is also `StackTraceDisplayFormat` if we want to include none, the main, or all stacktraces in the output.
+There is also `StackTraceDisplayFormat` if we want to include `none`, the `main`, or `all` stacktraces in the output.
 
 ## Adding Predictable Control Flow To Legacy Dart Code
 At times, you may need to integrate with legacy code that may throw or code outside your project. To handle, you 

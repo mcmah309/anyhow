@@ -418,6 +418,7 @@ void main() {
   });
 
   test('printing error', () {
+    Error.hasStackTrace = false;
     Result error = bail(Exception("Root cause"));
     Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
     expect(error.toString(), 'Error: Exception: Root cause\n');

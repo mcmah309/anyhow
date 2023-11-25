@@ -1,6 +1,7 @@
 import 'package:anyhow/anyhow.dart';
 
 void main() {
+  //Error.stackTraceDisplayFormat = StackTraceDisplayFormat.full;
   print(order("Bob", 1));
 }
 
@@ -33,3 +34,9 @@ Result<String> makeHamburger() {
 // Caused by:
 //    0: Order number 1 failed.
 //    1: Hmm something went wrong making the hamburger.
+//
+// StackTrace:
+// #0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
+// #1      order (package:anyhow/test/src/temp.dart:9:40)
+// #2      main (package:anyhow/example/main.dart:5:9)
+// ... <OMITTED FOR EXAMPLE>

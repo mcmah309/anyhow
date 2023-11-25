@@ -17,7 +17,7 @@ class Error implements Exception {
   static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
 
   /// If Errors should be captured with a [StackTrace].
-  static bool hasStackTrace = false;
+  static bool hasStackTrace = true;
 
   /// How to display [StackTrace]s.
   static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
