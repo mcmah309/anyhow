@@ -14,6 +14,16 @@ void main(){
     expect(a, b);
   });
 
+  Result<int, int> sq(int x) => Ok(x * x);
+  Result<int, int> err(int x) => Err(x);
+
+  test("orElse", () {
+    expect(Ok<int, int>(2).orElse(sq).orElse(sq), Ok(2));
+    expect(Ok<int, int>(2).orElse(err).orElse(sq), Ok(2));
+    expect(Err(3).orElse(sq).orElse(err), Ok(9));
+    expect(Err(3).orElse(err).orElse(err), Err(3));
+  });
+
   test("intoUnchecked and into",(){
     Result<int,String> someFunction1 () {return Err("err");}
 

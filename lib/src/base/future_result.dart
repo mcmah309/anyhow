@@ -89,6 +89,17 @@ extension FutureResultExtension<S, F extends Object> on FutureResult<S, F> {
     return then((result) => result.or(other));
   }
 
+  FutureResult<S, F2> orElse<F2 extends Object>(FutureOr<Result<S, F2>> Function(F) fn) {
+    return match(
+      (ok) {
+        return Ok(ok);
+      },
+      (error) {
+        return fn(error);
+      },
+    );
+  }
+
   //************************************************************************//
 
   Future<W> match<W>(FutureOr<W> Function(S ok) onOk, FutureOr<W> Function(F error) onError) {

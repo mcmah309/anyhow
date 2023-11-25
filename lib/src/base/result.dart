@@ -89,6 +89,9 @@ sealed class Result<S, F extends Object> {
   /// the other [Err].
   Result<S, F2> or<F2 extends Object>(Result<S, F2> other);
 
+  /// Calls [fn] if the result is [Err], otherwise returns the [Ok] value of this.
+  Result<S, F2> orElse<F2 extends Object>(Result<S, F2> Function(F) fn);
+
   //************************************************************************//
 
   /// Returns the result of [onOk] for the encapsulated value
@@ -242,7 +245,12 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   Result<S, F2> or<F2 extends Object>(Result<S, F2> other) {
-    return this.into();
+    return into();
+  }
+
+  @override
+  Result<S, F2> orElse<F2 extends Object>(Result<S, F2> Function(F) fn) {
+    return into();
   }
 
   //************************************************************************//
@@ -420,12 +428,17 @@ final class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   Result<S2, F> and<S2>(Result<S2, F> other) {
-    return this.into();
+    return into();
   }
 
   @override
   Result<S, F2> or<F2 extends Object>(Result<S, F2> other) {
     return other;
+  }
+
+  @override
+  Result<S, F2> orElse<F2 extends Object>(Result<S, F2> Function(F) fn) {
+    return fn(err);
   }
 
   //************************************************************************//
@@ -525,26 +538,5 @@ final class Err<S, F extends Object> implements Result<S, F> {
   @override
   String toString(){
     return "$err";
-  }
-}
-
-class SingleElementIterator<T> implements Iterator<T> {
-  final T? element;
-  bool _hasMoveNextBeenCalled = false;
-
-  SingleElementIterator([this.element]);
-
-  @override
-  T get current => _hasMoveNextBeenCalled ? throw StateError('No more elements') : element!;
-
-  @override
-  bool moveNext() {
-    if (_hasMoveNextBeenCalled) {
-      _hasMoveNextBeenCalled = false;
-      if (element != null) {
-        return true;
-      }
-    }
-    return false;
   }
 }
