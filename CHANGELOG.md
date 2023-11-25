@@ -1,3 +1,7 @@
+## 0.8.0
+
+* Make match named method
+
 ## 0.7.0
 
 * Result type now has all Rust Result type methods
