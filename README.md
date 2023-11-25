@@ -11,7 +11,7 @@ errors easier to debug.
 This is accomplished through providing a Dart implementation of the Rust [Result] monad type, and
 an implementation of the popular Rust crate with the same name - [anyhow].
 Anyhow will allow you to never throw another exception again and have a predictable control flow. When
-errors do arise, you can add `context` to better understand the situation tha lead to the errors.
+errors do arise, you can add `context` to better understand the situation that led to the errors.
 See [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling) to jump right into an example.
 
 ## Table of Contents
@@ -263,7 +263,7 @@ Error.stackTraceDisplayFormat;
 
 Which is usually done at startup.
 
-We can include Stack Trace with `Error.hasStackTrace = false` to not capture a stack trace:
+With `Error.hasStackTrace = false`, we can exclude capturing a stack trace:
 
 ```text
 Error: Could not order for user: Bob.
@@ -396,16 +396,15 @@ analyzer:
     #discarded_futures: error
 ```
 #### Working With Iterable Results
-In addition to useful `.toErr()`, `.toOk()` extension methods, anyhow provides a `.toResult()` on types that can be 
-converted to a single result. One of these is on `Iterable<Result<S,F>>`, which can turn into a single 
-`Result<List<S>,F>`.
-If 
-using the anyhow `Result`, `Err`'s will be chained, if using the base `Result` The first `Err` if any will be used.
+In addition to useful `.toErr()`, `.toOk()` extension methods, anyhow provides a `.toResult()` on types that can be
+converted to a single result. One of these is on `Iterable<Result<S,F>>`, which can turn into a
+`Result<List<S>,List<F>>`. Also, there is `.toResultEager()` which can turn into a single `Result<List<S>,F>`.
+
 ```dart
 var result = [Ok(1), Ok(2), Ok(3)].toResult();
 expect(result.unwrap(), [1, 2, 3]);
 
-result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResult();
+result = [Ok<int,int>(1), Err<int,int>(2), Ok<int,int>(3)].toResultEager();
 expect(result.unwrapErr(), 2);
 ```
 #### Panic
