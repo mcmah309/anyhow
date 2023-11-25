@@ -3,16 +3,15 @@
 [![Pub Version](https://img.shields.io/pub/v/anyhow.svg)](https://pub.dev/packages/anyhow)
 [![Dart Package Docs](https://img.shields.io/badge/documentation-pub.dev-blue.svg)](https://pub.dev/documentation/anyhow/latest/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/mcmah309/anyhow/actions/workflows/dart.yml/badge.svg)](https://github.com/mcmah309/anyhow/actions)
 
-Anyhow is a Dart implementation of the Rust crate of the same name - [anyhow]. Anyhow offers versatile and
-idiomatic error handling capabilities.
+Anyhow offers versatile and idiomatic error handling capabilities to make your code safer and errors easier to debug.
 
-This is accomplished through providing a Dart implementation of the Rust [Result] monad type and Anyhow functionality
-that allows you to add `context` to errors. See
-[Anyhow Result Type Error Handling](#anyhow-result-type-error-handling) to jump right into an example.
-
-You can seamlessly employ both the Standard (Base) Result type and the Anyhow Result type, either in conjunction or
-independently, to suit your error-handling needs.
+This is accomplished through providing a Dart implementation of the Rust [Result] monad type, and
+an implementation of the popular Rust crate with the same name - [anyhow].
+Anyhow will allow you to never throw another exception again and have a predictable control flow. When
+errors do arise, you can add `context` to better understand the situation tha lead to the errors.
+See [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling) to jump right into an example.
 
 ## Table of Contents
 
