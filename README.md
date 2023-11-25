@@ -33,6 +33,7 @@ independently, to suit your error-handling needs.
     - [Working With Iterable Results](#working-with-iterable-results)
     - [Panic](#panic)
   - [Null and Unit](#null-and-unit)
+  - [Infallible](#infallible)
 
 ## What Is a Result Monad Type And Why Use it?
 A monad is just a wrapper around an object that provides a standard way of interacting with the inner object. The
@@ -459,7 +460,25 @@ x == y; // true
 // const error = const Err(unit);
 ```
 
+#### Infallible
 
+`Infallible` is the error type for errors that can never happen. This can be useful for generic APIs that use Result
+and parameterize the error type, to indicate that the result is always Ok.Thus these types expose `intoOk` and
+`intoErr`.
+
+```dart
+
+Result<int, Infallible> x = Ok(1);
+expect
+(
+x.intoOk(), 1);
+Result<Infallible, int> w = Err(1);
+expect(w.intoErr(), 1);
+```
+
+```
+typedef Infallible = Never;
+```
 See examples for more.
 
 [Result]: https://doc.rust-lang.org/std/result/enum.Result.html
