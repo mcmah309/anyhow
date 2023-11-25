@@ -1,3 +1,16 @@
+## 0.7.0
+
+* Result type now has all Rust Result type methods
+* Infallible type
+* iter
+* mapOr
+* mapOrElse
+* orElse
+* isErrAnd
+* isOkAnd
+* implement all methods and extension for FutureResult
+* Default is to now collect stacktrace
+
 ## 0.6.2
 
 * Create stacktraces earlier when needed
