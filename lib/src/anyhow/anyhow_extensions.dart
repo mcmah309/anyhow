@@ -85,7 +85,7 @@ extension AnyhowFutureResultExtension<S> on FutureResult<S> {
   }
 }
 
-extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
+extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
   /// Transforms an Iterable of results into a single result where the [Ok] value is the list of all successes. The
   /// [Err] type is an [Error] with list of all errors [List<Error>]. Similar to [merge].
   Result<List<S>> toResult() {
@@ -129,9 +129,19 @@ extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
   }
 }
 
+extension AnyhowFutureIterableResultExtensions<S> on Future<Iterable<Result<S>>> {
+  FutureResult<List<S>> toResult() {
+    return then((result) => result.toResult());
+  }
+
+  FutureResult<List<S>> merge() {
+    return then((result) => result.merge());
+  }
+}
+
 /// Adds methods for converting any object
 /// into a [Result] type ([Ok] or [Err]).
-extension ResultObjectNullableExtension<S> on S {
+extension ToOkExtension<S> on S {
   /// Convert the object to a [Result] type [Ok].
   Ok<S> toOk() {
     assert(this is! Result,
@@ -142,7 +152,7 @@ extension ResultObjectNullableExtension<S> on S {
   }
 }
 
-extension ResultObjectExtension<E extends Object> on E {
+extension ToErrExtension<E extends Object> on E {
   /// Convert the object to a [Result] type [Err].
   Err<S> toErr<S>() {
     assert(this is! Result,
@@ -155,7 +165,7 @@ extension ResultObjectExtension<E extends Object> on E {
   }
 }
 
-extension ErrorExtension<E extends Error> on E {
+extension ToErrForErrorExtension<E extends Error> on E {
   /// Convert the error to a [Result] type [Err].
   Err<S> toErr<S>() {
     return Err(this);
