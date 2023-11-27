@@ -69,9 +69,9 @@ extension AnyhowErrExtensions<S> on Err<S> {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(fn(), StackTrace.current, parent: err));
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
     }
-    return Err(Error(fn(), parent: err));
+    return Err(Error(context, parent: err));
   }
 }
 
