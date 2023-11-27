@@ -7,21 +7,17 @@ void main() {
 
 Result<String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber).context("Could not order for user: $user.");
-  switch (result) {
-    // Could also use "if(result.isOk())" and "unwrap()"
-    case Ok(:final ok):
-      return Ok("Order of $ok is complete for $user");
-    case Err():
-      return result;
+  if (result case Ok(:final ok)) {
+    return Ok("Order of $ok is complete for $user");
   }
+  return result;
 }
 
 Result<String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
     return makeHamburger().context("Order number $orderNumber failed.");
-  } else {
-    return Ok("pasta");
   }
+  return Ok("pasta");
 }
 
 Result<String> makeHamburger() {

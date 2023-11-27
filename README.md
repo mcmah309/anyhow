@@ -65,9 +65,7 @@ String makeFood(int orderNumber) {
   if (orderNumber == 1) {
     return makeHamburger();
   }
-  else {
-    return "pasta";
-  }
+  return "pasta";
 }
 
 String makeHamburger() {
@@ -102,21 +100,17 @@ void main() {
 
 Result<String, String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber);
-  switch (result) {
-    case Ok(:final ok):
-      return Ok("Order of $ok is complete for $user");
-    case Err():
-      return result;
+  if(result case Ok(:final ok)) { // Could also use "if(result.isOk())" or a switch statement
+    return Ok("Order of $ok is complete for $user");
   }
+  return result;
 }
 
 Result<String, String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
     return makeHamburger();
   }
-  else {
-    return Ok("pasta");
-  }
+  return Ok("pasta");
 }
 
 Result<String,String> makeHamburger() {
@@ -130,8 +124,10 @@ Hmm something went wrong making the hamburger.
 ```
 
 ### Anyhow Result Type Error Handling
-With the Anyhow `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or 
-`withContext` (lazily). Either will only have an effect if a `Result` is the `Err` subclass.
+With the Anyhow `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or
+`withContext` (lazily). Either will only have an effect if a `Result` is the `Err` subclass. In the following
+example we will use `String`s as the context, but using `Exception`s, especially for the root cause is common practice
+as well.
 ```dart
 import 'package:anyhow/anyhow.dart';
 
@@ -141,21 +137,17 @@ void main() {
 
 Result<String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber).context("Could not order for user: $user.");
-  switch (result) { // Could also use "if(result.isOk())" and "unwrap()"
-    case Ok(:final ok):
-      return Ok("Order of $ok is complete for $user");
-    case Err():
-      return result;
+  if(result case Ok(:final ok)) {
+    return Ok("Order of $ok is complete for $user");
   }
+  return result;
 }
 
 Result<String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
     return makeHamburger().context("Order number $orderNumber failed.");
   }
-  else {
-    return Ok("pasta");
-  }
+  return Ok("pasta");
 }
 
 Result<String> makeHamburger() {
@@ -188,13 +180,11 @@ void main() {
 
 Result<String, String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber);
-  switch (result) {
-    case Ok(:final ok):
-      return Ok("Order of $ok is complete for $user");
-    case Err():
-      Logging.w("Could not order for user: $user.");
-      return result;
+  if(result case Ok(:final ok)) {
+    return Ok("Order of $ok is complete for $user");
   }
+  Logging.w("Could not order for user: $user.");
+  return result;
 }
 
 Result<String, String> makeFood(int orderNumber) {
@@ -205,9 +195,7 @@ Result<String, String> makeFood(int orderNumber) {
     }
     return result;
   }
-  else {
-    return Ok("pasta");
-  }
+  return Ok("pasta");
 }
 
 Result<String, String> makeHamburger() {
