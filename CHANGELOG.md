@@ -1,3 +1,7 @@
+## 1.0.0-dev.1
+
+* Stable dev release
+
 ## 0.8.0
 
 * Make match named method
