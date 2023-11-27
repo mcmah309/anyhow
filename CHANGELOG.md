@@ -1,3 +1,7 @@
+## 1.0.0-dev.2
+
+* Fix remaining lints
+
 ## 1.0.0-dev.1
 
 * Stable dev release
