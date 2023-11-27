@@ -10,6 +10,8 @@ export 'base.dart'
         Result,
         Ok,
         Err,
-        FutureResult;
+        FutureResult,
+        ToOkExtension,
+        ToErrExtension;
 export 'src/anyhow/anyhow_error.dart';
 export 'src/anyhow/execute_protected.dart';

@@ -161,6 +161,24 @@ extension ResultFutureToFutureResultExtension<S, F extends Object>
   }
 }
 
+extension ToOkExtension<S> on S {
+  /// Convert the object to a [Result] type [Ok].
+  Ok<S, E> toOk<E extends Object>() {
+    assert(this is! Result,
+        'Don\'t use the "toOk()" method on instances of Result.');
+    return Ok(this);
+  }
+}
+
+extension ToErrExtension<E extends Object> on E {
+  /// Convert the object to a [Result] type [Err].
+  Err<S, E> toErr<S>() {
+    assert(this is! Result,
+        'Don\'t use the "toErr()" method on instances of Result.');
+    return Err(this);
+  }
+}
+
 //************************************************************************//
 
 /// Returns futures in the order they complete

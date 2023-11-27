@@ -129,7 +129,8 @@ extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
   }
 }
 
-extension AnyhowFutureIterableResultExtensions<S> on Future<Iterable<Result<S>>> {
+extension AnyhowFutureIterableResultExtensions<S>
+    on Future<Iterable<Result<S>>> {
   FutureResult<List<S>> toResult() {
     return then((result) => result.toResult());
   }
@@ -146,8 +147,6 @@ extension ToOkExtension<S> on S {
   Ok<S> toOk() {
     assert(this is! Result,
         'Don\'t use the "toOk()" method on instances of Result.');
-    assert(this is! Future,
-        'Don\'t use the "toOk()" method on instances of Future.');
     return Ok(this);
   }
 }
@@ -157,10 +156,6 @@ extension ToErrExtension<E extends Object> on E {
   Err<S> toErr<S>() {
     assert(this is! Result,
         'Don\'t use the "toErr()" method on instances of Result.');
-    assert(this is! Future,
-        'Don\'t use the "toErr()" method on instances of Future.');
-    assert(this is! Error,
-        'Don\'t use the "toErr()" method on instances of Error.');
     return Err(Error(this));
   }
 }

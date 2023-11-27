@@ -21,7 +21,7 @@ void main() {
     expect(transposed!.unwrapErr().downcast<String>().unwrap(), "");
   });
 
-  group('toError', () {
+  group('toErr', () {
     test('without result type', () {
       final result = 'error'.toErr();
 
@@ -50,10 +50,6 @@ void main() {
       final Result<int> result = 'error'.toErr();
       expect(result.toErr, throwsA(isA<AssertionError>()));
     });
-
-    test('throw AssertException if is a Future object', () {
-      expect(Future.value().toErr, throwsA(isA<AssertionError>()));
-    });
   });
 
   group('toOk', () {
@@ -74,10 +70,6 @@ void main() {
     test('throw AssertException if is a Result object', () {
       final result = 'ok'.toOk();
       expect(result.toOk, throwsA(isA<AssertionError>()));
-    });
-
-    test('throw AssertException if is a Future object', () {
-      expect(Future.value().toOk, throwsA(isA<AssertionError>()));
     });
   });
 }
