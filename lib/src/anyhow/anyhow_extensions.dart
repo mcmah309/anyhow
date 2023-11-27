@@ -86,9 +86,31 @@ extension AnyhowFutureResultExtension<S> on FutureResult<S> {
 }
 
 extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
-  /// Transforms an Iterable of results into a single result where the ok value is the list of all successes. If any
-  /// error is encountered, the first error becomes the root to the rest of the errors.
+  /// Transforms an Iterable of results into a single result where the [Ok] value is the list of all successes. The
+  /// [Err] type is an [Error] with list of all errors [List<Error>]. Similar to [merge].
   Result<List<S>> toResult() {
+    List<S> list = [];
+    late List<Error> errors;
+    Result<List<S>> finalResult = Ok(list);
+    for (final result in this) {
+      if (finalResult.isOk()) {
+        if (result.isErr()) {
+          errors = [];
+          finalResult = bail(errors);
+        } else {
+          list.add(result.unwrap());
+        }
+      }
+      if (result.isErr()) {
+        errors.add(result.unwrapErr());
+      }
+    }
+    return finalResult;
+  }
+
+  /// Merges an Iterable of results into a single result where the [Ok] value is the list of all successes. If any
+  /// [Error] is encountered, the first [Error] becomes the root to the rest of the [Error]s. Similar to [toResult].
+  Result<List<S>> merge() {
     List<S> list = [];
     Result<List<S>> finalResult = Ok(list);
     for (final result in this) {

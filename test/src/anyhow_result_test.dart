@@ -403,10 +403,43 @@ void main() {
     expect(result.unwrap(), [1, 2, 3]);
 
     result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].toResult();
+    expect(
+        result
+            .unwrapErr()
+            .downcast<List<Error>>()
+            .unwrap()[0]
+            .downcast<int>()
+            .unwrap(),
+        2);
+
+    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
+    expect(
+        result
+            .unwrapErr()
+            .downcast<List<Error>>()
+            .unwrap()[0]
+            .downcast<int>()
+            .unwrap(),
+        2);
+    expect(
+        result
+            .unwrapErr()
+            .downcast<List<Error>>()
+            .unwrap()[1]
+            .downcast<int>()
+            .unwrap(),
+        3);
+  });
+
+  test("merge on Iterable", () {
+    var result = [Ok(1), Ok(2), Ok(3)].merge();
+    expect(result.unwrap(), [1, 2, 3]);
+
+    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 2);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
 
-    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
+    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 3);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
   });
