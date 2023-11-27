@@ -187,7 +187,7 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   F unwrapErr() {
-    throw Panic(this, "called `err`");
+    throw Panic(onValue: this, reason: "called `unwrapErr` on a value that was not an Err");
   }
 
   @override
@@ -210,7 +210,7 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   F expectErr(String message) {
-    throw Panic(this, message);
+    throw Panic(onValue: this, reason: message);
   }
 
   //************************************************************************//
@@ -313,7 +313,7 @@ final class Ok<S, F extends Object> implements Result<S, F> {
     if(ok is S2){
       return Ok(ok as S2);
     }
-    throw Panic(this,"attempted to cast ${S.runtimeType} to ${S2.runtimeType}");
+    throw Panic(onValue: this, reason: "attempted to cast ${S} to ${S2}");
   }
 
   /// Changes the [Err] type to [F2]. This is usually used when "this" is known to be an [Ok] and you want to return to
@@ -358,7 +358,7 @@ final class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   S unwrap() {
-    throw Panic(this, "called `unwrap()`");
+    throw Panic(onValue: this, reason: "called `unwrap` on a value that was not an Ok");
   }
 
   @override
@@ -392,7 +392,7 @@ final class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   S expect(String message) {
-    throw Panic(this, message);
+    throw Panic(onValue: this, reason: message);
   }
 
   @override
