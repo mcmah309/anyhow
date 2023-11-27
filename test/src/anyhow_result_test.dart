@@ -84,7 +84,7 @@ void main() {
     expect(calls, 1);
   });
 
-  test("and",(){
+  test("and", () {
     Result<int> x = Ok(2);
     Result<String> y = bail("late error");
     expect(x.and(y), bail("late error"));
@@ -102,7 +102,7 @@ void main() {
     expect(x.and(y), bail("different result type"));
   });
 
-  test("or",(){
+  test("or", () {
     Result<int> x = Ok(2);
     Result<int> y = bail("late error");
     expect(x.or(y), Ok(2));
@@ -172,7 +172,8 @@ void main() {
   group('mapErr', () {
     test('Ok', () {
       const result = Ok<int>(4);
-      final result2 = result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
+      final result2 =
+          result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
 
       expect(result2.unwrapOrNull(), 4);
       expect(result2.unwrapErrOrNull(), isNull);
@@ -207,7 +208,8 @@ void main() {
   group('andThenError', () {
     test('Error', () {
       final result = 4.toErr();
-      final result2 = result.andThenErr((error) => ('=' * error.downcast<int>().unwrap()).toErr());
+      final result2 = result.andThenErr(
+          (error) => ('=' * error.downcast<int>().unwrap()).toErr());
 
       expect(result2.unwrapErrOrNull(), Error('===='));
     });
@@ -317,11 +319,9 @@ void main() {
 
   group('inspect', () {
     test('Ok', () {
-      const Ok(0)
-          .inspectErr((error) {})
-          .inspect(
+      const Ok(0).inspectErr((error) {}).inspect(
         expectAsync1(
-              (value) {
+          (value) {
             expect(value, 0);
           },
         ),
@@ -329,11 +329,9 @@ void main() {
     });
 
     test('Error', () {
-      bail('error')
-          .inspect((ok) {})
-          .inspectErr(
+      bail('error').inspect((ok) {}).inspectErr(
         expectAsync1(
-              (value) {
+          (value) {
             expect(value, Error('error'));
           },
         ),
@@ -385,7 +383,8 @@ void main() {
   });
 
   test("withContext", () {
-    final result = bail(1).withContext(() => "bing bong").withContext(() => "bong bing");
+    final result =
+        bail(1).withContext(() => "bing bong").withContext(() => "bong bing");
     List<Object> causes = [];
     for (final (index, cause) in result.err.chain().indexed) {
       if (index == 2) {
@@ -399,7 +398,7 @@ void main() {
     expect(causes[2], 1);
   });
 
-  test("toResult on Iterable",(){
+  test("toResult on Iterable", () {
     var result = [Ok(1), Ok(2), Ok(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);
 
@@ -412,9 +411,9 @@ void main() {
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
   });
 
-  test("toErr overriden for Error", (){
-    expect(1.toErr(),Err(Error(1)));
-    expect(Error(1).toErr(),Err(Error(1)));
+  test("toErr overriden for Error", () {
+    expect(1.toErr(), Err(Error(1)));
+    expect(Error(1).toErr(), Err(Error(1)));
   });
 
   test('printing error', () {
@@ -473,7 +472,6 @@ Additional Context:
 	1: Bob ordered.
 """);
 
-
     Error.stackTraceDisplayFormat = StackTraceDisplayFormat.one;
     error = bail(Exception("Root cause"));
     Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
@@ -512,27 +510,26 @@ Additional Context:
 StackTrace:
 """));
 
-
-  Error.stackTraceDisplayFormat = StackTraceDisplayFormat.full;
-  error = bail(Exception("Root cause"));
-  Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
-  expect(error.toString(), startsWith("""
+    Error.stackTraceDisplayFormat = StackTraceDisplayFormat.full;
+    error = bail(Exception("Root cause"));
+    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    expect(error.toString(), startsWith("""
 Error: Exception: Root cause
 
 Main StackTrace:
 """));
-  expect(error.toString(), isNot(contains("Additional StackTraces")));
+    expect(error.toString(), isNot(contains("Additional StackTraces")));
     Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
     expect(error.toString(), startsWith("""
 Root Cause: Exception: Root cause
 
 Main StackTrace:
 """));
-  expect(error.toString(), isNot(contains("Additional StackTraces")));
-  error = order();
-  Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
-  //print(error.toString());
-  expect(error.toString(), startsWith("""
+    expect(error.toString(), isNot(contains("Additional StackTraces")));
+    error = order();
+    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    //print(error.toString());
+    expect(error.toString(), startsWith("""
 Error: Bob ordered.
 
 Caused by:
@@ -544,7 +541,7 @@ Main StackTrace:
     expect(error.toString(), contains("Additional StackTraces"));
     Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
     // print(error.toString());
-  expect(error.toString(), startsWith("""
+    expect(error.toString(), startsWith("""
 Root Cause: Hmm something went wrong making the hamburger.
 
 Additional Context:
@@ -553,8 +550,8 @@ Additional Context:
 
 Main StackTrace:
 """));
-  expect(error.toString(), contains("Additional StackTraces"));
-});
+    expect(error.toString(), contains("Additional StackTraces"));
+  });
 }
 
 Result order() {

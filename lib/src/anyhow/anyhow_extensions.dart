@@ -8,27 +8,29 @@ const _isAlreadyErrorAssertionMessage =
 extension AnyhowResultExtensions<S> on Result<S> {
   /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
   /// should not be an instance of [Error].
-  Result<S> context(Object context){
-    if(isOk()){
+  Result<S> context(Object context) {
+    if (isOk()) {
       return this;
     }
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current, parent: (this as Err).err));
+      return Err(Error._withStackTrace(context, StackTrace.current,
+          parent: (this as Err).err));
     }
     return Err(Error(context, parent: (this as Err).err));
   }
 
   /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
   /// context. The context should not be an instance of [Error].
-  Result<S> withContext(Object Function() fn){
-    if(isOk()){
+  Result<S> withContext(Object Function() fn) {
+    if (isOk()) {
       return this;
     }
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current, parent: (this as Err).err));
+      return Err(Error._withStackTrace(context, StackTrace.current,
+          parent: (this as Err).err));
     }
     return Err(Error(context, parent: (this as Err).err));
   }
@@ -40,12 +42,12 @@ extension AnyhowResultExtensions<S> on Result<S> {
 
 extension AnyhowOkExtensions<S> on Ok<S> {
   /// returns this
-  Ok<S> context(Object context){
+  Ok<S> context(Object context) {
     return this;
   }
 
   /// returns this
-  Ok<S> withContext(Object Function() fn){
+  Ok<S> withContext(Object Function() fn) {
     return this;
   }
 }
@@ -55,7 +57,8 @@ extension AnyhowErrExtensions<S> on Err<S> {
   Err<S> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+      return Err(
+          Error._withStackTrace(context, StackTrace.current, parent: err));
     }
     return Err(Error(context, parent: err));
   }
@@ -73,11 +76,11 @@ extension AnyhowErrExtensions<S> on Err<S> {
 }
 
 extension AnyhowFutureResultExtension<S> on FutureResult<S> {
-  FutureResult<S> context(Object context){
+  FutureResult<S> context(Object context) {
     return then((result) => result.context(context));
   }
 
-  FutureResult<S> withContext(Object Function() fn){
+  FutureResult<S> withContext(Object Function() fn) {
     return then((result) => result.withContext(fn));
   }
 }
@@ -92,8 +95,7 @@ extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
       if (finalResult.isOk()) {
         if (result.isErr()) {
           finalResult = Err(result.unwrapErr());
-        }
-        else {
+        } else {
           list.add(result.unwrap());
         }
       }
@@ -108,11 +110,12 @@ extension AnyhowResultIterableExtensions<S> on Iterable<Result<S>> {
 /// Adds methods for converting any object
 /// into a [Result] type ([Ok] or [Err]).
 extension ResultObjectNullableExtension<S> on S {
-
   /// Convert the object to a [Result] type [Ok].
   Ok<S> toOk() {
-    assert(this is! Result, 'Don\'t use the "toOk()" method on instances of Result.');
-    assert(this is! Future, 'Don\'t use the "toOk()" method on instances of Future.');
+    assert(this is! Result,
+        'Don\'t use the "toOk()" method on instances of Result.');
+    assert(this is! Future,
+        'Don\'t use the "toOk()" method on instances of Future.');
     return Ok(this);
   }
 }
@@ -120,9 +123,12 @@ extension ResultObjectNullableExtension<S> on S {
 extension ResultObjectExtension<E extends Object> on E {
   /// Convert the object to a [Result] type [Err].
   Err<S> toErr<S>() {
-    assert(this is! Result, 'Don\'t use the "toErr()" method on instances of Result.');
-    assert(this is! Future, 'Don\'t use the "toErr()" method on instances of Future.');
-    assert(this is! Error, 'Don\'t use the "toErr()" method on instances of Error.');
+    assert(this is! Result,
+        'Don\'t use the "toErr()" method on instances of Result.');
+    assert(this is! Future,
+        'Don\'t use the "toErr()" method on instances of Future.');
+    assert(this is! Error,
+        'Don\'t use the "toErr()" method on instances of Error.');
     return Err(Error(this));
   }
 }
@@ -134,29 +140,29 @@ extension ErrorExtension<E extends Error> on E {
   }
 }
 
-extension BaseResultExtension<S,F extends Object> on base.Result<S,F> {
+extension BaseResultExtension<S, F extends Object> on base.Result<S, F> {
   /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
   /// Otherwise returns this.
-  Result<S> toAnyhowResult(){
-    if(isOk()){
-      return Ok((this as base.Ok<S,F>).unwrap());
+  Result<S> toAnyhowResult() {
+    if (isOk()) {
+      return Ok((this as base.Ok<S, F>).unwrap());
     }
-    return bail((this as base.Err<S,F>).unwrapErr());
+    return bail((this as base.Err<S, F>).unwrapErr());
   }
 }
 
-extension BaseOkExtension<S,F extends Object> on base.Ok<S,F> {
+extension BaseOkExtension<S, F extends Object> on base.Ok<S, F> {
   /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
   /// Otherwise returns this.
-  Result<S> toAnyhowResult(){
+  Result<S> toAnyhowResult() {
     return Ok(unwrap());
   }
 }
 
-extension BaseErrExtension<S,F extends Object> on base.Err<S,F> {
+extension BaseErrExtension<S, F extends Object> on base.Err<S, F> {
   /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
   /// Otherwise returns this.
-  Result<S> toAnyhowResult(){
+  Result<S> toAnyhowResult() {
     return bail(unwrapErr());
   }
 }

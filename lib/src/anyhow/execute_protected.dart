@@ -33,7 +33,8 @@ FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) async {
 }
 
 /// Async version of [executeProtectedResult]
-FutureResult<S> executeProtectedAsyncResult<S>(Future<Result<S>> Function() func) async {
+FutureResult<S> executeProtectedAsyncResult<S>(
+    Future<Result<S>> Function() func) async {
   try {
     return await func();
   } catch (e) {

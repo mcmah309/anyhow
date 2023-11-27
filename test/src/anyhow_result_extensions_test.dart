@@ -15,7 +15,7 @@ void main() {
     expect(transposed!.unwrap(), 0);
     result = Ok(null);
     transposed = result.transpose();
-    expect(transposed, null );
+    expect(transposed, null);
     result = bail("");
     transposed = result.transpose();
     expect(transposed!.unwrapErr().downcast<String>().unwrap(), "");

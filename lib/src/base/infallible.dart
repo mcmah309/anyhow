@@ -21,7 +21,8 @@ extension InfallibleFutureOkExtension<S> on FutureResult<S, Infallible> {
   }
 }
 
-extension InfallibleFutureErrExtension<F extends Object> on FutureResult<Infallible, F> {
+extension InfallibleFutureErrExtension<F extends Object>
+    on FutureResult<Infallible, F> {
   Future<F> intoErr() {
     return then((result) => result.intoErr());
   }

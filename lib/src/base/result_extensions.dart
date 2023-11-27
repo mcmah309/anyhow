@@ -4,15 +4,16 @@ import '../../base.dart';
 
 extension FlattenExtension<S, F extends Object> on Result<Result<S, F>, F> {
   /// Converts a [Result] of a [Result] into a single [Result]
-  Result<S,F> flatten() {
-    if(isOk()){
+  Result<S, F> flatten() {
+    if (isOk()) {
       return unwrap();
     }
     return Err(unwrapErr());
   }
 }
 
-extension FlattenFutureExtension<S, F extends Object> on FutureResult<Result<S, F>, F> {
+extension FlattenFutureExtension<S, F extends Object>
+    on FutureResult<Result<S, F>, F> {
   FutureResult<S, F> flatten() {
     return then((result) => result.flatten());
   }
@@ -25,34 +26,34 @@ extension TransposeResultExtension<S, F extends Object> on Result<S?, F> {
       final val = unwrap();
       if (val == null) {
         return null;
-      }
-      else {
+      } else {
         return Ok(val);
       }
-    }
-    else {
+    } else {
       return Err(unwrapErr());
     }
   }
 }
 
-extension TransposeFutureResultExtension<S, F extends Object> on FutureResult<S?, F> {
+extension TransposeFutureResultExtension<S, F extends Object>
+    on FutureResult<S?, F> {
   Future<Result<S, F>?> transpose() {
     return then((result) => result.transpose());
   }
 }
 
-extension IterableResultExtensions<S, F extends Object> on Iterable<Result<S, F>> {
+extension IterableResultExtensions<S, F extends Object>
+    on Iterable<Result<S, F>> {
   /// Transforms an Iterable of results into a single result where the ok value is the list of all successes. If any
   /// error is encountered, the first error is used as the error result.
   Result<List<S>, F> toResultEager() {
     List<S> list = [];
     Result<List<S>, F> finalResult = Ok(list);
     for (final result in this) {
-        if (result.isErr()) {
-          return Err(result.unwrapErr());
-        }
-        list.add(result.unwrap());
+      if (result.isErr()) {
+        return Err(result.unwrapErr());
+      }
+      list.add(result.unwrap());
     }
     return finalResult;
   }
@@ -79,7 +80,8 @@ extension IterableResultExtensions<S, F extends Object> on Iterable<Result<S, F>
   }
 }
 
-extension FutureIterableResultExtensions<S, F extends Object> on Future<Iterable<Result<S, F>>> {
+extension FutureIterableResultExtensions<S, F extends Object>
+    on Future<Iterable<Result<S, F>>> {
   FutureResult<List<S>, F> toResultEager() {
     return then((result) => result.toResultEager());
   }
@@ -89,7 +91,8 @@ extension FutureIterableResultExtensions<S, F extends Object> on Future<Iterable
   }
 }
 
-extension IterableFutureResultExtensions<S, F extends Object> on Iterable<FutureResult<S, F>> {
+extension IterableFutureResultExtensions<S, F extends Object>
+    on Iterable<FutureResult<S, F>> {
   /// Transforms an Iterable of [FutureResult]s into a single result where the ok value is the list of all successes. If
   /// any error is encountered, the first error is used as the error result. The order of [S] and [F] is determined by
   /// the order in which futures complete.
@@ -128,7 +131,8 @@ extension IterableFutureResultExtensions<S, F extends Object> on Iterable<Future
   }
 }
 
-extension FutureIterableFutureResultExtensions<S, F extends Object> on Future<Iterable<FutureResult<S, F>>> {
+extension FutureIterableFutureResultExtensions<S, F extends Object>
+    on Future<Iterable<FutureResult<S, F>>> {
   FutureResult<List<S>, F> toResultEager() async {
     return then((result) => result.toResultEager());
   }
@@ -138,18 +142,19 @@ extension FutureIterableFutureResultExtensions<S, F extends Object> on Future<It
   }
 }
 
-extension ResultToFutureResultExtension<S,F extends Object> on Result<S,F> {
+extension ResultToFutureResultExtension<S, F extends Object> on Result<S, F> {
   /// Turns a [Result] into a [FutureResult].
-  FutureResult<S,F> toFutureResult() async {
+  FutureResult<S, F> toFutureResult() async {
     return this;
   }
 }
 
-extension ResultFutureToFutureResultExtension<S,F extends Object> on Result<Future<S>,F> {
+extension ResultFutureToFutureResultExtension<S, F extends Object>
+    on Result<Future<S>, F> {
   /// Turns a [Result] of a [Future] into a [FutureResult].
-  FutureResult<S,F> toFutureResult() async {
-    if(isErr()){
-      return (this as Err<Future<S>,F>).into();
+  FutureResult<S, F> toFutureResult() async {
+    if (isErr()) {
+      return (this as Err<Future<S>, F>).into();
     }
     return Ok(await unwrap());
   }

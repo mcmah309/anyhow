@@ -9,7 +9,6 @@ import '../../base.dart';
 /// .org/std/result/enum.Result.html
 /// {@endtemplate}
 sealed class Result<S, F extends Object> {
-
   /// Returns the ok value if [Result] is [Ok].
   /// Throws a [Panic] if the [Result] is [Err].
   S unwrap();
@@ -187,7 +186,9 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   F unwrapErr() {
-    throw Panic(onValue: this, reason: "called `unwrapErr` on a value that was not an Err");
+    throw Panic(
+        onValue: this,
+        reason: "called `unwrapErr` on a value that was not an Err");
   }
 
   @override
@@ -310,7 +311,7 @@ final class Ok<S, F extends Object> implements Result<S, F> {
 
   @override
   Ok<S2, F> intoUnchecked<S2>() {
-    if(ok is S2){
+    if (ok is S2) {
       return Ok(ok as S2);
     }
     throw Panic(onValue: this, reason: "attempted to cast ${S} to ${S2}");
@@ -358,7 +359,8 @@ final class Err<S, F extends Object> implements Result<S, F> {
 
   @override
   S unwrap() {
-    throw Panic(onValue: this, reason: "called `unwrap` on a value that was not an Ok");
+    throw Panic(
+        onValue: this, reason: "called `unwrap` on a value that was not an Ok");
   }
 
   @override
@@ -514,7 +516,7 @@ final class Err<S, F extends Object> implements Result<S, F> {
   ///```
   /// Note how above, the [S2] value is inferred by Dart, this is usually what be want rather than being explicit.
   /// Note: In Rust, "into" is handled by the "?" operator, but there is no equivalent in Dart.
-  Err<S2, F> into<S2>(){
+  Err<S2, F> into<S2>() {
     return Err(err);
   }
 
@@ -527,7 +529,7 @@ final class Err<S, F extends Object> implements Result<S, F> {
   bool operator ==(Object other) => other is Err && other.err == err;
 
   @override
-  String toString(){
+  String toString() {
     return "$err";
   }
 }

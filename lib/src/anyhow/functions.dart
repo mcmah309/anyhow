@@ -1,7 +1,7 @@
 part of 'anyhow_error.dart';
 
 /// Convenience function for turning an object into an [Err] Result.
-Err<S> bail<S>(Object err){
+Err<S> bail<S>(Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (Error.hasStackTrace) {
     return Err(Error._withStackTrace(err, StackTrace.current));
@@ -17,7 +17,7 @@ Err<S> bail<S>(Object err){
 /// ```
 Result<()> ensure(bool Function() fn, Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
-  if(fn()) {
+  if (fn()) {
     return Ok(unit);
   }
   if (Error.hasStackTrace) {
@@ -27,7 +27,7 @@ Result<()> ensure(bool Function() fn, Object err) {
 }
 
 /// Convenience function for turning an object into an [Error]. Same as the original "anyhow" macro.
-Error anyhow<S>(Object err){
+Error anyhow<S>(Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (Error.hasStackTrace) {
     return Error._withStackTrace(err, StackTrace.current);

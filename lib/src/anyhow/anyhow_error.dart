@@ -20,7 +20,8 @@ class Error implements Exception {
   static bool hasStackTrace = true;
 
   /// How to display [StackTrace]s.
-  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
+  static StackTraceDisplayFormat stackTraceDisplayFormat =
+      StackTraceDisplayFormat.one;
 
   Object _cause;
   Error? _parent;
@@ -31,7 +32,8 @@ class Error implements Exception {
   }
 
   /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
-  Error._withStackTrace(this._cause, this._stackTrace, {Error? parent}) : _parent = parent;
+  Error._withStackTrace(this._cause, this._stackTrace, {Error? parent})
+      : _parent = parent;
 
   /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
   /// protect keyword in dart
@@ -87,14 +89,16 @@ class Error implements Exception {
         break;
       case ErrDisplayFormat.rootCauseFirst:
         final list = chain().toList(growable: false).reversed;
-        _writeErrorAndContext(stringBuf, "Root Cause", "Additional Context", list.iterator);
+        _writeErrorAndContext(
+            stringBuf, "Root Cause", "Additional Context", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
         break;
     }
     return stringBuf.toString();
   }
 
-  void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle, String restTitle, Iterator<Error> iter) {
+  void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle,
+      String restTitle, Iterator<Error> iter) {
     iter.moveNext();
     stringBuf.write("$firstTitle: ${iter.current._cause}\n");
     if (iter.moveNext()) {
@@ -142,7 +146,8 @@ class Error implements Exception {
   int get hashCode => _cause.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Error && other._cause == _cause && other._parent == _parent;
+  bool operator ==(Object other) =>
+      other is Error && other._cause == _cause && other._parent == _parent;
 }
 
 /// Controls the base [toString] format

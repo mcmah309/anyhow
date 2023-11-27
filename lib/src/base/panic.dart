@@ -19,7 +19,8 @@ class Panic extends Core.Error {
       panicAsString.write("\"");
     }
     if (onValue != null) {
-      panicAsString.write(" on an ${onValue.runtimeType} with value:\n$onValue");
+      panicAsString
+          .write(" on an ${onValue.runtimeType} with value:\n$onValue");
     }
     if (reason == null && onValue == null) {
       panicAsString.write(" Undefined state");
