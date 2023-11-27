@@ -113,24 +113,24 @@ extension ResultObjectNullableExtension<S> on S {
   Ok<S> toOk() {
     assert(this is! Result, 'Don\'t use the "toOk()" method on instances of Result.');
     assert(this is! Future, 'Don\'t use the "toOk()" method on instances of Future.');
-    return Ok<S>(this);
+    return Ok(this);
   }
 }
 
-extension ResultObjectExtension<S extends Object> on S {
+extension ResultObjectExtension<E extends Object> on E {
   /// Convert the object to a [Result] type [Err].
   Err<S> toErr<S>() {
     assert(this is! Result, 'Don\'t use the "toErr()" method on instances of Result.');
     assert(this is! Future, 'Don\'t use the "toErr()" method on instances of Future.');
     assert(this is! Error, 'Don\'t use the "toErr()" method on instances of Error.');
-    return Err<S>(Error(this));
+    return Err(Error(this));
   }
 }
 
 extension ErrorExtension<E extends Error> on E {
   /// Convert the error to a [Result] type [Err].
-  Err<E> toErr<E>() {
-    return Err<E>(this);
+  Err<S> toErr<S>() {
+    return Err(this);
   }
 }
 

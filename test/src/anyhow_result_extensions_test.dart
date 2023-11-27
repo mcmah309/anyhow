@@ -38,6 +38,14 @@ void main() {
       expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
     });
 
+    test('already an Error', () {
+      final Result<int> result = Error('error').toErr();
+
+      expect(result, isA<Result<int>>());
+      expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
+      expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
+    });
+
     test('throw AssertException if is a Result object', () {
       final Result<int> result = 'error'.toErr();
       expect(result.toErr, throwsA(isA<AssertionError>()));
@@ -74,10 +82,12 @@ void main() {
   });
 }
 
-class x extends Error {
-  x(super.cause);
+class X extends Error {
+  X(super.cause);
 }
-class y extends x {
-  y(super.cause);
+
+class Y extends X {
+  Y(super.cause);
 }
-class z {}
+
+class Z {}
