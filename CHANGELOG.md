@@ -1,3 +1,9 @@
+## 1.1.0
+
+* Add merge to Iterable Result
+* Add more future extensions
+* Add toOk and toErr to base
+
 ## 1.0.0
 
 * Stable Release
