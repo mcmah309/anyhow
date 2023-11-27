@@ -110,21 +110,22 @@ extension IterableFutureResultExtensions<S, F extends Object>
 
   /// Transforms an Iterable of [FutureResult]s into a single result where the ok value is the list of all successes
   /// and err value is a list of all failures. The order of [S] and [F] is determined by
-  /// the order in which futures complete.
+  /// the order in the List.
   FutureResult<List<S>, List<F>> toResult() async {
     List<S> okList = [];
     late List<F> errList;
     Result<List<S>, List<F>> finalResult = Ok(okList);
-    await for (final result in _streamFuturesInOrderOfCompletion(this)) {
+    for (final result in this) {
+      final resultSync = await result;
       if (finalResult.isOk()) {
-        if (result.isOk()) {
-          okList.add(result.unwrap());
+        if (resultSync.isOk()) {
+          okList.add(resultSync.unwrap());
         } else {
-          errList = [result.unwrapErr()];
+          errList = [resultSync.unwrapErr()];
           finalResult = Err(errList);
         }
-      } else if (result.isErr()) {
-        errList.add(result.unwrapErr());
+      } else if (resultSync.isErr()) {
+        errList.add(resultSync.unwrapErr());
       }
     }
     return finalResult;

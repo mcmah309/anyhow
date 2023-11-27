@@ -169,7 +169,7 @@ void main() {
 
   test("toResult on Future Iterable", () async {
     var result = await [_delay(Ok(3)), _delay(Ok(1)), _delay(Ok(2))].toResult();
-    expect(result.unwrap(), [1, 2, 3]);
+    expect(result.unwrap(), [3, 1, 2]);
 
     result = await [
       _delay(Ok<int, int>(3)),
@@ -183,7 +183,7 @@ void main() {
       _delay(Err<int, int>(3)),
       _delay(Err<int, int>(2))
     ].toResult();
-    expect(result.unwrapErr(), [2, 3]);
+    expect(result.unwrapErr(), [3, 2]);
 
     result = await [
       _delay(Ok<int, int>(1)),
