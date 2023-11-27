@@ -25,6 +25,7 @@ Result<S> executeProtectedResult<S>(Result<S> Function() func) {
 
 /// Async version of [executeProtected]
 FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) async {
+  assert(S is! Result, "Use executeProtectedAsyncResult instead");
   try {
     return Ok(await func());
   } catch (e) {
