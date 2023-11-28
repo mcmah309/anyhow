@@ -242,6 +242,19 @@ typedef Result<S> = base.Result<S, anyhow.Error>
 ```
 with the power of `anyhow.Error` and additional extensions. Most of the time you should just use the anyhow Result type.
 
+If you don't want to import both libraries like above, and you need use both in the same file, you can just import the 
+anyhow one and use the `Base` prefix where necessary.
+```dart
+import 'package:anyhow/anyhow.dart';
+
+void main(){
+  BaseResult<int,String> x = BaseErr("this is an error message");
+  BaseResult<int, Error> y = x.mapErr(anyhow); // or just toAnyhowResult()
+  Result<int> w = y; // just for explicitness in the example
+  assert(w.unwrapErr().downcast<String>().unwrap() == "this is an error message");
+}
+```
+
 ## Configuration Options
 
 Anyhow functionality can be changed by changing:
