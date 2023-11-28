@@ -236,8 +236,11 @@ void main(){
 
 }
 ```
-The base `Result` type is the standard implementation of the `Result` type and the anyhow `Result` type is the anyhow 
-implementation on top of the standard `Result` type.
+The base `Result` type is the standard implementation of the `Result` type and the anyhow `Result` type is a typedef
+```dart
+typedef Result<S> = base.Result<S, anyhow.Error>
+```
+with the power of `anyhow.Error` and additional extensions. Most of the time you should just use the anyhow Result type.
 
 ## Configuration Options
 
