@@ -3,6 +3,7 @@
 * Add merge to Iterable Result
 * Add more future extensions
 * Add toOk and toErr to base
+* Add stackTraceDisplayModifier
 
 ## 1.0.0
 

@@ -261,13 +261,14 @@ Anyhow functionality can be changed by changing:
 
 ```text
 Error.hasStackTrace;
-Error.rootCauseFirst;
+Error.displayFormat;
 Error.stackTraceDisplayFormat;
+Error.stackTraceDisplayModifier;
 ```
 
 Which is usually done at startup.
 
-With `Error.hasStackTrace = false`, we can exclude capturing a stack trace:
+* `hasStackTrace`: With `Error.hasStackTrace = false`, we can exclude capturing a stack trace:
 
 ```text
 Error: Could not order for user: Bob.
@@ -277,7 +278,7 @@ Caused by:
 	1: Hmm something went wrong making the hamburger.
 ```
 
-We can view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
+* `displayFormat`: We can view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
 
 ```text
 Root Cause: Hmm something went wrong making the hamburger.
@@ -292,7 +293,11 @@ StackTrace:
 ... <OMITTED FOR EXAMPLE>
 ```
 
-There is also `StackTraceDisplayFormat` if we want to include `none`, the `main`, or `all` stacktraces in the output.
+* `stackTraceDisplayFormat`: if we want to include `none`, the `main`, or `all` stacktraces in the output.
+
+
+* `stackTraceDisplayModifier`: Modifies the stacktrace during display. Useful for adjusting
+  number of frames to include during display/logging.
 
 ## Adding Predictable Control Flow To Legacy Dart Code
 At times, you may need to integrate with legacy code that may throw or code outside your project. To handle, you 

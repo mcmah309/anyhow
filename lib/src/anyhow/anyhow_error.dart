@@ -5,23 +5,22 @@ part 'anyhow_extensions.dart';
 part 'anyhow_result.dart';
 part 'functions.dart';
 
-/// Error ([Execution]) wrapper around an [Object] error type. Usually used for chaining [Object]s that are
-/// [Exception]s or [String] messages. Essentially a 'Cons' implementation for Errors.
-///
-/// Dart Exception Type    | Equivalent in Rust
-/// -----------------------|---------------------
-/// Exception              | Error
-/// Error                  | Panic
+/// [Error] is a wrapper around an [Object] that represents an error or context around a parent error.
+/// Used for chaining error [Object]s that are related.
 class Error implements Exception {
-  /// Setting for how errors are converted to strings
-  static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
 
   /// If Errors should be captured with a [StackTrace].
   static bool hasStackTrace = true;
 
-  /// How to display [StackTrace]s.
-  static StackTraceDisplayFormat stackTraceDisplayFormat =
-      StackTraceDisplayFormat.one;
+  /// Setting for how errors are converted to strings
+  static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
+
+  /// How to display [StackTrace]s. Requires [hasStackTrace] = true
+  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
+
+  /// Modifies the stacktrace during display. Useful for adjusting number of frames to include during
+  /// display/logging. Requires [hasStackTrace] = true
+  static StackTrace Function(StackTrace) stackTraceDisplayModifier = (s) => s;
 
   Object _cause;
   Error? _parent;
@@ -35,8 +34,7 @@ class Error implements Exception {
   Error._withStackTrace(this._cause, this._stackTrace, {Error? parent})
       : _parent = parent;
 
-  /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
-  /// protect keyword in dart
+  /// Returns true if [E] is the type held by this error object.
   bool isType<E>() {
     if (_cause is E) {
       return true;
@@ -69,7 +67,7 @@ class Error implements Exception {
   /// Is this [Error] the first error
   bool isRoot() => _parent == null;
 
-  /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
+  /// The stacktrace for this error, if [hasStackTrace] is set to true, this will not be null.
   StackTrace? stacktrace() => _stackTrace;
 
   /// Creates a clone of this [Error], cloning all [Error], but the causes are not cloned.
@@ -120,20 +118,20 @@ class Error implements Exception {
         case StackTraceDisplayFormat.one:
           stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write("StackTrace:\n${iter.current._stackTrace}\n");
+            stringBuf.write("StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
           }
           break;
         case StackTraceDisplayFormat.full:
           stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write("Main StackTrace:\n${iter.current._stackTrace}\n");
+            stringBuf.write("Main StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
           }
           if (iter.moveNext()) {
             stringBuf.write("\nAdditional StackTraces:\n");
-            stringBuf.write("\t0: ${iter.current._stackTrace}\n");
+            stringBuf.write("\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
             int index = 1;
             while (iter.moveNext()) {
-              stringBuf.write("\t${index}: ${iter.current._stackTrace}\n");
+              stringBuf.write("\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
               index++;
             }
             break;
@@ -169,12 +167,12 @@ enum ErrDisplayFormat {
   rootCauseFirst
 }
 
-/// How StackTrace should be displayed to the user. Known as "backtrace" in Rust anyhow.
+/// How StackTrace should be displayed to the user.
 enum StackTraceDisplayFormat {
-  /// Every linked [Result] error will print their full stackTrace. Warning can get verbose.
+  /// Every linked [Error]'s stackTrace will be included. Warning can get verbose.
   full,
 
-  /// Only this [Result] error will print their full stackTrace.
+  /// Only first [StackTrace] will be included.
   one,
 
   /// No stackTraces should be printed.
@@ -182,8 +180,7 @@ enum StackTraceDisplayFormat {
 }
 
 extension FutureAnyhowError on Future<Error> {
-  /// Returns true if E is the type held by this error object. Analogous to anyhow's "is" function, but "is" is a
-  /// protect keyword in dart
+  /// Returns true if [E] is the type held by this error object.
   Future<bool> isType<E>() {
     return then((e) => e.isType<E>());
   }
@@ -209,7 +206,7 @@ extension FutureAnyhowError on Future<Error> {
     return then((e) => e.chain());
   }
 
-  /// The stacktrace (backtrace) for this error if [hasStackTrace] is set to true
+  /// The stacktrace for this error, if [hasStackTrace] is set to true, this will not be null.
   Future<StackTrace?> stacktrace() {
     return then((e) => e.stacktrace());
   }
