@@ -1,4 +1,4 @@
-// Anyhow implementation on top of Base
+/// Anyhow implementation with Base
 library anyhow;
 
 export 'base.dart'
