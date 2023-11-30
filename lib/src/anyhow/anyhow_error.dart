@@ -8,7 +8,6 @@ part 'functions.dart';
 /// [Error] is a wrapper around an [Object] that represents an error or context around a parent error.
 /// Used for chaining error [Object]s that are related.
 class Error implements Exception {
-
   /// If Errors should be captured with a [StackTrace].
   static bool hasStackTrace = true;
 
@@ -16,7 +15,8 @@ class Error implements Exception {
   static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
 
   /// How to display [StackTrace]s. Requires [hasStackTrace] = true
-  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
+  static StackTraceDisplayFormat stackTraceDisplayFormat =
+      StackTraceDisplayFormat.one;
 
   /// Modifies the stacktrace during display. Useful for adjusting number of frames to include during
   /// display/logging. Requires [hasStackTrace] = true
@@ -118,20 +118,24 @@ class Error implements Exception {
         case StackTraceDisplayFormat.one:
           stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write("StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write(
+                "StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
           }
           break;
         case StackTraceDisplayFormat.full:
           stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write("Main StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write(
+                "Main StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
           }
           if (iter.moveNext()) {
             stringBuf.write("\nAdditional StackTraces:\n");
-            stringBuf.write("\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write(
+                "\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
             int index = 1;
             while (iter.moveNext()) {
-              stringBuf.write("\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+              stringBuf.write(
+                  "\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
               index++;
             }
             break;
