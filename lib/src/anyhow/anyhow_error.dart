@@ -1,5 +1,5 @@
 import '../../anyhow.dart';
-import '../../base.dart' as base;
+import 'package:rust_core/result.dart' as base;
 
 part 'anyhow_extensions.dart';
 part 'anyhow_result.dart';

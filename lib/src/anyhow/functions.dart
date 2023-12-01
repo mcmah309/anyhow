@@ -18,7 +18,7 @@ Err<S> bail<S>(Object err) {
 Result<()> ensure(bool Function() fn, Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (fn()) {
-    return Ok(unit);
+    return const Ok(());
   }
   if (Error.hasStackTrace) {
     return Err(Error._withStackTrace(err, StackTrace.current));

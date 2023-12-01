@@ -8,6 +8,8 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  rust_core:
+    path: ../rust_core
 
 dev_dependencies:
   lints: ^3.0.0
