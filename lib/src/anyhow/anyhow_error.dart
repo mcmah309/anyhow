@@ -1,5 +1,4 @@
-import '../../anyhow.dart';
-import 'package:rust_core/result.dart' as base;
+import 'package:anyhow/base.dart' as base;
 
 part 'anyhow_extensions.dart';
 part 'anyhow_result.dart';
