@@ -12,7 +12,7 @@ This is accomplished through the use of the [Result] monad type and
 an implementation of the popular Rust crate with the same name - [anyhow].
 Anyhow will allow you to never throw another exception again and have a predictable control flow. When
 errors do arise, you can add `context` to better understand the situation that led to the errors.
-See [Anyhow Result Type Error Handling](#anyhow-result-type-error-handling) to jump right into an example.
+See [here](#the-better-way-to-handle-errors-with-anyhow) to jump right into an example.
 
 Anyhow is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
 package.
@@ -21,7 +21,7 @@ package.
 
 1. [What Is a Result Monad Type And Why Use it?](#what-is-a-result-monad-type-and-why-use-it)
 2. [The Better Way To Handle Errors With Anyhow](#the-better-way-to-handle-errors-with-anyhow)
-    - [Example](#example-code)
+    - [Example](#the-better-way-to-handle-errors-with-anyhow)
     - [What Would This Look Like Without Anyhow](#what-would-this-look-like-without-anyhow)
 3. [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
 4. [Configuration Options](#configuration-options)
