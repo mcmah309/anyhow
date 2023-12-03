@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Migration of Result to the 'rust_core' package. Gaining more features and ecosystem with 100% compatibility.
+
 ## 1.1.0
 
 * Add merge to Iterable Result

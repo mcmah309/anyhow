@@ -1,4 +1,4 @@
-/// Anyhow implementation with Base
+/// Anyhow implementation on top of the 'rust_core' Result type.
 library anyhow;
 
 export 'base.dart'
