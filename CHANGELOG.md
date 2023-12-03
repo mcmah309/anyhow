@@ -1,5 +1,9 @@
 ## 1.2.0-dev.1
 
+* Update rust_core
+
+## 1.2.0-dev.1
+
 * Migration of Result to the 'rust_core' package. Gaining more features and ecosystem with 100% compatibility.
 
 ## 1.1.0

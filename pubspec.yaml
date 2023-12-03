@@ -1,14 +1,14 @@
 name: anyhow
 description: Idiomatic error handling capabilities to make your code safer, more maintainable, and errors
   easier to debug. Dart implementation of the Rust "anyhow" crate.
-version: 1.2.0-dev.1
+version: 1.2.0-dev.2
 repository: https://github.com/mcmah309/anyhow
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  rust_core: ^0.2.1
+  rust_core: ^0.3.0
 
 dev_dependencies:
   lints: ^3.0.0
