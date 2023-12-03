@@ -1,4 +1,4 @@
-## 1.2.0
+## 1.2.0-dev.1
 
 * Migration of Result to the 'rust_core' package. Gaining more features and ecosystem with 100% compatibility.
 
