@@ -1,4 +1,4 @@
-## 1.2.0-dev.1
+## 1.2.0-dev.2
 
 * Update rust_core
 
