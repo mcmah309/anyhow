@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Stabilize 1.2.0  
+
 ## 1.2.0-dev.2
 
 * Update rust_core

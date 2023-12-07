@@ -1,4 +1,3 @@
-
 /// Re-export of the Result type and related features from the 'rust_core' package.
 library base;
 
