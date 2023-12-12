@@ -18,7 +18,12 @@ class Error implements Exception {
       StackTraceDisplayFormat.one;
 
   /// Modifies the stacktrace during display. Useful for adjusting number of frames to include during
-  /// display/logging. Requires [hasStackTrace] = true
+  /// display/logging. Stacktraces that are captured internally through "bail", "context", etc. or directly by calling
+  /// "Error", are always captured as
+  /// soon as possible - one stack frame below your calling code. Therefore, if you decide to prune during display,
+  /// you can comfortably prune 1 off the root and then leave as many other frames as you desire. See also the
+  /// [stack_trace] package.
+  /// Requires [hasStackTrace] = true
   static StackTrace Function(StackTrace) stackTraceDisplayModifier = (s) => s;
 
   Object _cause;

@@ -6,7 +6,7 @@ const _isAlreadyErrorAssertionMessage =
     " is a valid use case please submit a PR.";
 
 extension AnyhowResultExtensions<S> on Result<S> {
-  /// If [Result] is [Ok] returns this. Otherwise, returns an [Error] with the additional context. The context
+  /// If [Result] is [Ok] returns this. Otherwise, returns an [Err] with the additional context. The context
   /// should not be an instance of [Error].
   Result<S> context(Object context) {
     if (isOk()) {
@@ -20,7 +20,7 @@ extension AnyhowResultExtensions<S> on Result<S> {
     return Err(Error(context, parent: (this as Err).err));
   }
 
-  /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Error] with the additional
+  /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Err] with the additional
   /// context. The context should not be an instance of [Error].
   Result<S> withContext(Object Function() fn) {
     if (isOk()) {
@@ -35,8 +35,7 @@ extension AnyhowResultExtensions<S> on Result<S> {
     return Err(Error(context, parent: (this as Err).err));
   }
 
-  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
-  /// Otherwise returns this. Overrides the base Extension.
+  /// Overrides the base Extension.
   Result<S> toAnyhowResult() => this;
 }
 
