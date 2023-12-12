@@ -5,16 +5,16 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/mcmah309/anyhow/actions/workflows/dart.yml/badge.svg)](https://github.com/mcmah309/anyhow/actions)
 
-Anyhow offers versatile and idiomatic error handling capabilities to make your code safer, more maintainable, and
+`anyhow` offers versatile and idiomatic error handling capabilities to make your code safer, more maintainable, and
 errors easier to debug.
 
 This is accomplished through the use of the [Result] monad type and
 an implementation of the popular Rust crate with the same name - [anyhow].
-anyhow will allow you to never throw another exception again and have a predictable control flow. When
+`anyhow` will allow you to never throw another exception again and have a predictable control flow. When
 errors do arise, you can add `context` to better understand the situation that led to the errors.
 See [here](#the-better-way-to-handle-errors-with-anyhow) to jump right into an example.
 
-anyhow is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
+`anyhow` is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
 package.
 
 ## Table of Contents
@@ -31,8 +31,9 @@ If you are not familiar with the `Result` type, why it is needed, or it's usages
 [Result]
 
 ## The Better Way To Handle Errors With Anyhow
-Before anyhow, with a regular `Result` type, we had no way know the context around `Err`s. anyhow fixes this and more!
-With the Anyhow `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or
+Before `anyhow`, with a regular `Result` type, we had no way to know the context around `Err`s. `anyhow` fixes this and 
+more!
+With the `anyhow` `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or
 `withContext` (lazily). Either will only have an effect if a `Result` is the `Err` subclass. In the following
 example we will use `String`s as the context, but using `Exception`s, especially for the root cause is common practice
 as well.
@@ -79,7 +80,7 @@ StackTrace:
 Now we know keep a record of exactly what was happening at each level in the call stack!
 
 #### What Would This Look Like Without Anyhow
-Before Anyhow, if we wanted to accomplish something similar with [Result], we had to do:
+Before `anyhow`, if we wanted to accomplish something similar with [Result], we had to do:
 
 ```dart
 void main() {
@@ -118,13 +119,13 @@ Which is more verbose/error-prone and may not be what we actually want. Since:
    known and can be recovered from
 2. Related logs should be kept together (in the example, other functions could log before this Result had been handled)
 3. We have no way to get the correct stack traces related to the original issue
-4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
+4. We have no way to inspect "context", while with `anyhow` we can iterate through with `chain()`
 
-Now with anyhow, we are able to better understand and handle errors in an idiomatic way!
+Now with `anyhow`, we are able to better understand and handle errors in an idiomatic way!
 
 ## Configuration Options
 
-Anyhow functionality can be changed by changing:
+`anyhow` functionality can be changed by changing:
 
 ```text
 Error.hasStackTrace;
@@ -167,11 +168,11 @@ StackTrace:
   number of frames to include during display/logging.
 
 ### Base Result Type vs Anyhow Result Type
-The base `Result` type is re-exported from [Result] in [rust_core]. This is so anyhow could be standalone and 
+The base `Result` type is re-exported from [Result] in [rust_core]. This is so `anyhow` could be standalone and 
 work seamlessly `rust_core`.
-But most of the time you should just use the anyhow `Result` type.
+But most of the time you should just use the `anyhow` `Result` type.
 
-The base `Result` Type and the anyhow `Result` Type can be imported with
+The base `Result` Type and the `anyhow` `Result` Type can be imported with
 ```dart
 import 'package:anyhow/base.dart' as base;
 ```
@@ -179,7 +180,7 @@ or
 ```dart
 import 'package:anyhow/anyhow.dart' as anyhow;
 ```
-Respectively. Like in anyhow, these types have parity (The Anyhow Result type is just a typedef), thus can be used
+Respectively. These types have parity (The anyhow Result type is just a typedef), thus can be used
 together.
 ```dart
 typedef Result<S> = base.Result<S, anyhow.Error>
