@@ -10,11 +10,11 @@ errors easier to debug.
 
 This is accomplished through the use of the [Result] monad type and
 an implementation of the popular Rust crate with the same name - [anyhow].
-Anyhow will allow you to never throw another exception again and have a predictable control flow. When
+anyhow will allow you to never throw another exception again and have a predictable control flow. When
 errors do arise, you can add `context` to better understand the situation that led to the errors.
 See [here](#the-better-way-to-handle-errors-with-anyhow) to jump right into an example.
 
-Anyhow is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
+anyhow is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
 package.
 
 ## Table of Contents
@@ -23,14 +23,15 @@ package.
 2. [The Better Way To Handle Errors With Anyhow](#the-better-way-to-handle-errors-with-anyhow)
     - [Example](#the-better-way-to-handle-errors-with-anyhow)
     - [What Would This Look Like Without Anyhow](#what-would-this-look-like-without-anyhow)
-3. [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
-4. [Configuration Options](#configuration-options)
+3. [Configuration Options](#configuration-options)
+4. [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
 
 ## What Is a Result Monad Type And Why Use it?
 If you are not familiar with the `Result` type, why it is needed, or it's usages, you can read up on all that here: 
 [Result]
 
 ## The Better Way To Handle Errors With Anyhow
+Before anyhow, with a regular `Result` type, we had no way know the context around `Err`s. anyhow fixes this and more!
 With the Anyhow `Result` type, we can now add any `Object` as context around errors. To do so, we can use `context` or
 `withContext` (lazily). Either will only have an effect if a `Result` is the `Err` subclass. In the following
 example we will use `String`s as the context, but using `Exception`s, especially for the root cause is common practice
@@ -75,6 +76,7 @@ StackTrace:
 #2      main (package:anyhow/example/main.dart:5:9)
 ... <OMITTED FOR EXAMPLE>
 ```
+Now we know keep a record of exactly what was happening at each level in the call stack!
 
 #### What Would This Look Like Without Anyhow
 Before Anyhow, if we wanted to accomplish something similar with [Result], we had to do:
@@ -118,50 +120,7 @@ Which is more verbose/error-prone and may not be what we actually want. Since:
 3. We have no way to get the correct stack traces related to the original issue
 4. We have no way to inspect "context", while with anyhow we can iterate through with `chain()`
 
-Now with anyhow, we are able to better understand and handle errors in an idiomatic way.
-
-### Base Result Type vs Anyhow Result Type
-The base `Result` type is re-exported from [Result], so this package could be standalone.
-But most of the time you should just use the anyhow Result type.
-
-The base `Result` Type and the anyhow `Result` Type can be imported with
-```dart
-import 'package:anyhow/base.dart' as base;
-```
-or
-```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-```
-Respectively. Like in anyhow, these types have parity (The Anyhow Result type is just a typedef), thus can be used 
-together.
-```dart
-typedef Result<S> = base.Result<S, anyhow.Error>
-```
-```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-import 'package:anyhow/base.dart' as base;
-
-void main(){
-  base.Result<int,anyhow.Error> x = anyhow.Ok(1); // valid
-  anyhow.Result<int> y = base.Ok(1); // valid
-  anyhow.Ok(1).context(1); // valid
-  base.Ok(1).context(1); // not valid
-
-}
-```
-
-If you don't want to import both libraries like above, and you need use both in the same file, you can just import the 
-anyhow one and use the `Base` prefix where necessary.
-```dart
-import 'package:anyhow/anyhow.dart';
-
-void main(){
-  BaseResult<int,String> x = BaseErr("this is an error message");
-  BaseResult<int, Error> y = x.mapErr(anyhow); // or just toAnyhowResult()
-  Result<int> w = y; // just for explicitness in the example
-  assert(w.unwrapErr().downcast<String>().unwrap() == "this is an error message");
-}
-```
+Now with anyhow, we are able to better understand and handle errors in an idiomatic way!
 
 ## Configuration Options
 
@@ -207,6 +166,49 @@ StackTrace:
 * `stackTraceDisplayModifier`: Modifies the stacktrace during display. Useful for adjusting
   number of frames to include during display/logging.
 
+### Base Result Type vs Anyhow Result Type
+The base `Result` type is re-exported from [Result] in [rust_core]. This is so anyhow could be standalone and 
+work seamlessly `rust_core`.
+But most of the time you should just use the anyhow `Result` type.
+
+The base `Result` Type and the anyhow `Result` Type can be imported with
+```dart
+import 'package:anyhow/base.dart' as base;
+```
+or
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+```
+Respectively. Like in anyhow, these types have parity (The Anyhow Result type is just a typedef), thus can be used
+together.
+```dart
+typedef Result<S> = base.Result<S, anyhow.Error>
+```
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+import 'package:anyhow/base.dart' as base;
+
+void main(){
+  base.Result<int,anyhow.Error> x = anyhow.Ok(1); // valid
+  anyhow.Result<int> y = base.Ok(1); // valid
+  anyhow.Ok(1).context(1); // valid
+  base.Ok(1).context(1); // not valid
+
+}
+```
+
+If you don't want to import both libraries like above, and you need use both in the same file, you can just import the
+anyhow one and use the `Base` prefix where necessary.
+```dart
+import 'package:anyhow/anyhow.dart';
+
+void main(){
+  BaseResult<int,String> x = BaseErr("this is an error message");
+  BaseResult<int, Error> y = x.mapErr(anyhow); // or just toAnyhowResult()
+  Result<int> w = y; // just for explicitness in the example
+  assert(w.unwrapErr().downcast<String>().unwrap() == "this is an error message");
+}
+```
 
 [Result]: https://github.com/mcmah309/rust_core/tree/master/lib/src/result
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
