@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Update dependency
+
 ## 1.2.0
 
 * Stabilize 1.2.0  
