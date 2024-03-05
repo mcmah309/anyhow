@@ -213,10 +213,10 @@ packages:
     dependency: "direct main"
     description:
       name: rust_core
-      sha256: d72e43fd8e095e95c7de98efc367bc617285f2e95cf1038e9b6aa773b68fef70
+      sha256: "35ba4ad3aa72f36099d5e22d9ac6e3c930c88407e9b9bf49e687efc6f8e5982d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.6"
+    version: "0.5.0-dev1"
   shelf:
     dependency: transitive
     description:
@@ -378,4 +378,4 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.2.0 <4.0.0"
+  dart: ">=3.3.0 <4.0.0"
