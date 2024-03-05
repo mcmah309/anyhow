@@ -11,13 +11,13 @@ void main() {
 
   test('transpose', () {
     Result<int?> result = Ok(0);
-    Result<int>? transposed = result.transpose();
+    Result<int>? transposed = result.transposeOut();
     expect(transposed!.unwrap(), 0);
     result = Ok(null);
-    transposed = result.transpose();
+    transposed = result.transposeOut();
     expect(transposed, null);
     result = bail("");
-    transposed = result.transpose();
+    transposed = result.transposeOut();
     expect(transposed!.unwrapErr().downcast<String>().unwrap(), "");
   });
 
@@ -35,7 +35,7 @@ void main() {
 
       expect(result, isA<Result<int>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
-      expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
+      expect(result.unwrapErr().downcast<String>().unwrap(), 'error');
     });
 
     test('already an Error', () {
@@ -43,7 +43,7 @@ void main() {
 
       expect(result, isA<Result<int>>());
       expect(result.unwrapErr().downcast<String>().unwrap(), isA<String>());
-      expect(result.unwrapErrOrNull()!.downcast<String>().unwrap(), 'error');
+      expect(result.unwrapErr().downcast<String>().unwrap(), 'error');
     });
 
     test('throw AssertException if is a Result object', () {
