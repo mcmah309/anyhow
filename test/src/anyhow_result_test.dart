@@ -367,6 +367,11 @@ void main() {
         fail("Should not reach here");
     }
 
+    switch (result.unwrapErr().downcastUnchecked()) {
+      case "error":
+        fail("Should not reach here");
+    }
+
     final result2 = result.context("more stuff");
     expect(result2.unwrapErr().downcastUnchecked<String>(), "more stuff");
     expect(result2.unwrapErr().rootCause().downcastUnchecked<int>(), 1);
