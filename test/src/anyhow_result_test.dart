@@ -359,6 +359,8 @@ void main() {
     expect(result.unwrapErr().downcastUnchecked<int>(), 1);
 
     switch (result.unwrapErr().downcastUnchecked()) {
+      case "error":
+        fail("Should not reach here");
       case 1:
         break;
       default:
