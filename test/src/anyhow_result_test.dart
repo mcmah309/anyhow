@@ -354,6 +354,22 @@ void main() {
     expect(causes[2], 1);
   });
 
+  test("downcastUnchecked", () {
+    final result = bail(1);
+    expect(result.unwrapErr().downcastUnchecked<int>(), 1);
+
+    switch (result.unwrapErr().downcastUnchecked()) {
+      case 1:
+        break;
+      default:
+        fail("Should not reach here");
+    }
+
+    final result2 = result.context("more stuff");
+    expect(result2.unwrapErr().downcastUnchecked<String>(), "more stuff");
+    expect(result2.unwrapErr().rootCause().downcastUnchecked<int>(), 1);
+  });
+
   test("toResult on Iterable", () {
     var result = [Ok(1), Ok(2), Ok(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);

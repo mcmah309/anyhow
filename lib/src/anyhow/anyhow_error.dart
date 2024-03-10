@@ -39,19 +39,22 @@ class Error implements Exception {
       : _parent = parent;
 
   /// Returns true if [E] is the type held by this error object.
-  bool isType<E>() {
-    if (_cause is E) {
-      return true;
-    }
-    return false;
+  bool isType<E extends Object>() {
+    return _cause is E;
   }
 
   /// Attempt to downcast the error object to a concrete type.
-  Result<E> downcast<E>() {
+  Result<E> downcast<E extends Object>() {
     if (_cause is E) {
       return Ok(_cause as E);
     }
     return Err(this);
+  }
+
+  /// Attempt to downcast the error object to a concrete type without error handling. If the downcast fails, this will throw an exception.
+  /// This is useful when you know the downcast should always succeed, like when casting to [Object] for use in a case statement.
+  E downcastUnchecked<E extends Object>() {
+    return _cause as E;
   }
 
   /// The lowest level cause of this error — this error’s cause’s cause’s cause etc. The root cause is the last error
@@ -189,12 +192,12 @@ enum StackTraceDisplayFormat {
 
 extension FutureAnyhowError on Future<Error> {
   /// Returns true if [E] is the type held by this error object.
-  Future<bool> isType<E>() {
+  Future<bool> isType<E extends Object>() {
     return then((e) => e.isType<E>());
   }
 
   /// Attempt to downcast the error object to a concrete type.
-  Future<Result<E>> downcast<E>() {
+  Future<Result<E>> downcast<E extends Object>() {
     return then((e) => e.downcast<E>());
   }
 
