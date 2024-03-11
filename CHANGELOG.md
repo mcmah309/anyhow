@@ -1,3 +1,8 @@
+## 1.3.0
+
+* Add `downcastUnchecked`
+* Update rust_core
+
 ## 1.2.1
 
 * Update dependency
