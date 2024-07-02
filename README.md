@@ -8,7 +8,7 @@
 `anyhow` offers versatile and idiomatic error handling capabilities to make your code safer, more maintainable, and
 errors easier to debug.
 
-This is accomplished through the use of the [Result] monad type and
+This is accomplished through the use of the `Result` monad type and
 an implementation of the popular Rust crate with the same name - [anyhow].
 `anyhow` will allow you to never throw another exception again and have a predictable control flow. When
 errors do arise, you can add `context` to better understand the situation that led to the errors.
@@ -28,7 +28,7 @@ package.
 
 ## What Is a Result Monad Type And Why Use it?
 If you are not familiar with the `Result` type, why it is needed, or it's usages, you can read up on all that here: 
-[Result]
+[article](https://mcmah309.github.io/#/blog/the_result_type_in_dart)
 
 ## The Better Way To Handle Errors With Anyhow
 Before `anyhow`, with a regular `Result` type, we had no way to know the context around `Err`s. `anyhow` fixes this and 
@@ -80,7 +80,7 @@ StackTrace:
 Now we know keep a record of exactly what was happening at each level in the call stack!
 
 #### What Would This Look Like Without Anyhow
-Before `anyhow`, if we wanted to accomplish something similar with [Result], we had to do:
+Before `anyhow`, if we wanted to accomplish something similar with `Result`, we had to do:
 
 ```dart
 void main() {
@@ -168,7 +168,7 @@ StackTrace:
   number of frames to include during display/logging.
 
 ### Base Result Type vs Anyhow Result Type
-The base `Result` type is re-exported from [Result] in [rust_core]. This is so `anyhow` could be standalone and 
+The base `Result` type is re-exported from `Result` in [rust_core]. This is so `anyhow` could be standalone and 
 work seamlessly `rust_core`.
 But most of the time you should just use the `anyhow` `Result` type.
 
@@ -211,6 +211,5 @@ void main(){
 }
 ```
 
-[Result]: https://github.com/mcmah309/rust_core/tree/master/lib/src/result
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
 [rust_core]: https://pub.dev/packages/rust_core
