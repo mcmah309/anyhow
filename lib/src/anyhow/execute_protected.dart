@@ -6,14 +6,17 @@ import 'package:anyhow/anyhow.dart';
 Result<S> executeProtected<S>(S Function() func) => guard(func);
 
 @Deprecated("Use 'guardResult' instead")
-Result<S> executeProtectedResult<S>(Result<S> Function() func) => guardResult(func);
+Result<S> executeProtectedResult<S>(Result<S> Function() func) =>
+    guardResult(func);
 
 @Deprecated("Use 'guardAsync' instead")
-FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) => guardAsync<S>(func);
+FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) =>
+    guardAsync<S>(func);
 
 @Deprecated("Use 'guardAsyncResult' instead")
 FutureResult<S> executeProtectedAsyncResult<S>(
-    Future<Result<S>> Function() func) => guardAsyncResult(func);
+        Future<Result<S>> Function() func) =>
+    guardAsyncResult(func);
 
 /// Executes the function in a protected context. [func] is called inside a try catch block. If the result is not
 /// catch, then return value [func] returned inside an [Ok]. If [func] throws, then the thrown value is returned
@@ -47,8 +50,7 @@ FutureResult<S> guardAsync<S>(Future<S> Function() func) async {
 }
 
 /// Async version of [guardResult]
-FutureResult<S> guardAsyncResult<S>(
-    Future<Result<S>> Function() func) async {
+FutureResult<S> guardAsyncResult<S>(Future<Result<S>> Function() func) async {
   try {
     return await func();
   } catch (e) {
