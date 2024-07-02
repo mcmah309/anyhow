@@ -1,3 +1,7 @@
+## 1.3.1
+
+* Update to `rust_core` 1.0.0
+
 ## 1.3.0
 
 * Add `downcastUnchecked`
