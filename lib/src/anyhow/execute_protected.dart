@@ -2,11 +2,24 @@ import 'dart:async';
 
 import 'package:anyhow/anyhow.dart';
 
+@Deprecated("Use 'guard' instead")
+Result<S> executeProtected<S>(S Function() func) => guard(func);
+
+@Deprecated("Use 'guardResult' instead")
+Result<S> executeProtectedResult<S>(Result<S> Function() func) => guardResult(func);
+
+@Deprecated("Use 'guardAsync' instead")
+FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) => guardAsync<S>(func);
+
+@Deprecated("Use 'guardAsyncResult' instead")
+FutureResult<S> executeProtectedAsyncResult<S>(
+    Future<Result<S>> Function() func) => guardAsyncResult(func);
+
 /// Executes the function in a protected context. [func] is called inside a try catch block. If the result is not
 /// catch, then return value [func] returned inside an [Ok]. If [func] throws, then the thrown value is returned
 /// inside an [Err].
-Result<S> executeProtected<S>(S Function() func) {
-  assert(S is! Result, "Use executeProtectedResult instead");
+Result<S> guard<S>(S Function() func) {
+  assert(S is! Result, "Use guardResult instead");
   try {
     return Ok(func());
   } catch (e) {
@@ -14,8 +27,8 @@ Result<S> executeProtected<S>(S Function() func) {
   }
 }
 
-/// Result unwrapping version of [executeProtected]. Where [func] returns an [Result], but can still throw.
-Result<S> executeProtectedResult<S>(Result<S> Function() func) {
+/// Result unwrapping version of [guard]. Where [func] returns an [Result], but can still throw.
+Result<S> guardResult<S>(Result<S> Function() func) {
   try {
     return func();
   } catch (e) {
@@ -23,9 +36,9 @@ Result<S> executeProtectedResult<S>(Result<S> Function() func) {
   }
 }
 
-/// Async version of [executeProtected]
-FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) async {
-  assert(S is! Result, "Use executeProtectedAsyncResult instead");
+/// Async version of [guard]
+FutureResult<S> guardAsync<S>(Future<S> Function() func) async {
+  assert(S is! Result, "Use guardAsyncResult instead");
   try {
     return Ok(await func());
   } catch (e) {
@@ -33,8 +46,8 @@ FutureResult<S> executeProtectedAsync<S>(Future<S> Function() func) async {
   }
 }
 
-/// Async version of [executeProtectedResult]
-FutureResult<S> executeProtectedAsyncResult<S>(
+/// Async version of [guardResult]
+FutureResult<S> guardAsyncResult<S>(
     Future<Result<S>> Function() func) async {
   try {
     return await func();

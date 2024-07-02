@@ -3,10 +3,10 @@ library anyhow;
 
 export 'base.dart'
     hide
-        executeProtected,
-        executeProtectedAsync,
-        executeProtectedAsyncResult,
-        executeProtectedResult,
+        guard,
+        guardAsync,
+        guardAsyncResult,
+        guardResult,
         Result,
         Ok,
         Err,
