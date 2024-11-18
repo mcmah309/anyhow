@@ -122,7 +122,7 @@ extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
         }
       }
       if (result.isErr()) {
-        finalResult = finalResult.context(result.unwrapErr()._cause);
+        finalResult = finalResult.context(result.unwrapErr()._inner);
       }
     }
     return finalResult;

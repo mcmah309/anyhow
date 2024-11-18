@@ -11,10 +11,18 @@ void main() {
   for (final (index, chainedErr) in err.unwrapErr().chain().indexed) {
     print("chain $index: ${chainedErr.downcast<String>().unwrap()}");
   }
-  final root = err.unwrapErr().rootCause();
-  if (root.isType<String>()) {
-    String rootErr = root.downcast<String>().unwrap();
+  var rootError = err.unwrapErr().rootCause();
+  if (rootError.isType<String>()) {
+    String rootErr = rootError.downcast<String>().unwrap();
     print("The root error was a String with root value '$rootErr'");
+  }
+  Result<int> x = bail("this is an error message").context(1).into();
+  var rootInner = x.unwrapErr().rootCause().downcastUnchecked();
+  switch(rootInner) {
+    case String():
+      print("String found");
+    default:
+      print("Default reached");
   }
 }
 // Output:
@@ -24,3 +32,4 @@ void main() {
 // chain 1: This is context for the error
 // chain 2: This is single error
 // The root error was a String with root value 'This is a single error'
+// String found

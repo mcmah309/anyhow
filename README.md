@@ -14,15 +14,6 @@ an implementation of the popular Rust crate with the same name - [anyhow].
 errors do arise, you can add `context` to better understand the situation that led to the errors.
 See [here](#the-better-way-to-handle-errors-with-anyhow) to jump right into an example.
 
-## Table of Contents
-
-1. [What Is a Result Monad Type And Why Use it?](#what-is-a-result-monad-type-and-why-use-it)
-2. [The Better Way To Handle Errors With Anyhow](#the-better-way-to-handle-errors-with-anyhow)
-    - [Example](#the-better-way-to-handle-errors-with-anyhow)
-    - [What Would This Look Like Without Anyhow](#what-would-this-look-like-without-anyhow)
-3. [Configuration Options](#configuration-options)
-4. [Base Result Type vs Anyhow Result Type](#base-result-type-vs-anyhow-result-type)
-
 ## What Is a Result Monad Type And Why Use it?
 If you are not familiar with the `Result` type, why it is needed, or it's usages, you can read up on all that here: 
 [article](https://mcmah309.github.io/#/blog/the_result_type_in_dart)
@@ -164,7 +155,7 @@ StackTrace:
 * `stackTraceDisplayModifier`: Modifies the stacktrace during display. Useful for adjusting
   number of frames to include during display/logging.
 
-### Anyhow Result Type vs Rust Result Type
+## Anyhow Result Type vs Rust Result Type
 The `Result` type for this package is just a typedef of the `Result` type in the [rust] package -
 ```dart
 import 'package:rust/rust.dart' as rust;
@@ -193,7 +184,7 @@ void main(){
 }
 ```
 
-### Downcasting
+## Downcasting
 Downcasting is the process of getting the underlying error from an an anyhow `Error`.
 ```dart
 import 'package:anyhow/anyhow.dart';
@@ -210,11 +201,19 @@ This may be useful when you want to inspect the root error type.
 import 'package:anyhow/anyhow.dart';
 
 void main(){
-  Result<int> x = bail("this is an error message").context("Other context");
-  Error error = x.unwrapErr().rootCause();
-  assert(error.downcastUnchecked() == "this is an error message");
+  Result<int> x = bail("this is an error message").context(1);
+  final rootInner = x.unwrapErr().rootCause().downcastUnchecked();
+  switch(rootInner) {
+    case String():
+      print("String found");
+    default:
+      print("Default reached");
+  }
 }
 ```
+Since anyhow makes the trade off that you do not care about the underlying causes inner type,
+which allows your api's to be more composable and concise, 
+downcasting is expected to be used sparingly. Thus being most useful in applications.
 
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
 [rust]: https://pub.dev/packages/rust_core

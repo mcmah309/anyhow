@@ -27,27 +27,27 @@ class Error implements Exception {
   /// Requires [hasStackTrace] = true
   static StackTrace Function(StackTrace) stackTraceDisplayModifier = (s) => s;
 
-  Object _cause;
+  Object _inner;
   Error? _parent;
   late final StackTrace? _stackTrace;
 
-  Error(this._cause, {Error? parent}) : _parent = parent {
+  Error(this._inner, {Error? parent}) : _parent = parent {
     _stackTrace = hasStackTrace ? StackTrace.current : null;
   }
 
   /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
-  Error._withStackTrace(this._cause, this._stackTrace, {Error? parent})
+  Error._withStackTrace(this._inner, this._stackTrace, {Error? parent})
       : _parent = parent;
 
   /// Returns true if [E] is the type held by this error object.
   bool isType<E extends Object>() {
-    return _cause is E;
+    return _inner is E;
   }
 
   /// Attempt to downcast the error object to a concrete type.
   Result<E> downcast<E extends Object>() {
-    if (_cause is E) {
-      return Ok(_cause as E);
+    if (_inner is E) {
+      return Ok(_inner as E);
     }
     return Err(this);
   }
@@ -55,7 +55,7 @@ class Error implements Exception {
   /// Attempt to downcast the error object to a concrete type without error handling. If the downcast fails, this will throw an exception.
   /// This is useful when you know the downcast should always succeed, like when casting to [Object] for use in a case statement.
   E downcastUnchecked<E extends Object>() {
-    return _cause as E;
+    return _inner as E;
   }
 
   /// The lowest level cause of this error — this error’s cause’s cause’s cause etc. The root cause is the last error
@@ -79,8 +79,8 @@ class Error implements Exception {
   StackTrace? stacktrace() => _stackTrace;
 
   /// Creates a clone of this [Error], cloning all [Error], but the causes are not cloned.
-  Error clone<E extends Object>({E? cause, Error? parent}) {
-    return Error(cause ?? _cause, parent: parent ?? _parent?.clone());
+  Error clone({Object? inner, Error? parent}) {
+    return Error(inner ?? _inner, parent: parent ?? _parent?.clone());
   }
 
   /// Human readable error representation
@@ -106,13 +106,13 @@ class Error implements Exception {
   void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle,
       String restTitle, Iterator<Error> iter) {
     iter.moveNext();
-    stringBuf.write("$firstTitle: ${iter.current._cause}\n");
+    stringBuf.write("$firstTitle: ${iter.current._inner}\n");
     if (iter.moveNext()) {
       stringBuf.write("\n$restTitle:\n");
-      stringBuf.write("\t0: ${iter.current._cause}\n");
+      stringBuf.write("\t0: ${iter.current._inner}\n");
       int index = 1;
       while (iter.moveNext()) {
-        stringBuf.write("\t${index}: ${iter.current._cause}\n");
+        stringBuf.write("\t${index}: ${iter.current._inner}\n");
         index++;
       }
     }
@@ -153,11 +153,11 @@ class Error implements Exception {
   }
 
   @override
-  int get hashCode => _cause.hashCode;
+  int get hashCode => _inner.hashCode;
 
   @override
   bool operator ==(Object other) =>
-      other is Error && other._cause == _cause && other._parent == _parent;
+      other is Error && other._inner == _inner && other._parent == _parent;
 }
 
 /// Controls the base [toString] format
