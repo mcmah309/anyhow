@@ -9,30 +9,32 @@ extension AnyhowResultExtensions<S> on Result<S> {
   /// If [Result] is [Ok] returns this. Otherwise, returns an [Err] with the additional context. The context
   /// should not be an instance of [Error].
   Result<S> context(Object context) {
-    if (isOk()) {
-      return this;
+    switch (this) {
+      case Ok():
+        return this;
+      case Err(:final err):
+        assert(context is! Error, _isAlreadyErrorAssertionMessage);
+        if (Error.hasStackTrace) {
+          return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+        }
+        return Err(Error(context, parent: err));
     }
-    assert(context is! Error, _isAlreadyErrorAssertionMessage);
-    if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current,
-          parent: unwrapErr()));
-    }
-    return Err(Error(context, parent: unwrapErr()));
   }
 
   /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Err] with the additional
   /// context. The context should not be an instance of [Error].
   Result<S> withContext(Object Function() fn) {
-    if (isOk()) {
-      return this;
+    switch (this) {
+      case Ok():
+        return this;
+      case Err(:final err):
+        final context = fn();
+        assert(context is! Error, _isAlreadyErrorAssertionMessage);
+        if (Error.hasStackTrace) {
+          return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+        }
+        return Err(Error(context, parent: err));
     }
-    final context = fn();
-    assert(context is! Error, _isAlreadyErrorAssertionMessage);
-    if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current,
-          parent: unwrapErr()));
-    }
-    return Err(Error(context, parent: unwrapErr()));
   }
 
   /// Overrides the base Extension.
@@ -56,8 +58,7 @@ extension AnyhowErrExtensions<S> on Err<S, Error> {
   Err<S, Error> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(
-          Error._withStackTrace(context, StackTrace.current, parent: err));
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
     }
     return Err(Error(context, parent: err));
   }
@@ -68,8 +69,7 @@ extension AnyhowErrExtensions<S> on Err<S, Error> {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(
-          Error._withStackTrace(context, StackTrace.current, parent: err));
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
     }
     return Err(Error(context, parent: err));
   }
@@ -129,8 +129,7 @@ extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
   }
 }
 
-extension AnyhowFutureIterableResultExtensions<S>
-    on Future<Iterable<Result<S>>> {
+extension AnyhowFutureIterableResultExtensions<S> on Future<Iterable<Result<S>>> {
   FutureResult<List<S>> toResult() {
     return then((result) => result.toResult());
   }
