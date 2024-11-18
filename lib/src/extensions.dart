@@ -41,21 +41,21 @@ extension AnyhowResultExtensions<S> on Result<S> {
   Result<S> toAnyhowResult() => this;
 }
 
-extension AnyhowOkExtensions<S> on Ok<S, Error> {
+extension AnyhowOkExtensions<S> on Ok<S> {
   /// returns this
-  Ok<S, Error> context(Object context) {
+  Ok<S> context(Object context) {
     return this;
   }
 
   /// returns this
-  Ok<S, Error> withContext(Object Function() fn) {
+  Ok<S> withContext(Object Function() fn) {
     return this;
   }
 }
 
-extension AnyhowErrExtensions<S> on Err<S, Error> {
+extension AnyhowErrExtensions<S> on Err<S> {
   /// Returns an [Error] with the additional context. The context should not be an instance of [Error].
-  Err<S, Error> context(Object context) {
+  Err<S> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
       return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
@@ -65,7 +65,7 @@ extension AnyhowErrExtensions<S> on Err<S, Error> {
 
   /// Lazily calls the function if the [Result] is an [Err] and returns an [Error] with the additional context.
   /// The context should not be an instance of [Error].
-  Err<S, Error> withContext(Object Function() fn) {
+  Err<S> withContext(Object Function() fn) {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {

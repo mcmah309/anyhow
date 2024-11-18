@@ -172,7 +172,7 @@ void main() {
 
   group('mapErr', () {
     test('Ok', () {
-      const result = Ok<int, Error>(4);
+      const result = Ok<int>(4);
       final result2 =
           result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
 
@@ -209,7 +209,7 @@ void main() {
     test('Error', () {
       final result = bail(4);
       final result2 = result.andThenErr(
-          (error) => Err(('=' * error.downcast<int>().unwrap())));
+          (error) => bail(('=' * error.downcast<int>().unwrap())));
 
       expect(result2.unwrapErr(), '====');
     });
@@ -278,7 +278,7 @@ void main() {
 
   group('unwrapOrNull', () {
     test('Ok', () {
-      const result = Ok<int, Error>(0);
+      const result = Ok<int>(0);
       final value = result.unwrapOrNull();
       expect(value, 0);
     });
@@ -379,10 +379,10 @@ void main() {
   });
 
   test("toResult on Iterable", () {
-    var result = [Ok<int, Error>(1), Ok<int, Error>(2), Ok<int, Error>(3)].toResult();
+    var result = [Ok<int>(1), Ok<int>(2), Ok<int>(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);
 
-    result = [Ok<int, Error>(1), bail<int>(2), Ok<int, Error>(3)].toResult();
+    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].toResult();
     expect(
         result
             .unwrapErr()
@@ -392,7 +392,7 @@ void main() {
             .unwrap(),
         2);
 
-    result = [Ok<int, Error>(1), bail<int>(2), bail<int>(3)].toResult();
+    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
     expect(
         result
             .unwrapErr()
@@ -412,14 +412,14 @@ void main() {
   });
 
   test("merge on Iterable", () {
-    var result = [Ok<int, Error>(1), Ok<int, Error>(2), Ok<int, Error>(3)].merge();
+    var result = [Ok<int>(1), Ok<int>(2), Ok<int>(3)].merge();
     expect(result.unwrap(), [1, 2, 3]);
 
-    result = [Ok<int, Error>(1), bail<int>(2), Ok<int, Error>(3)].merge();
+    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 2);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
 
-    result = [Ok<int, Error>(1), bail<int>(2), bail<int>(3)].merge();
+    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 3);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
   });

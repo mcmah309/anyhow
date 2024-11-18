@@ -1,5 +1,4 @@
 import 'package:rust/rust.dart' as rust;
-import 'package:rust/rust.dart';
 
 part 'extensions.dart';
 part 'result.dart';

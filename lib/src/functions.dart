@@ -1,7 +1,7 @@
 part of 'error.dart';
 
 /// Convenience function for turning an object into an anyhow [Err] Result.
-Err<S, Error> bail<S>(Object err) {
+Err<S> bail<S>(Object err) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (Error.hasStackTrace) {
     return Err(Error._withStackTrace(err, StackTrace.current));
