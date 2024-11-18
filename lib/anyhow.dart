@@ -1,7 +1,7 @@
 /// Anyhow implementation on top of the 'rust_core' Result type.
 library anyhow;
 
-export 'src/anyhow/error.dart';
+export 'src/error.dart';
 
 export 'package:rust/src/result/result.dart' show Ok, Err;
 export 'package:rust/src/result/guard.dart';
