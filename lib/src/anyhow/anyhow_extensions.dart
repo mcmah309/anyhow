@@ -15,9 +15,9 @@ extension AnyhowResultExtensions<S> on Result<S> {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
       return Err(Error._withStackTrace(context, StackTrace.current,
-          parent: (this as Err).err));
+          parent: unwrapErr()));
     }
-    return Err(Error(context, parent: (this as Err).err));
+    return Err(Error(context, parent: unwrapErr()));
   }
 
   /// If [Result] is [Ok] returns this. Otherwise, Lazily calls the function and returns an [Err] with the additional
@@ -30,30 +30,30 @@ extension AnyhowResultExtensions<S> on Result<S> {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
       return Err(Error._withStackTrace(context, StackTrace.current,
-          parent: (this as Err).err));
+          parent: unwrapErr()));
     }
-    return Err(Error(context, parent: (this as Err).err));
+    return Err(Error(context, parent: unwrapErr()));
   }
 
   /// Overrides the base Extension.
   Result<S> toAnyhowResult() => this;
 }
 
-extension AnyhowOkExtensions<S> on Ok<S> {
+extension AnyhowOkExtensions<S> on Ok<S, Error> {
   /// returns this
-  Ok<S> context(Object context) {
+  Ok<S, Error> context(Object context) {
     return this;
   }
 
   /// returns this
-  Ok<S> withContext(Object Function() fn) {
+  Ok<S, Error> withContext(Object Function() fn) {
     return this;
   }
 }
 
-extension AnyhowErrExtensions<S> on Err<S> {
+extension AnyhowErrExtensions<S> on Err<S, Error> {
   /// Returns an [Error] with the additional context. The context should not be an instance of [Error].
-  Err<S> context(Object context) {
+  Err<S, Error> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
       return Err(
@@ -64,7 +64,7 @@ extension AnyhowErrExtensions<S> on Err<S> {
 
   /// Lazily calls the function if the [Result] is an [Err] and returns an [Error] with the additional context.
   /// The context should not be an instance of [Error].
-  Err<S> withContext(Object Function() fn) {
+  Err<S, Error> withContext(Object Function() fn) {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
@@ -137,59 +137,5 @@ extension AnyhowFutureIterableResultExtensions<S>
 
   FutureResult<List<S>> merge() {
     return then((result) => result.merge());
-  }
-}
-
-/// Adds methods for converting any object
-/// into a [Result] type ([Ok] or [Err]).
-extension ToOkExtension<S> on S {
-  /// Convert the object to a [Result] type [Ok].
-  Ok<S> toOk() {
-    assert(this is! Result,
-        'Don\'t use the "toOk()" method on instances of Result.');
-    return Ok(this);
-  }
-}
-
-extension ToErrExtension<E extends Object> on E {
-  /// Convert the object to a [Result] type [Err].
-  Err<S> toErr<S>() {
-    assert(this is! Result,
-        'Don\'t use the "toErr()" method on instances of Result.');
-    return Err(Error(this));
-  }
-}
-
-extension ToErrForErrorExtension<E extends Error> on E {
-  /// Convert the error to a [Result] type [Err].
-  Err<S> toErr<S>() {
-    return Err(this);
-  }
-}
-
-extension BaseResultExtension<S, F extends Object> on base.Result<S, F> {
-  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
-  /// Otherwise returns this.
-  Result<S> toAnyhowResult() {
-    if (isOk()) {
-      return Ok((this as base.Ok<S, F>).unwrap());
-    }
-    return bail((this as base.Err<S, F>).unwrapErr());
-  }
-}
-
-extension BaseOkExtension<S, F extends Object> on base.Ok<S, F> {
-  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
-  /// Otherwise returns this.
-  Result<S> toAnyhowResult() {
-    return Ok(unwrap());
-  }
-}
-
-extension BaseErrExtension<S, F extends Object> on base.Err<S, F> {
-  /// When this Result is a base [base.Result] and not already an "anyhow" [Result], converts to anyhow [Result].
-  /// Otherwise returns this.
-  Result<S> toAnyhowResult() {
-    return bail(unwrapErr());
   }
 }

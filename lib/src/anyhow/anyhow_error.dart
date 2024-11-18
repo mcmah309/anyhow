@@ -1,4 +1,5 @@
-import 'package:anyhow/base.dart' as base;
+import 'package:rust/rust.dart' as rust;
+import 'package:rust/rust.dart';
 
 part 'anyhow_extensions.dart';
 part 'anyhow_result.dart';

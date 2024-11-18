@@ -1,4 +1,5 @@
 import 'package:anyhow/anyhow.dart';
+import 'package:rust/rust.dart' show Panic;
 import 'package:test/test.dart';
 
 void main() {
@@ -137,7 +138,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = Err<String>(Error(4));
+      final result = Err(Error(4));
       final result2 = result.map((ok) => 'change');
 
       expect(result2.unwrapOrNull(), isNull);
@@ -171,7 +172,7 @@ void main() {
 
   group('mapErr', () {
     test('Ok', () {
-      const result = Ok<int>(4);
+      const result = Ok<int, Error>(4);
       final result2 =
           result.mapErr((error) => Error('=' * error.downcast<int>().unwrap()));
 
@@ -179,7 +180,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = 4.toErr();
+      final result = bail(4);
       final result2 = result.mapErr((error) => Error('change'));
 
       expect(result2.unwrapOrNull(), isNull);
@@ -187,16 +188,16 @@ void main() {
     });
   });
 
-  group('andThn', () {
+  group('andThen', () {
     test('Ok', () {
-      final result = 4.toOk();
+      final result = Ok(4);
       final result2 = result.andThen((ok) => Ok('=' * ok));
 
       expect(result2.unwrapOrNull(), '====');
     });
 
     test('Error', () {
-      final result = 4.toErr();
+      final result = bail(4);
       final result2 = result.andThen(Ok.new);
 
       expect(result2.unwrapOrNull(), isNull);
@@ -206,11 +207,11 @@ void main() {
 
   group('andThenError', () {
     test('Error', () {
-      final result = 4.toErr();
+      final result = bail(4);
       final result2 = result.andThenErr(
-          (error) => ('=' * error.downcast<int>().unwrap()).toErr());
+          (error) => Err(('=' * error.downcast<int>().unwrap())));
 
-      expect(result2.unwrapErr(), Error('===='));
+      expect(result2.unwrapErr(), '====');
     });
 
     test('Ok', () {
@@ -229,7 +230,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = 0.toErr();
+      final result = bail(0);
       final futureValue = result.match(err: (x) => x, ok: (ok) => -1);
       expect(futureValue, Error(0));
     });
@@ -242,7 +243,7 @@ void main() {
     });
 
     test('Error', () {
-      final result = 0.toErr();
+      final result = bail(0);
       expect(result.unwrap, throwsA(isA<Panic>()));
     });
   });
@@ -277,7 +278,7 @@ void main() {
 
   group('unwrapOrNull', () {
     test('Ok', () {
-      const result = Ok<int>(0);
+      const result = Ok<int, Error>(0);
       final value = result.unwrapOrNull();
       expect(value, 0);
     });
@@ -378,10 +379,10 @@ void main() {
   });
 
   test("toResult on Iterable", () {
-    var result = [Ok(1), Ok(2), Ok(3)].toResult();
+    var result = [Ok<int, Error>(1), Ok<int, Error>(2), Ok<int, Error>(3)].toResult();
     expect(result.unwrap(), [1, 2, 3]);
 
-    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].toResult();
+    result = [Ok<int, Error>(1), bail<int>(2), Ok<int, Error>(3)].toResult();
     expect(
         result
             .unwrapErr()
@@ -391,7 +392,7 @@ void main() {
             .unwrap(),
         2);
 
-    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].toResult();
+    result = [Ok<int, Error>(1), bail<int>(2), bail<int>(3)].toResult();
     expect(
         result
             .unwrapErr()
@@ -411,21 +412,16 @@ void main() {
   });
 
   test("merge on Iterable", () {
-    var result = [Ok(1), Ok(2), Ok(3)].merge();
+    var result = [Ok<int, Error>(1), Ok<int, Error>(2), Ok<int, Error>(3)].merge();
     expect(result.unwrap(), [1, 2, 3]);
 
-    result = [Ok<int>(1), bail<int>(2), Ok<int>(3)].merge();
+    result = [Ok<int, Error>(1), bail<int>(2), Ok<int, Error>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 2);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
 
-    result = [Ok<int>(1), bail<int>(2), bail<int>(3)].merge();
+    result = [Ok<int, Error>(1), bail<int>(2), bail<int>(3)].merge();
     expect(result.unwrapErr().downcast<int>().unwrap(), 3);
     expect(result.unwrapErr().rootCause().downcast<int>().unwrap(), 2);
-  });
-
-  test("toErr overriden for Error", () {
-    expect(1.toErr(), Err(Error(1)));
-    expect(Error(1).toErr(), Err(Error(1)));
   });
 
   test('printing error', () {
