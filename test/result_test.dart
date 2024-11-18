@@ -211,7 +211,7 @@ void main() {
       final result2 = result.andThenErr(
           (error) => bail(('=' * error.downcast<int>().unwrap())));
 
-      expect(result2.unwrapErr(), '====');
+      expect(result2.unwrapErr(), Error('===='));
     });
 
     test('Ok', () {
