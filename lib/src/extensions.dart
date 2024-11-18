@@ -5,7 +5,7 @@ const _isAlreadyErrorAssertionMessage =
     "If you need to combine Errors see \"and\", \"or\", \"toResult\", \"toResultEager\" methods. If this"
     " is a valid use case please submit a PR.";
 
-extension AnyhowResultExtensions<S> on Result<S> {
+extension AnyhowResultExtension<S> on Result<S> {
   /// If [Result] is [Ok] returns this. Otherwise, returns an [Err] with the additional context. The context
   /// should not be an instance of [Error].
   Result<S> context(Object context) {
@@ -41,7 +41,7 @@ extension AnyhowResultExtensions<S> on Result<S> {
   Result<S> toAnyhowResult() => this;
 }
 
-extension AnyhowOkExtensions<S> on Ok<S> {
+extension AnyhowOkExtension<S> on Ok<S> {
   /// returns this
   Ok<S> context(Object context) {
     return this;
@@ -53,7 +53,7 @@ extension AnyhowOkExtensions<S> on Ok<S> {
   }
 }
 
-extension AnyhowErrExtensions<S> on Err<S> {
+extension AnyhowErrExtension<S> on Err<S> {
   /// Returns an [Error] with the additional context. The context should not be an instance of [Error].
   Err<S> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
@@ -85,7 +85,7 @@ extension AnyhowFutureResultExtension<S> on FutureResult<S> {
   }
 }
 
-extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
+extension AnyhowIterableResultExtension<S> on Iterable<Result<S>> {
   /// Transforms an Iterable of results into a single result where the [Ok] value is the list of all successes. The
   /// [Err] type is an [Error] with list of all errors [List<Error>]. Similar to [merge].
   Result<List<S>> toResult() {
@@ -129,7 +129,7 @@ extension AnyhowIterableResultExtensions<S> on Iterable<Result<S>> {
   }
 }
 
-extension AnyhowFutureIterableResultExtensions<S> on Future<Iterable<Result<S>>> {
+extension AnyhowFutureIterableResultExtension<S> on Future<Iterable<Result<S>>> {
   FutureResult<List<S>> toResult() {
     return then((result) => result.toResult());
   }
