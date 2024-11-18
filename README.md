@@ -162,25 +162,28 @@ import 'package:rust/rust.dart' as rust;
 
 typedef Result<S> = rust.Result<S, Error>
 ```
-Thus they can be used together -
+Thus inheriting all of its capabilities and the two types can be used together -
 ```dart
 import 'package:anyhow/anyhow.dart' as anyhow;
 import 'package:rust/rust.dart';
 
 void main(){
   Result<int,anyhow.Error> x = Ok(1);
-  anyhow.Result<int> y = Ok(1); // or
-  Ok(1).context(1);
+  x.context(2);
+  anyhow.Result<int> y = Ok(1);
+  y.context(2);
+  assert(x == y);
+  Cell(1); // e.g. `rust` package type
 }
 ```
 or
 ```dart
-import 'package:anyhow/anyhow.dart';
-import 'package:rust/rust.dart' hide Result;
+import 'package:anyhow/rust.dart'; // overlays anyhow on top of the `rust` package
 
 void main(){
   Result<int> x = Ok(1);
-  Ok(1).context(1);
+  x.context(1);
+  Cell(1); // e.g. `rust` package type
 }
 ```
 
