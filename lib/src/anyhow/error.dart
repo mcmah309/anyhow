@@ -1,8 +1,8 @@
 import 'package:rust/rust.dart' as rust;
 import 'package:rust/rust.dart';
 
-part 'anyhow_extensions.dart';
-part 'anyhow_result.dart';
+part 'extensions.dart';
+part 'result.dart';
 part 'functions.dart';
 
 /// [Error] is a wrapper around an [Object] that represents an error or context around a parent error.

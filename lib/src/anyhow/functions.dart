@@ -1,4 +1,4 @@
-part of 'anyhow_error.dart';
+part of 'error.dart';
 
 /// Convenience function for turning an object into an anyhow [Err] Result.
 Err<S, Error> bail<S>(Object err) {

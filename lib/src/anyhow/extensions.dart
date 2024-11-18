@@ -1,4 +1,4 @@
-part of 'anyhow_error.dart';
+part of 'error.dart';
 
 const _isAlreadyErrorAssertionMessage =
     "should not already be an instance of Error. If it is, you are likely using the api wrong. "

@@ -1,4 +1,4 @@
-part of 'anyhow_error.dart';
+part of 'error.dart';
 
 /// {@macro futureResult}
 typedef FutureResult<S> = Future<Result<S>>;
