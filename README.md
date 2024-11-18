@@ -213,7 +213,7 @@ void main(){
 ```
 Since anyhow makes the trade off that you do not care about the underlying causes inner type,
 which allows your api's to be more composable and concise, 
-downcasting is expected to be used sparingly. Thus being most useful in applications.
+downcasting is expected to be used sparingly.
 
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
 [rust]: https://pub.dev/packages/rust_core
