@@ -156,13 +156,8 @@ StackTrace:
   number of frames to include during display/logging.
 
 ## Anyhow Result Type vs Rust Result Type
-The `Result` type for this package is just a typedef of the `Result` type in the [rust] package -
-```dart
-import 'package:rust/rust.dart' as rust;
-
-typedef Result<S> = rust.Result<S, Error>
-```
-Thus inheriting all of its capabilities and the two types can be used together -
+The `Result` type for this package is just a typedef of the `Result` type in the [rust] package.
+Thus inheriting all capabilities and the two types/packages can be used seamlessly together -
 ```dart
 import 'package:anyhow/anyhow.dart' as anyhow;
 import 'package:rust/rust.dart';
