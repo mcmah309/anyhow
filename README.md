@@ -164,49 +164,57 @@ StackTrace:
 * `stackTraceDisplayModifier`: Modifies the stacktrace during display. Useful for adjusting
   number of frames to include during display/logging.
 
-### Base Result Type vs Anyhow Result Type
-The base `Result` type is re-exported from `Result` in [rust_core]. This is so `anyhow` could be standalone and 
-work seamlessly `rust_core`.
-But most of the time you should just use the `anyhow` `Result` type.
-
-The base `Result` Type and the `anyhow` `Result` Type can be imported with
+### Anyhow Result Type vs Rust Result Type
+The `Result` type for this package is just a typedef of the `Result` type in the [rust] package -
 ```dart
-import 'package:anyhow/base.dart' as base;
+import 'package:rust/rust.dart' as rust;
+
+typedef Result<S> = rust.Result<S, Error>
+```
+Thus they can be used together -
+```dart
+import 'package:anyhow/anyhow.dart' as anyhow;
+import 'package:rust/rust.dart';
+
+void main(){
+  Result<int,anyhow.Error> x = Ok(1);
+  anyhow.Result<int> y = Ok(1); // or
+  Ok(1).context(1);
+}
 ```
 or
 ```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-```
-Respectively. These types have parity (The anyhow Result type is just a typedef), thus can be used
-together.
-```dart
-typedef Result<S> = base.Result<S, anyhow.Error>
-```
-```dart
-import 'package:anyhow/anyhow.dart' as anyhow;
-import 'package:anyhow/base.dart' as base;
+import 'package:anyhow/anyhow.dart';
+import 'package:rust/rust.dart' hide Result;
 
 void main(){
-  base.Result<int,anyhow.Error> x = anyhow.Ok(1); // valid
-  anyhow.Result<int> y = base.Ok(1); // valid
-  anyhow.Ok(1).context(1); // valid
-  base.Ok(1).context(1); // not valid
-
+  Result<int> x = Ok(1);
+  Ok(1).context(1);
 }
 ```
 
-If you don't want to import both libraries like above, and you need use both in the same file, you can just import the
-anyhow one and use the `Base` prefix where necessary.
+### Downcasting
+Downcasting is the process of getting the underlying error from an an anyhow `Error`.
 ```dart
 import 'package:anyhow/anyhow.dart';
 
 void main(){
-  BaseResult<int,String> x = BaseErr("this is an error message");
-  BaseResult<int, Error> y = x.mapErr(anyhow); // or just toAnyhowResult()
-  Result<int> w = y; // just for explicitness in the example
-  assert(w.unwrapErr().downcast<String>().unwrap() == "this is an error message");
+  Result<int> x = bail("this is an error message");
+  Error error = x.unwrapErr();
+  assert(error.downcast<String>().unwrap() == "this is an error message");
+  assert(error.downcastUnchecked() == "this is an error message"); // or
+}
+```
+This may be useful when you want to inspect the root error type.
+```dart
+import 'package:anyhow/anyhow.dart';
+
+void main(){
+  Result<int> x = bail("this is an error message").context("Other context");
+  Error error = x.unwrapErr().rootCause();
+  assert(error.downcastUnchecked() == "this is an error message");
 }
 ```
 
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
-[rust_core]: https://pub.dev/packages/rust_core
+[rust]: https://pub.dev/packages/rust_core
