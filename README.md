@@ -14,9 +14,6 @@ an implementation of the popular Rust crate with the same name - [anyhow].
 errors do arise, you can add `context` to better understand the situation that led to the errors.
 See [here](#the-better-way-to-handle-errors-with-anyhow) to jump right into an example.
 
-`anyhow` is built on the [rust_core] ecosystem, so it works well with other packages, but also works as a standalone 
-package.
-
 ## Table of Contents
 
 1. [What Is a Result Monad Type And Why Use it?](#what-is-a-result-monad-type-and-why-use-it)
