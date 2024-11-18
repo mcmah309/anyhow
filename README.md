@@ -185,7 +185,7 @@ void main(){
 ```
 
 ## Downcasting
-Downcasting is the process of getting the underlying error from an an anyhow `Error`.
+Downcasting is the process of getting the inner error from an an anyhow `Error`.
 ```dart
 import 'package:anyhow/anyhow.dart';
 
