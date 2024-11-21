@@ -8,8 +8,8 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
-  rust: ^2.0.0-dev.2
+  rust: ^2.0.0-dev.7
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^5.0.0
   test: any
