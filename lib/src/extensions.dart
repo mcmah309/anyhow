@@ -36,9 +36,6 @@ extension AnyhowResultExtension<S> on Result<S> {
         return Err(Error(context, parent: err));
     }
   }
-
-  /// Overrides the base Extension.
-  Result<S> toAnyhowResult() => this;
 }
 
 extension AnyhowOkExtension<S> on Ok<S> {
