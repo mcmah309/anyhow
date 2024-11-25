@@ -15,7 +15,8 @@ extension AnyhowResultExtension<S> on Result<S> {
       case Err(:final err):
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+          return Err(
+              Error._withStackTrace(context, StackTrace.current, parent: err));
         }
         return Err(Error(context, parent: err));
     }
@@ -31,7 +32,8 @@ extension AnyhowResultExtension<S> on Result<S> {
         final context = fn();
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+          return Err(
+              Error._withStackTrace(context, StackTrace.current, parent: err));
         }
         return Err(Error(context, parent: err));
     }
@@ -55,7 +57,8 @@ extension AnyhowErrExtension<S> on Err<S> {
   Err<S> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+      return Err(
+          Error._withStackTrace(context, StackTrace.current, parent: err));
     }
     return Err(Error(context, parent: err));
   }
@@ -66,7 +69,8 @@ extension AnyhowErrExtension<S> on Err<S> {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(Error._withStackTrace(context, StackTrace.current, parent: err));
+      return Err(
+          Error._withStackTrace(context, StackTrace.current, parent: err));
     }
     return Err(Error(context, parent: err));
   }
@@ -126,7 +130,8 @@ extension AnyhowIterableResultExtension<S> on Iterable<Result<S>> {
   }
 }
 
-extension AnyhowFutureIterableResultExtension<S> on Future<Iterable<Result<S>>> {
+extension AnyhowFutureIterableResultExtension<S>
+    on Future<Iterable<Result<S>>> {
   FutureResult<List<S>> toResult() {
     return then((result) => result.toResult());
   }

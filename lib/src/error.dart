@@ -14,7 +14,8 @@ class Error implements Exception {
   static ErrorDisplayOrder displayOrder = ErrorDisplayOrder.rootLast;
 
   /// How to display [StackTrace]s. Requires [hasStackTrace] = true
-  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
+  static StackTraceDisplayFormat stackTraceDisplayFormat =
+      StackTraceDisplayFormat.one;
 
   /// Modifies the stacktrace during display. Useful for adjusting number of frames to include during
   /// display/logging. Stacktraces that are captured internally through [bail], [anyhow],
@@ -38,7 +39,8 @@ class Error implements Exception {
   }
 
   /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
-  Error._withStackTrace(this._inner, this._stackTrace, {Error? parent}) : _parent = parent;
+  Error._withStackTrace(this._inner, this._stackTrace, {Error? parent})
+      : _parent = parent;
 
   /// Returns true if [E] is the type held by this error object.
   bool isType<E extends Object>() {
@@ -105,7 +107,8 @@ class Error implements Exception {
     return stringBuf.toString();
   }
 
-  void _writeErrorAndContext(StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
+  void _writeErrorAndContext(
+      StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
     iter.moveNext();
     stringBuf.write("${iter.current._inner}\n");
     if (iter.moveNext()) {
@@ -119,7 +122,8 @@ class Error implements Exception {
     }
   }
 
-  void _writeStackTraces(StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
+  void _writeStackTraces(
+      StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
     if (hasStackTrace) {
       switch (stackTraceDisplayFormat) {
         case StackTraceDisplayFormat.none:
@@ -127,23 +131,26 @@ class Error implements Exception {
         case StackTraceDisplayFormat.one:
           if (iter.moveNext()) {
             stringBuf.write("\nStackTrace:\n");
-            stringBuf.write(stackTraceDisplayModifier(iter.current._stackTrace!));
+            stringBuf
+                .write(stackTraceDisplayModifier(iter.current._stackTrace!));
             stringBuf.write("\n");
           }
         case StackTraceDisplayFormat.full:
           if (iter.moveNext()) {
             stringBuf.write("\nStackTrace:\n");
-            stringBuf.write(stackTraceDisplayModifier(iter.current._stackTrace!));
+            stringBuf
+                .write(stackTraceDisplayModifier(iter.current._stackTrace!));
             stringBuf.write("\n");
           }
           if (iter.moveNext()) {
             stringBuf.write("\n");
             stringBuf.write("\n$restTitle StackTraces:\n");
-            stringBuf.write("\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write(
+                "\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
             int index = 1;
             while (iter.moveNext()) {
-              stringBuf
-                  .write("\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+              stringBuf.write(
+                  "\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
               index++;
             }
           }

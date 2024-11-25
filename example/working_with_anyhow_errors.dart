@@ -18,7 +18,7 @@ void main() {
   }
   Result<int> x = bail("this is an error message").context(1).into();
   var rootInner = x.unwrapErr().rootCause().downcastUnchecked();
-  switch(rootInner) {
+  switch (rootInner) {
     case String():
       print("String found");
     default:
