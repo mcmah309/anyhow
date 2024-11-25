@@ -214,4 +214,4 @@ which allows your api's to be more composable and concise,
 downcasting is expected to be used sparingly.
 
 [anyhow]: https://docs.rs/anyhow/latest/anyhow/
-[rust]: https://pub.dev/packages/rust_core
+[rust]: https://pub.dev/packages/rust
