@@ -1,10 +1,14 @@
 part of 'error.dart';
 
 /// Convenience function for turning an object into an anyhow [Err] Result.
-Err<S> bail<S>(Object err) {
+/// [stackTrace] will be ignored if [Error.hasStackTrace] is false.
+Err<S> bail<S>(Object err, [StackTrace? stackTrace]) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (Error.hasStackTrace) {
-    return Err(Error._withStackTrace(err, StackTrace.current));
+    if (stackTrace == null) {
+      return Err(Error._withStackTrace(err, StackTrace.current));
+    }
+    return Err(Error._withStackTrace(err, stackTrace));
   }
   return Err(Error(err));
 }
@@ -15,22 +19,30 @@ Err<S> bail<S>(Object err) {
 /// final check = ensure(() => x > 1, "x should be greater than 1");
 /// if(check.isErr()) return check;
 /// ```
-Result<()> ensure(bool Function() fn, Object err) {
+/// [stackTrace] will be ignored if [Error.hasStackTrace] is false.
+Result<()> ensure(bool Function() fn, Object err, [StackTrace? stackTrace]) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (fn()) {
     return const Ok(());
   }
   if (Error.hasStackTrace) {
-    return Err(Error._withStackTrace(err, StackTrace.current));
+    if (stackTrace == null) {
+      return Err(Error._withStackTrace(err, StackTrace.current));
+    }
+    return Err(Error._withStackTrace(err, stackTrace));
   }
   return Err(Error(err));
 }
 
-/// Convenience function for turning an object into an [Error]. Same as the original "anyhow" macro.
-Error anyhow<S>(Object err) {
+/// Convenience function for turning an object into an [Error].
+/// [stackTrace] will be ignored if [Error.hasStackTrace] is false.
+Error anyhow<S>(Object err, [StackTrace? stackTrace]) {
   assert(err is! Error, _isAlreadyErrorAssertionMessage);
   if (Error.hasStackTrace) {
-    return Error._withStackTrace(err, StackTrace.current);
+    if (stackTrace == null) {
+      return Error._withStackTrace(err, StackTrace.current);
+    }
+    return Error._withStackTrace(err, stackTrace);
   }
   return Error(err);
 }
