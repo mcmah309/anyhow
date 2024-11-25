@@ -1,4 +1,3 @@
-/// Anyhow implementation on top of the 'rust_core' Result type.
 library anyhow;
 
 export 'src/error.dart';
