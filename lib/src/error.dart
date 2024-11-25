@@ -11,7 +11,7 @@ class Error implements Exception {
   static bool hasStackTrace = true;
 
   /// Setting for how errors are converted to strings
-  static ErrDisplayFormat displayFormat = ErrDisplayFormat.traditionalAnyhow;
+  static ErrorDisplayFormat displayFormat = ErrorDisplayFormat.rootCauseLast;
 
   /// How to display [StackTrace]s. Requires [hasStackTrace] = true
   static StackTraceDisplayFormat stackTraceDisplayFormat =
@@ -91,12 +91,12 @@ class Error implements Exception {
   String toString() {
     final StringBuffer stringBuf = StringBuffer();
     switch (displayFormat) {
-      case ErrDisplayFormat.traditionalAnyhow:
+      case ErrorDisplayFormat.rootCauseLast:
         final list = chain();
         _writeErrorAndContext(stringBuf, "Error", "Caused by", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
         break;
-      case ErrDisplayFormat.rootCauseFirst:
+      case ErrorDisplayFormat.rootCauseFirst:
         final list = chain().toList(growable: false).reversed;
         _writeErrorAndContext(
             stringBuf, "Root Cause", "Additional Context", list.iterator);
@@ -164,20 +164,20 @@ class Error implements Exception {
 }
 
 /// Controls the base [toString] format
-enum ErrDisplayFormat {
-  /// Top level to low level. Ex:
+enum ErrorDisplayFormat {
+  /// Traditional anyhow display. The most recent context to the root cause. E.g.:
   /// Error: Bob ordered.
   ///
   /// Caused by:
-  /// 	0: order was pizza.
-  /// 	1: Hmm something went wrong making the hamburger.
-  traditionalAnyhow,
+  /// 	0: Order was pizza.
+  /// 	1: Pizza was missing a topping.
+  rootCauseLast,
 
-  /// Root cause to additional context added above. Ex:
-  /// Root Cause: Hmm something went wrong making the hamburger.
+  /// Root cause to additional context added above. E.g.:
+  /// Root Cause: Pizza was missing a topping.
   ///
   /// Additional Context:
-  /// 	0: order was pizza.
+  /// 	0: Order was pizza.
   /// 	1: Bob ordered.
   rootCauseFirst
 }

@@ -427,12 +427,12 @@ void main() {
   test('printing error', () {
     Error.hasStackTrace = false;
     Result error = bail(Exception("Root cause"));
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     expect(error.toString(), 'Error: Exception: Root cause\n');
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     expect(error.toString(), 'Root Cause: Exception: Root cause\n');
     error = order();
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     //print(error.toString());
     expect(error.toString(), """
 Error: Bob ordered.
@@ -441,7 +441,7 @@ Caused by:
 	0: order was pizza.
 	1: Hmm something went wrong making the hamburger.
 """);
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     // print(error.toString());
     expect(error.toString(), """
 Root Cause: Hmm something went wrong making the hamburger.
@@ -456,12 +456,12 @@ Additional Context:
     Error.hasStackTrace = true;
     Error.stackTraceDisplayFormat = StackTraceDisplayFormat.none;
     Result error = bail(Exception("Root cause"));
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     expect(error.toString(), 'Error: Exception: Root cause\n');
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     expect(error.toString(), 'Root Cause: Exception: Root cause\n');
     error = order();
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     //print(error.toString());
     expect(error.toString(), """
 Error: Bob ordered.
@@ -470,7 +470,7 @@ Caused by:
 	0: order was pizza.
 	1: Hmm something went wrong making the hamburger.
 """);
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     // print(error.toString());
     expect(error.toString(), """
 Root Cause: Hmm something went wrong making the hamburger.
@@ -482,20 +482,20 @@ Additional Context:
 
     Error.stackTraceDisplayFormat = StackTraceDisplayFormat.one;
     error = bail(Exception("Root cause"));
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     expect(error.toString(), startsWith("""
 Error: Exception: Root cause
 
 StackTrace:
 """));
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     expect(error.toString(), startsWith("""
 Root Cause: Exception: Root cause
 
 StackTrace:
 """));
     error = order();
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     //print(error.toString());
     expect(error.toString(), startsWith("""
 Error: Bob ordered.
@@ -506,7 +506,7 @@ Caused by:
 
 StackTrace:
 """));
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     // print(error.toString());
     expect(error.toString(), startsWith("""
 Root Cause: Hmm something went wrong making the hamburger.
@@ -520,14 +520,14 @@ StackTrace:
 
     Error.stackTraceDisplayFormat = StackTraceDisplayFormat.full;
     error = bail(Exception("Root cause"));
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     expect(error.toString(), startsWith("""
 Error: Exception: Root cause
 
 Main StackTrace:
 """));
     expect(error.toString(), isNot(contains("Additional StackTraces")));
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     expect(error.toString(), startsWith("""
 Root Cause: Exception: Root cause
 
@@ -535,7 +535,7 @@ Main StackTrace:
 """));
     expect(error.toString(), isNot(contains("Additional StackTraces")));
     error = order();
-    Error.displayFormat = ErrDisplayFormat.traditionalAnyhow;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseLast;
     //print(error.toString());
     expect(error.toString(), startsWith("""
 Error: Bob ordered.
@@ -547,7 +547,7 @@ Caused by:
 Main StackTrace:
 """));
     expect(error.toString(), contains("Additional StackTraces"));
-    Error.displayFormat = ErrDisplayFormat.rootCauseFirst;
+    Error.displayFormat = ErrorDisplayFormat.rootCauseFirst;
     // print(error.toString());
     expect(error.toString(), startsWith("""
 Root Cause: Hmm something went wrong making the hamburger.

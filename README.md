@@ -33,7 +33,7 @@ void main() {
 }
 
 Result<String> order(String user, int orderNumber) {
-  final result = makeFood(orderNumber).context("Could not order for user: $user.");
+  final result = makeFood(orderNumber).context("Could not order for $user.");
   if(result case Ok(:final ok)) {
     return Ok("Order of $ok is complete for $user");
   }
@@ -42,22 +42,22 @@ Result<String> order(String user, int orderNumber) {
 
 Result<String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
-    return makeHamburger().context("Order number $orderNumber failed.");
+    return makePizza().context("Order was number $orderNumber.");
   }
   return Ok("pasta");
 }
 
-Result<String> makeHamburger() {
-  return bail("Hmm something went wrong making the hamburger.");
+Result<String> makePizza() {
+  return bail("Pizza was missing a topping.");
 }
 ```
 #### Output
 ```text
-Error: Could not order for user: Bob.
+Error: Could not order for Bob.
 
 Caused by:
-	0: Order number 1 failed.
-	1: Hmm something went wrong making the hamburger.
+	0: Order was number 1.
+	1: Pizza was missing a topping..
 	
 StackTrace:
 #0      AnyhowResultExtensions.context (package:anyhow/src/anyhow/anyhow_extensions.dart:12:29)
@@ -80,24 +80,24 @@ Result<String, String> order(String user, int orderNumber) {
   if(result case Ok(:final ok)) {
     return Ok("Order of $ok is complete for $user");
   }
-  Logging.w("Could not order for user: $user.");
+  Logging.w("Could not order for $user.");
   return result;
 }
 
 Result<String, String> makeFood(int orderNumber) {
   if (orderNumber == 1) {
-    final result = makeHamburger();
+    final result = makePizza();
     if (result.isErr()) {
-      Logging.w("Order number $orderNumber failed.");
+      Logging.w("Order was number $orderNumber.");
     }
     return result;
   }
   return Ok("pasta");
 }
 
-Result<String, String> makeHamburger() {
+Result<String, String> makePizza() {
   // What is the context around this error??
-  return Err("Hmm something went wrong making the hamburger.");
+  return Err("Pizza was missing a topping.");
 }
 ```
 
@@ -127,25 +127,25 @@ Which is usually done at startup.
 * `hasStackTrace`: With `Error.hasStackTrace = false`, we can exclude capturing a stack trace:
 
 ```text
-Error: Could not order for user: Bob.
+Error: Could not order for Bob.
 
 Caused by:
-	0: Order number 1 failed.
-	1: Hmm something went wrong making the hamburger.
+	0: Order was number 1.
+	1: Pizza was missing a topping.
 ```
 
-* `displayFormat`: We can view the root cause first with `Error.displayFormat = ErrDisplayFormat.rootCauseFirst`
+* `displayFormat`: We can view the root cause first with `Error.displayFormat = ErrorDisplayFormat.rootCauseFirst`
 
 ```text
-Root Cause: Hmm something went wrong making the hamburger.
+Root Cause: Pizza was missing a topping.
 
 Additional Context:
-	0: Order number 1 failed.
-	1: Could not order for user: Bob.
+	0: Order was number 1.
+	1: Could not order for Bob.
 
 StackTrace:
 #0      bail (package:anyhow/src/anyhow/functions.dart:6:14)
-#1      makeHamburger (package:anyhow/test/src/temp.dart:31:10)
+#1      makePizza (package:anyhow/test/src/temp.dart:31:10)
 ... <OMITTED FOR EXAMPLE>
 ```
 
