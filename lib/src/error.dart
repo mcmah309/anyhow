@@ -91,13 +91,15 @@ class Error implements Exception {
     switch (displayOrder) {
       case ErrorDisplayOrder.rootLast:
         final list = chain();
-        _writeErrorAndContext(stringBuf, "Caused By", list.iterator);
-        _writeStackTraces(stringBuf, list.iterator);
+        const restTitle = "Caused By";
+        _writeErrorAndContext(stringBuf, restTitle, list.iterator);
+        _writeStackTraces(stringBuf, restTitle, list.iterator);
         break;
       case ErrorDisplayOrder.rootFirst:
         final list = chain().toList(growable: false).reversed;
-        _writeErrorAndContext(stringBuf, "Additional Context", list.iterator);
-        _writeStackTraces(stringBuf, list.iterator);
+        const restTitle = "Additional Context";
+        _writeErrorAndContext(stringBuf, restTitle, list.iterator);
+        _writeStackTraces(stringBuf, restTitle, list.iterator);
         break;
     }
     return stringBuf.toString();
@@ -117,7 +119,7 @@ class Error implements Exception {
     }
   }
 
-  void _writeStackTraces(StringBuffer stringBuf, Iterator<Error> iter) {
+  void _writeStackTraces(StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
     if (hasStackTrace) {
       switch (stackTraceDisplayFormat) {
         case StackTraceDisplayFormat.none:
@@ -136,12 +138,7 @@ class Error implements Exception {
           }
           if (iter.moveNext()) {
             stringBuf.write("\n");
-            switch (displayOrder) {
-              case ErrorDisplayOrder.rootLast:
-                stringBuf.write("\nCaused By StackTraces:\n");
-              case ErrorDisplayOrder.rootFirst:
-                stringBuf.write("\nAdditional Context StackTraces:\n");
-            }
+            stringBuf.write("\n$restTitle StackTraces:\n");
             stringBuf.write("\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
             int index = 1;
             while (iter.moveNext()) {
@@ -150,7 +147,6 @@ class Error implements Exception {
               index++;
             }
           }
-        // case StackTraceDisplayFormat.firstAndLast:
       }
     }
   }
@@ -194,9 +190,6 @@ enum StackTraceDisplayFormat {
 
   /// No [StackTrace]s should be included.
   none,
-
-  /// Only the first and last [StackTrace]s should be included.
-  // firstAndLast,
 }
 
 extension FutureAnyhowError on Future<Error> {
