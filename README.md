@@ -53,9 +53,9 @@ Result<String> makePizza() {
 ```
 #### Output
 ```text
-Error: Could not order for Bob.
+Could not order for Bob.
 
-Caused by:
+Caused By:
 	0: Order was number 1.
 	1: Pizza was missing a topping..
 	
@@ -117,7 +117,7 @@ Now with `anyhow`, we are able to better understand and handle errors in an idio
 
 ```text
 Error.hasStackTrace;
-Error.displayFormat;
+Error.displayOrder;
 Error.stackTraceDisplayFormat;
 Error.stackTraceDisplayModifier;
 ```
@@ -127,17 +127,17 @@ Which is usually done at startup.
 * `hasStackTrace`: With `Error.hasStackTrace = false`, we can exclude capturing a stack trace:
 
 ```text
-Error: Could not order for Bob.
+Could not order for Bob.
 
-Caused by:
+Caused By:
 	0: Order was number 1.
 	1: Pizza was missing a topping.
 ```
 
-* `displayFormat`: We can view the root cause first with `Error.displayFormat = ErrorDisplayFormat.rootCauseFirst`
+* `displayFormat`: We can view the root cause first with `Error.displayOrder = ErrorDisplayOrder.rootFirst`
 
 ```text
-Root Cause: Pizza was missing a topping.
+Pizza was missing a topping.
 
 Additional Context:
 	0: Order was number 1.

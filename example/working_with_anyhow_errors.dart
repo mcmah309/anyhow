@@ -26,7 +26,7 @@ void main() {
   }
 }
 // Output:
-// Error: This is a single error
+// This is a single error
 //
 // chain 0: This is also more context for the error
 // chain 1: This is context for the error

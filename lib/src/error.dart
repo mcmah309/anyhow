@@ -11,21 +11,20 @@ class Error implements Exception {
   static bool hasStackTrace = true;
 
   /// Setting for how errors are converted to strings
-  static ErrorDisplayFormat displayFormat = ErrorDisplayFormat.rootCauseLast;
+  static ErrorDisplayOrder displayOrder = ErrorDisplayOrder.rootLast;
 
   /// How to display [StackTrace]s. Requires [hasStackTrace] = true
-  static StackTraceDisplayFormat stackTraceDisplayFormat =
-      StackTraceDisplayFormat.one;
+  static StackTraceDisplayFormat stackTraceDisplayFormat = StackTraceDisplayFormat.one;
 
   /// Modifies the stacktrace during display. Useful for adjusting number of frames to include during
-  /// display/logging. Stacktraces that are captured internally through [bail], [anyhow], 
-  /// [AnyhowResultExtension.context], etc. 
-  /// or directly by calling [Error.new], are always captured as soon as possible - one stack frame 
+  /// display/logging. Stacktraces that are captured internally through [bail], [anyhow],
+  /// [AnyhowResultExtension.context], etc.
+  /// or directly by calling [Error.new], are always captured as soon as possible - one stack frame
   /// below the calling code. Therefore, if pruning during display is desired,
   /// one can comfortably prune 1 off the root and then leave as many other frames as you desire.
   /// Note passing the optional stackTrace param for functions like [bail] obviously will not hold
   /// this guarantee.
-  /// 
+  ///
   /// See also the [stack_trace](https://pub.dev/packages/stack_trace) package.
   /// Requires [hasStackTrace] = true
   static StackTrace Function(StackTrace) stackTraceDisplayModifier = (s) => s;
@@ -39,8 +38,7 @@ class Error implements Exception {
   }
 
   /// Constructor used internally when it is known a [StackTrace] is needed, so it is eagerly created.
-  Error._withStackTrace(this._inner, this._stackTrace, {Error? parent})
-      : _parent = parent;
+  Error._withStackTrace(this._inner, this._stackTrace, {Error? parent}) : _parent = parent;
 
   /// Returns true if [E] is the type held by this error object.
   bool isType<E extends Object>() {
@@ -90,26 +88,24 @@ class Error implements Exception {
   @override
   String toString() {
     final StringBuffer stringBuf = StringBuffer();
-    switch (displayFormat) {
-      case ErrorDisplayFormat.rootCauseLast:
+    switch (displayOrder) {
+      case ErrorDisplayOrder.rootLast:
         final list = chain();
-        _writeErrorAndContext(stringBuf, "Error", "Caused by", list.iterator);
+        _writeErrorAndContext(stringBuf, "Caused By", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
         break;
-      case ErrorDisplayFormat.rootCauseFirst:
+      case ErrorDisplayOrder.rootFirst:
         final list = chain().toList(growable: false).reversed;
-        _writeErrorAndContext(
-            stringBuf, "Root Cause", "Additional Context", list.iterator);
+        _writeErrorAndContext(stringBuf, "Additional Context", list.iterator);
         _writeStackTraces(stringBuf, list.iterator);
         break;
     }
     return stringBuf.toString();
   }
 
-  void _writeErrorAndContext(StringBuffer stringBuf, String firstTitle,
-      String restTitle, Iterator<Error> iter) {
+  void _writeErrorAndContext(StringBuffer stringBuf, String restTitle, Iterator<Error> iter) {
     iter.moveNext();
-    stringBuf.write("$firstTitle: ${iter.current._inner}\n");
+    stringBuf.write("${iter.current._inner}\n");
     if (iter.moveNext()) {
       stringBuf.write("\n$restTitle:\n");
       stringBuf.write("\t0: ${iter.current._inner}\n");
@@ -127,30 +123,34 @@ class Error implements Exception {
         case StackTraceDisplayFormat.none:
           break;
         case StackTraceDisplayFormat.one:
-          stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write(
-                "StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write("\nStackTrace:\n");
+            stringBuf.write(stackTraceDisplayModifier(iter.current._stackTrace!));
+            stringBuf.write("\n");
           }
-          break;
         case StackTraceDisplayFormat.full:
-          stringBuf.write("\n");
           if (iter.moveNext()) {
-            stringBuf.write(
-                "Main StackTrace:\n${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write("\nStackTrace:\n");
+            stringBuf.write(stackTraceDisplayModifier(iter.current._stackTrace!));
+            stringBuf.write("\n");
           }
           if (iter.moveNext()) {
-            stringBuf.write("\nAdditional StackTraces:\n");
-            stringBuf.write(
-                "\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+            stringBuf.write("\n");
+            switch (displayOrder) {
+              case ErrorDisplayOrder.rootLast:
+                stringBuf.write("\nCaused By StackTraces:\n");
+              case ErrorDisplayOrder.rootFirst:
+                stringBuf.write("\nAdditional Context StackTraces:\n");
+            }
+            stringBuf.write("\t0: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
             int index = 1;
             while (iter.moveNext()) {
-              stringBuf.write(
-                  "\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
+              stringBuf
+                  .write("\t${index}: ${stackTraceDisplayModifier(iter.current._stackTrace!)}\n");
               index++;
             }
-            break;
           }
+        // case StackTraceDisplayFormat.firstAndLast:
       }
     }
   }
@@ -164,34 +164,39 @@ class Error implements Exception {
 }
 
 /// Controls the base [toString] format
-enum ErrorDisplayFormat {
+enum ErrorDisplayOrder {
   /// Traditional anyhow display. The most recent context to the root cause. E.g.:
-  /// Error: Bob ordered.
   ///
-  /// Caused by:
+  /// Bob ordered.
+  ///
+  /// Caused By:
   /// 	0: Order was pizza.
   /// 	1: Pizza was missing a topping.
-  rootCauseLast,
+  rootLast,
 
   /// Root cause to additional context added above. E.g.:
-  /// Root Cause: Pizza was missing a topping.
+  ///
+  /// Pizza was missing a topping.
   ///
   /// Additional Context:
   /// 	0: Order was pizza.
   /// 	1: Bob ordered.
-  rootCauseFirst
+  rootFirst
 }
 
 /// How StackTrace should be displayed to the user.
 enum StackTraceDisplayFormat {
-  /// Every linked [Error]'s stackTrace will be included. Warning can get verbose.
+  /// Every linked [Error]'s stackTrace will be included. Note - this can get verbose.
   full,
 
   /// Only first [StackTrace] will be included.
   one,
 
-  /// No stackTraces should be printed.
+  /// No [StackTrace]s should be included.
   none,
+
+  /// Only the first and last [StackTrace]s should be included.
+  // firstAndLast,
 }
 
 extension FutureAnyhowError on Future<Error> {

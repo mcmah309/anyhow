@@ -28,7 +28,7 @@ Result<String> makeHamburger() {
 //Output:
 // Error: Could not order for user: Bob.
 //
-// Caused by:
+// Caused By:
 //    0: Order number 1 failed.
 //    1: Hmm something went wrong making the hamburger.
 //
