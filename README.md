@@ -134,7 +134,7 @@ Caused By:
 	1: Pizza was missing a topping.
 ```
 
-* `displayFormat`: We can view the root cause first with `Error.displayOrder = ErrorDisplayOrder.rootFirst`
+* `displayOrder`: We can view the root cause first with `Error.displayOrder = ErrorDisplayOrder.rootFirst`
 
 ```text
 Pizza was missing a topping.
