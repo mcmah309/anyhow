@@ -1,3 +1,10 @@
+## 2.0.0
+
+* Refactor `rust` package export into `rust.dart` overlay
+* Add `stackTrace` option to `bail`, `ensure`, and `anyhow`
+* Rename `Error` static fields
+* Modify `Error` display format
+
 ## 1.3.2
 
 * Export rust instead of rust_core

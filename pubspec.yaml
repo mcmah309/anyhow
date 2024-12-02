@@ -1,14 +1,14 @@
 name: anyhow
 description: Idiomatic error handling capabilities to make your code safer, more maintainable, and errors easier to 
   debug. Dart implementation of Rust's Result monad type and "anyhow" crate.
-version: 2.0.0-dev.7
+version: 2.0.0
 repository: https://github.com/mcmah309/anyhow
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
-  rust: ^2.0.0-dev.7
+  rust: ^2.0.0
 
 dev_dependencies:
   lints: ^5.0.0
