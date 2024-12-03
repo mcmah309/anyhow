@@ -15,8 +15,8 @@ extension AnyhowResultExtension<S> on Result<S> {
       case Err(:final error):
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(
-              Error._withStackTrace(context, StackTrace.current, parent: error));
+          return Err(Error._withStackTrace(context, StackTrace.current,
+              parent: error));
         }
         return Err(Error(context, parent: error));
     }
@@ -32,8 +32,8 @@ extension AnyhowResultExtension<S> on Result<S> {
         final context = fn();
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(
-              Error._withStackTrace(context, StackTrace.current, parent: error));
+          return Err(Error._withStackTrace(context, StackTrace.current,
+              parent: error));
         }
         return Err(Error(context, parent: error));
     }
