@@ -2,8 +2,8 @@ import 'package:anyhow/anyhow.dart';
 
 void main() {
   Result err = bail("This is a single error");
-  if (err case Ok(:final ok)) {
-    print(ok);
+  if (err case Ok(:final okay)) {
+    print(okay);
   }
   print(err.unwrapErr());
   err = err.context("This is context for the error");

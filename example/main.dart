@@ -8,8 +8,8 @@ void main() {
 Result<String> order(String user, int orderNumber) {
   final result =
       makeFood(orderNumber).context("Could not order for user: $user.");
-  if (result case Ok(:final ok)) {
-    return Ok("Order of $ok is complete for $user");
+  if (result case Ok(o:final order)) {
+    return Ok("Order of $order is complete for $user");
   }
   return result;
 }
