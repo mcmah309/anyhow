@@ -1,6 +1,10 @@
+## 3.0.0
+
+* Bump `rust` version
+
 ## 2.0.1
 
-- Bump `rust` version
+* Bump `rust` version
 
 ## 2.0.0
 
