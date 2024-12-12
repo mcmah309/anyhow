@@ -34,7 +34,7 @@ void main() {
 
 Result<String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber).context("Could not order for $user.");
-  if(result case Ok(o:final order)) {
+  if(result case Ok(v:final order)) {
     return Ok("Order of $order is complete for $user");
   }
   return result;
@@ -77,7 +77,7 @@ void main() {
 
 Result<String, String> order(String user, int orderNumber) {
   final result = makeFood(orderNumber);
-  if(result case Ok(o:final order)) {
+  if(result case Ok(v:final order)) {
     return Ok("Order of $order is complete for $user");
   }
   Logging.w("Could not order for $user.");

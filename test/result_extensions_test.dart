@@ -11,13 +11,13 @@ void main() {
 
   test('transpose', () {
     Result<int?> result = Ok(0);
-    Result<int>? transposed = result.transposeOut();
+    Result<int>? transposed = result.transpose();
     expect(transposed!.unwrap(), 0);
     result = Ok(null);
-    transposed = result.transposeOut();
+    transposed = result.transpose();
     expect(transposed, null);
     result = bail("");
-    transposed = result.transposeOut();
+    transposed = result.transpose();
     expect(transposed!.unwrapErr().downcast<String>().unwrap(), "");
   });
 }

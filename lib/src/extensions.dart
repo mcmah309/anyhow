@@ -12,13 +12,13 @@ extension AnyhowResultExtension<S> on Result<S> {
     switch (this) {
       case Ok():
         return this;
-      case Err(:final error):
+      case Err(:final v):
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(Error._withStackTrace(context, StackTrace.current,
-              parent: error));
+          return Err(
+              Error._withStackTrace(context, StackTrace.current, parent: v));
         }
-        return Err(Error(context, parent: error));
+        return Err(Error(context, parent: v));
     }
   }
 
@@ -28,14 +28,14 @@ extension AnyhowResultExtension<S> on Result<S> {
     switch (this) {
       case Ok():
         return this;
-      case Err(:final error):
+      case Err(:final v):
         final context = fn();
         assert(context is! Error, _isAlreadyErrorAssertionMessage);
         if (Error.hasStackTrace) {
-          return Err(Error._withStackTrace(context, StackTrace.current,
-              parent: error));
+          return Err(
+              Error._withStackTrace(context, StackTrace.current, parent: v));
         }
-        return Err(Error(context, parent: error));
+        return Err(Error(context, parent: v));
     }
   }
 }
@@ -57,10 +57,9 @@ extension AnyhowErrExtension<S> on Err<S> {
   Err<S> context(Object context) {
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(
-          Error._withStackTrace(context, StackTrace.current, parent: error));
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: v));
     }
-    return Err(Error(context, parent: error));
+    return Err(Error(context, parent: v));
   }
 
   /// Lazily calls the function if the [Result] is an [Err] and returns an [Error] with the additional context.
@@ -69,10 +68,9 @@ extension AnyhowErrExtension<S> on Err<S> {
     final context = fn();
     assert(context is! Error, _isAlreadyErrorAssertionMessage);
     if (Error.hasStackTrace) {
-      return Err(
-          Error._withStackTrace(context, StackTrace.current, parent: error));
+      return Err(Error._withStackTrace(context, StackTrace.current, parent: v));
     }
-    return Err(Error(context, parent: error));
+    return Err(Error(context, parent: v));
   }
 }
 

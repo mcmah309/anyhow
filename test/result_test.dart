@@ -327,7 +327,7 @@ void main() {
   test("context", () {
     final result = bail(1).context("bing bong").context("bong bing");
     List<Object> causes = [];
-    for (final (index, cause) in result.error.chain().indexed) {
+    for (final (index, cause) in result.v.chain().indexed) {
       if (index == 2) {
         causes.add(cause.downcast<int>().unwrap());
       } else {
@@ -343,7 +343,7 @@ void main() {
     final result =
         bail(1).withContext(() => "bing bong").withContext(() => "bong bing");
     List<Object> causes = [];
-    for (final (index, cause) in result.error.chain().indexed) {
+    for (final (index, cause) in result.v.chain().indexed) {
       if (index == 2) {
         causes.add(cause.downcast<int>().unwrap());
       } else {
